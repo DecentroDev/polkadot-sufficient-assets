@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "polkadot sufficient assets utils",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES6",
+    "types": ["node"]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "version": 0,
+  "descriptorPath": ".papi/descriptors",
+  "entries": {
+    "kah": {
+      "wsUrl": "wss://kusama-asset-hub-rpc.polkadot.io",
+      "metadata": ".papi/metadata/kah.scale"
+    },
+    "pah": {
+      "wsUrl": "wss://polkadot-asset-hub-rpc.polkadot.io",
+      "metadata": ".papi/metadata/pah.scale"
+    },
+    "wah": {
+      "wsUrl": "wss://westend-asset-hub-rpc.polkadot.io",
+      "metadata": ".papi/metadata/wah.scale"
+    },
+    "rah": {
+      "wsUrl": "wss://rococo-asset-hub-rpc.polkadot.io",
+      "metadata": ".papi/metadata/rah.scale"
+    },
+    "polkadot": {
+      "wsUrl": "wss://rpc.ibp.network/polkadot",
+      "metadata": ".papi/metadata/polkadot.scale"
+    },
+    "kusama": {
+      "wsUrl": "wss://rpc.ibp.network/kusama",
+      "metadata": ".papi/metadata/kusama.scale"
+    },
+    "rococo": {
+      "wsUrl": "wss://rococo-rpc.polkadot.io",
+      "metadata": ".papi/metadata/rococo.scale"
+    },
+    "westend": {
+      "wsUrl": "wss://westend-rpc.polkadot.io",
+      "metadata": ".papi/metadata/westend.scale"
+    },
+    "paseo": {
+      "wsUrl": "wss://paseo.dotters.network",
+      "metadata": ".papi/metadata/paseo.scale"
+    },
+    "paseoah": {
+      "wsUrl": "wss://asset-hub-paseo-rpc.dwellir.com/",
+      "metadata": ".papi/metadata/paseoah.scale"
+    }
+  }
+}

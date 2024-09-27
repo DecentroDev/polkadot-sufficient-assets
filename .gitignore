@@ -1,0 +1,22 @@
+# dependencies
+**/node_modules
+
+# testing
+**/coverage
+
+# build
+**/dist
+**/build
+**/dist-zip
+
+# env
+**/.env.*
+**/.env
+
+# etc
+.DS_Store
+.idea
+**/.turbo
+
+# compiled
+vite.config.mts.timestamp-*

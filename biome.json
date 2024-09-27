@@ -1,0 +1,156 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+  "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": [".turbo", "dist", "build", "out", "node_modules", "**/.papi"]
+  },
+  "formatter": {
+    "enabled": true,
+    "useEditorconfig": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf",
+    "lineWidth": 120,
+    "attributePosition": "auto",
+    "bracketSpacing": true,
+    "ignore": [
+      "**/dist",
+      "**/node_modules",
+      "**/.gitignore",
+      "**/.github",
+      "**/.husky",
+      "**/.nvmrc",
+      "**/LICENSE",
+      "**/*.md",
+      "**/pnpm-lock.yaml"
+    ]
+  },
+  "organizeImports": { "enabled": true },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "a11y": { "noBlankTarget": "error" },
+      "complexity": {
+        "noBannedTypes": "off",
+        "noExtraBooleanCast": "error",
+        "noMultipleSpacesInRegularExpressionLiterals": "error",
+        "noUselessCatch": "error",
+        "noUselessThisAlias": "error",
+        "noUselessTypeConstraint": "error",
+        "noWith": "error"
+      },
+      "correctness": {
+        "noChildrenProp": "error",
+        "noConstAssign": "error",
+        "noConstantCondition": "error",
+        "noEmptyCharacterClassInRegex": "error",
+        "noEmptyPattern": "error",
+        "noGlobalObjectCalls": "error",
+        "noInnerDeclarations": "error",
+        "noInvalidConstructorSuper": "error",
+        "noNewSymbol": "error",
+        "noNonoctalDecimalEscape": "error",
+        "noPrecisionLoss": "error",
+        "noSelfAssign": "error",
+        "noSetterReturn": "error",
+        "noSwitchDeclarations": "error",
+        "noUndeclaredVariables": "off",
+        "noUnreachable": "error",
+        "noUnreachableSuper": "error",
+        "noUnsafeFinally": "error",
+        "noUnsafeOptionalChaining": "error",
+        "noUnusedLabels": "warn",
+        "noUnusedVariables": "off",
+        "useArrayLiterals": "off",
+        "useHookAtTopLevel": "error",
+        "useIsNan": "error",
+        "useJsxKeyInIterable": "error",
+        "useValidForDirection": "error",
+        "useYield": "error",
+        "noUnusedImports": "warn"
+      },
+      "security": { "noDangerouslySetInnerHtmlWithChildren": "error" },
+      "style": {
+        "noNamespace": "error",
+        "useAsConstAssertion": "error",
+        "useBlockStatements": "off",
+        "useImportType": "error"
+      },
+      "nursery": {
+        "useSortedClasses": {
+          "level": "error",
+          "fix": "safe",
+          "options": {}
+        }
+      },
+      "suspicious": {
+        "noAssignInExpressions": "error",
+        "noAsyncPromiseExecutor": "error",
+        "noCatchAssign": "error",
+        "noClassAssign": "error",
+        "noCommentText": "error",
+        "noCompareNegZero": "error",
+        "noControlCharactersInRegex": "error",
+        "noDebugger": "error",
+        "noDuplicateCase": "error",
+        "noDuplicateClassMembers": "error",
+        "noDuplicateJsxProps": "error",
+        "noDuplicateObjectKeys": "error",
+        "noDuplicateParameters": "error",
+        "noEmptyBlockStatements": "off",
+        "noExplicitAny": "off",
+        "noExtraNonNullAssertion": "error",
+        "noFallthroughSwitchClause": "error",
+        "noFunctionAssign": "error",
+        "noGlobalAssign": "error",
+        "noImportAssign": "error",
+        "noMisleadingCharacterClass": "error",
+        "noMisleadingInstantiator": "error",
+        "noPrototypeBuiltins": "error",
+        "noRedeclare": "error",
+        "noShadowRestrictedNames": "off",
+        "noSparseArray": "error",
+        "noUnsafeDeclarationMerging": "error",
+        "noUnsafeNegation": "error",
+        "useGetterReturn": "error",
+        "useValidTypeof": "error"
+      }
+    },
+    "ignore": ["**/watch.js", "dist/**", "**/dist", "**/node_modules", "**/tailwind.config.ts"]
+  },
+  "javascript": {
+    "jsxRuntime": "reactClassic",
+    "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 2,
+      "jsxQuoteStyle": "single",
+      "quoteProperties": "asNeeded",
+      "trailingCommas": "es5",
+      "semicolons": "always",
+      "arrowParentheses": "always",
+      "bracketSameLine": false,
+      "quoteStyle": "single",
+      "attributePosition": "auto",
+      "bracketSpacing": true,
+      "lineWidth": 120,
+      "lineEnding": "lf"
+    },
+    "globals": []
+  },
+  "overrides": [
+    {
+      "include": ["tsconfig*.json"],
+      "javascript": { "formatter": { "trailingCommas": "none" } }
+    },
+    {
+      "include": ["*.spec.ts", "*.spec.tsx", "*.test.ts", "*.test.tsx"],
+      "javascript": {
+        "globals": ["afterEach", "afterAll", "beforeEach", "beforeAll", "describe", "expect", "it", "test", "jest"]
+      }
+    }
+  ]
+}
