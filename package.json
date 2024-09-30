@@ -4,7 +4,6 @@
   "description": "polkadot-sufficient-assets",
   "license": "Apache-2.0",
   "scripts": {
-    "papi:update": "turbo papi:update",
     "clean:bundle": "rimraf dist && turbo clean:bundle",
     "clean:node_modules": "turbo daemon stop && pnpx rimraf node_modules && pnpx turbo clean:node_modules",
     "clean:turbo": "turbo daemon stop && rimraf .turbo && turbo clean:turbo",
