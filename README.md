@@ -29,4 +29,4 @@ pnpm install
  pnpm dev
 ```
 
-This comment will start all packages and expose <http://localhost:5173/> in the browser.
+This command will start all packages and expose <http://localhost:5173/> in the browser.
