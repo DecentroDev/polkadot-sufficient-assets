@@ -15,7 +15,7 @@
       "persistent": true
     },
     "build": {
-      "dependsOn": ["^ready", "^build"],
+      "dependsOn": ["^ready", "^build:prepare", "^build"],
       "outputs": ["../../dist/**", "dist/**", "build/**"],
       "cache": false
     },
@@ -49,6 +49,8 @@
     "clean": {
       "dependsOn": ["^clean"],
       "cache": false
-    }
+    },
+    "test": {},
+    "test:cov": {}
   }
 }

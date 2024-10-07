@@ -18,14 +18,16 @@
   },
   "scripts": {
     "dev": "tsup --watch",
-    "build": "papi --whitelist papi-whitelist.ts && tsc && tsup",
+    "build:prepare": "papi --whitelist papi-whitelist.ts && tsup",
     "papi:update": "papi update polkadot,kusama,rococo,westend,paseo,kah,pah,wah,rah,paseoah",
-    "clean": "rimraf ./dist",
+    "clean": "rimraf ./dist && rimraf node_modules",
     "lint": "biome lint .",
     "lint:fix": "biome lint . --write",
     "format": "biome format . ",
     "format:fix": "biome format .  --write",
     "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:cov": "vitest --coverage",
     "postinstall": "papi"
   },
   "dependencies": {

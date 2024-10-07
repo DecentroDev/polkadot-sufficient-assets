@@ -1,15 +1,11 @@
-import type { Config, ResolvedRegister } from '@polkadot-sufficient-assets/core';
-import { createContext, useContext } from 'react';
+'use client';
 
-const ConfigContext = createContext<ResolvedRegister['config'] | null>(null);
+import type { ResolvedRegister } from '@polkadot-sufficient-assets/core';
+import { createContext } from 'react';
+import { TransferProvider } from './transfer.context';
+import { WalletProvider } from './wallet.context';
 
-type UseConfigReturnType<config extends Config = Config> = config;
-
-export function useConfig<config extends Config = ResolvedRegister['config']>(): UseConfigReturnType<config> {
-  const config = useContext(ConfigContext);
-  if (!config) throw new Error('Config not found');
-  return config as UseConfigReturnType<config>;
-}
+export const ConfigContext = createContext<ResolvedRegister['config'] | null>(null);
 
 export interface ConfigProvider {
   config: ResolvedRegister['config'];
@@ -17,5 +13,9 @@ export interface ConfigProvider {
 }
 
 export const ConfigProvider = ({ children, config }: ConfigProvider) => (
-  <ConfigContext.Provider value={config}>{children}</ConfigContext.Provider>
+  <ConfigContext.Provider value={config}>
+    <WalletProvider>
+      <TransferProvider>{children}</TransferProvider>
+    </WalletProvider>
+  </ConfigContext.Provider>
 );

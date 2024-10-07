@@ -1,13 +1,33 @@
 import { polkadot } from '@polkadot-api/descriptors';
 import type { ChainDefinition, TypedApi } from 'polkadot-api';
 import { firstValueFrom } from 'rxjs';
-import { getChainById, getDescriptors, type Chain, type ChainId, type Descriptors, type KnowChainId } from '../chains';
+import {
+  getChainById,
+  getDescriptors,
+  isChainIdAssetHub,
+  isChainIdRelay,
+  type Chain,
+  type ChainId,
+  type ChainIdAssetHub,
+  type ChainIdRelay,
+  type Descriptors,
+  type KnowChainId,
+} from '../chains';
 import { getClient } from '../client/getClient';
 
 type ApiBase<Id extends ChainId> = Id extends KnowChainId ? TypedApi<Descriptors<Id>> : TypedApi<ChainDefinition>;
 export type Api<Id extends ChainId> = ApiBase<Id> & {
   chainId: Id;
+  chain: Chain;
   waitReady: Promise<void>;
+};
+
+export const isApiAssetHub = (api: Api<ChainId>): api is Api<ChainIdAssetHub> => {
+  return isChainIdAssetHub(api.chainId);
+};
+
+export const isApiRelay = (api: Api<ChainId>): api is Api<ChainIdRelay> => {
+  return isChainIdRelay(api.chainId);
 };
 
 const getApiInner = async <Id extends ChainId>(
@@ -24,6 +44,7 @@ const getApiInner = async <Id extends ChainId>(
 
   const api = client.getTypedApi(descriptors ?? polkadot) as Api<Id>;
   api.chainId = chainId as Id;
+  api.chain = chain;
   api.waitReady = new Promise<void>((resolve, reject) => {
     client.bestBlocks$;
 

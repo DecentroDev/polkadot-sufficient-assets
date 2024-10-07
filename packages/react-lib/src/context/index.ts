@@ -1,2 +1,1 @@
-export * from './config.context';
-export * from './wallet.context';
+export { ConfigProvider } from './config.context';

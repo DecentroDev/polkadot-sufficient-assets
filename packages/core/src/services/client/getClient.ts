@@ -30,7 +30,9 @@ export const getClient = (chainId: ChainId, chains: Chain[], options: ClientOpti
 
 const getRelayChainClient = async (chain: ChainRelay, options: ClientOptions) => {
   // force ws provider if light clients are disabled or chainSpec is not available
-  if (!options.lightClients || !hasChainSpec(chain.id)) return createClient(getWsProvider(chain.wsUrl));
+  if (!options.lightClients || !hasChainSpec(chain.id)) {
+    return createClient(getWsProvider(chain.wsUrl));
+  }
 
   const chainSpec = await getChainSpec(chain.id);
 
@@ -46,8 +48,9 @@ const getParaChainClient = async (chain: Chain, options: ClientOptions) => {
   if (!chain.relay) throw new Error(`Chain ${chain.id} does not have a relay chain`);
   const { id: paraChainId, relay: relayChainId } = chain;
 
-  if (!options.lightClients || !hasChainSpec(paraChainId) || !hasChainSpec(relayChainId))
+  if (!options.lightClients || !hasChainSpec(paraChainId) || !hasChainSpec(relayChainId)) {
     return createClient(getWsProvider(chain.wsUrl));
+  }
 
   const [relayChainSpec, paraChainSpec] = await Promise.all([
     getChainSpec(relayChainId),

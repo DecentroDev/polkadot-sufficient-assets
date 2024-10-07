@@ -1,42 +1,43 @@
-import {
-  type AllWalletAccount,
-  type InjectedPolkadotAccount,
-  wallet as walletApi,
-} from '@polkadot-sufficient-assets/core';
-import { useEffect, useRef, useState } from 'react';
-import { createSafeContext } from '../lib/create-safe-context';
+import { type InjectedPolkadotAccount, wallet as walletApi } from '@polkadot-sufficient-assets/core';
+import { createContext, memo, useEffect, useRef, useState } from 'react';
 
-type WalletContext = {
+export type IWalletContext = {
   connected: boolean;
   connectedWallets: string[];
-  accounts: AllWalletAccount;
-  account: InjectedPolkadotAccount | null;
-  setAccount: (account: InjectedPolkadotAccount | null) => void;
-  wallet: string | null;
-  setWallet: (account: string | null) => void;
+  accounts: InjectedPolkadotAccount[];
+  signer: InjectedPolkadotAccount | null;
+  setSigner: (account: InjectedPolkadotAccount | null) => void;
   connect: (walletId: string) => Promise<void>;
   disconnect: (walletId: string) => Promise<void>;
   getInjectedWalletIds: () => string[];
 };
 
-const [BaseWalletProvider, useWallet] = createSafeContext<WalletContext>(
-  'Wallet context must be used within a WalletProvider'
-);
+export const WalletContext = createContext<IWalletContext | null>(null);
 
-const WalletProvider = ({ children }: { children: React.ReactNode }) => {
+const WalletProviderBase = ({ children }: { children: React.ReactNode }) => {
   const api = useRef(walletApi).current;
 
-  const [account, setAccount] = useState<InjectedPolkadotAccount | null>(null);
-  const [wallet, setWallet] = useState<string | null>(null);
+  const [signer, setSigner] = useState<InjectedPolkadotAccount | null>(null);
 
   const [connected, setConnected] = useState(api.isConnected);
-  const [accounts, setAccounts] = useState<AllWalletAccount>({});
+  const [accounts, setAccounts] = useState<InjectedPolkadotAccount[]>([]);
 
   // Sync the connected state on mount
   useEffect(() => {
     if (connected) {
       walletApi.getAllConnectedAccounts().then((accounts) => {
         setAccounts(accounts);
+      });
+
+      walletApi.subscribeAccounts((changeAccounts) => {
+        const filterDuplicated = changeAccounts.reduce((acc, cur) => {
+          if (!accounts.find((x) => x.address === cur.address && x.wallet === cur.wallet)) {
+            acc.push(cur);
+          }
+          return acc;
+        }, accounts);
+
+        setAccounts(filterDuplicated);
       });
     }
   }, [connected]);
@@ -66,13 +67,11 @@ const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <BaseWalletProvider
+    <WalletContext.Provider
       value={{
         connectedWallets: api.connectedWalletIds,
-        account,
-        setAccount,
-        wallet,
-        setWallet,
+        signer,
+        setSigner,
         connect,
         disconnect,
         connected,
@@ -81,8 +80,8 @@ const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
-    </BaseWalletProvider>
+    </WalletContext.Provider>
   );
 };
 
-export { useWallet, WalletProvider };
+export const WalletProvider = memo(WalletProviderBase);

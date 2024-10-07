@@ -1,9 +1,14 @@
-import { connectInjectedExtension, getInjectedExtensions, type InjectedPolkadotAccount } from 'polkadot-api/pjs-signer';
+import {
+  connectInjectedExtension,
+  getInjectedExtensions,
+  type InjectedPolkadotAccount as BaseInjectedPolkadotAccount,
+} from 'polkadot-api/pjs-signer';
 import { AccountStorage } from './AccountStorage';
 import { WalletStorage } from './WalletStorage';
 
-export type AllWalletAccount = Record<string, InjectedPolkadotAccount[]>;
-export type { InjectedPolkadotAccount };
+export type InjectedPolkadotAccount = BaseInjectedPolkadotAccount & {
+  wallet: string;
+};
 export class Wallet {
   public static _instance: Wallet | null = null;
   private store = new WalletStorage();
@@ -74,14 +79,23 @@ export class Wallet {
     this.store.set(walletIds);
   }
 
-  async getAllConnectedAccounts(): Promise<AllWalletAccount> {
-    const accounts: Record<string, InjectedPolkadotAccount[]> = {};
+  async getAllConnectedAccounts(): Promise<InjectedPolkadotAccount[]> {
+    let accounts: InjectedPolkadotAccount[] = [];
     for (const walletId of this.connectedWalletIds) {
       const wallet = await connectInjectedExtension(walletId);
       const accountFromWallet = wallet.getAccounts();
-      accounts[walletId] = accountFromWallet;
+      accounts = accounts.concat(accountFromWallet.map((x) => ({ ...x, wallet: walletId })));
     }
     return accounts;
+  }
+
+  async subscribeAccounts(cb: (accounts: InjectedPolkadotAccount[]) => void) {
+    for (const walletId of this.connectedWalletIds) {
+      const wallet = await connectInjectedExtension(walletId);
+      wallet.subscribe((accounts) => {
+        cb(accounts.map((x) => ({ ...x, wallet: walletId })));
+      });
+    }
   }
 }
 

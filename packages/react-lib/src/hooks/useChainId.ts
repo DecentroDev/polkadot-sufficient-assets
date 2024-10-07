@@ -1,6 +1,6 @@
 import type { Config, ResolvedRegister } from '@polkadot-sufficient-assets/core';
 import { useMemo } from 'react';
-import { useConfig } from '../context/config.context';
+import { useConfig } from './useConfig';
 
 type UseChainIdParameter<config extends Config = ResolvedRegister['config']> = config['chains'][number]['id'];
 
