@@ -23,6 +23,12 @@ To run the library, run the following command in the root directory:
 pnpm install
 ```
 
+### Generate papi descriptors
+
+```bash
+pnpm papi:generate
+```
+
 ### Running the test website in development mode
 
 ```bash

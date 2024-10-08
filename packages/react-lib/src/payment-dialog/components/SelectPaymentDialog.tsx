@@ -11,8 +11,8 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import type { InjectedPolkadotAccount, Token } from '@polkadot-sufficient-assets/core';
-import { useEffect, useMemo, useState } from 'react';
+import type { InjectedPolkadotAccount } from '@polkadot-sufficient-assets/core';
+import { useMemo, useState } from 'react';
 import { useTokenBalance, useTransaction, useTransfer, useWallet } from '../../hooks';
 import { formatNumberInput, prettyBalance } from '../../lib/utils';
 import LoadingButton from './LoadingButton';
@@ -26,13 +26,12 @@ interface ISelectPaymentDialogProps {
 
 const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
   const theme = useTheme();
-  const { api, token, feeTokens, chain, isLoaded } = useTransfer();
+  const { api, token, feeToken, changeFeeToken, feeTokens, nativeToken, chain, isLoaded } = useTransfer();
   const [to, setTo] = useState<Partial<InjectedPolkadotAccount>>();
   const [amount, setAmount] = useState<string>('0');
   const [loading, setLoading] = useState<boolean>(false);
   const { signer, setSigner } = useWallet();
-  const [feeToken, setTokenFee] = useState<Token | null>(null);
-  const { tx, fee } = useTransaction(api, token, feeToken!, amount, signer?.address, to?.address);
+  const { tx, fee } = useTransaction(api, token, feeToken, nativeToken, amount, signer?.address, to?.address);
 
   const { valueFormatted: balanceFormatted, value: balance } = useTokenBalance(token, signer?.address);
   const { valueFormatted: feeBalanceFormatted, value: feeBalance } = useTokenBalance(feeToken!, signer?.address);
@@ -65,11 +64,6 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
     }
   };
 
-  useEffect(() => {
-    if (!feeTokens?.[0]) return;
-    setTokenFee(feeTokens[0]);
-  }, []);
-
   const isDisableTransfer = useMemo(() => {
     return (
       !to ||
@@ -81,21 +75,14 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
       !fee?.value ||
       !feeBalance ||
       loading ||
-      Number.parseFloat(amount) > prettyBalance(balance ?? BigInt(0)) ||
-      prettyBalance(fee.value) > prettyBalance(feeBalance ?? BigInt(0))
+      Number.parseFloat(amount) > prettyBalance(balance, token?.decimals) ||
+      prettyBalance(fee.value, feeToken?.decimals) > prettyBalance(feeBalance, feeToken?.decimals)
     );
-  }, [to, signer, amount, isLoaded, token, loading, balance, fee.value, feeBalance]);
+  }, [to, signer, amount, isLoaded, token, loading, feeToken, balance, fee.value, feeBalance]);
+
   return (
     <>
-      <Dialog
-        PaperProps={{
-          sx: {
-            width: '656px',
-          },
-        }}
-        open={open}
-        onClose={onClose}
-      >
+      <Dialog PaperProps={{ sx: { width: '450px' } }} open={open} onClose={onClose}>
         <DialogContent>
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'end' }}>
@@ -124,18 +111,32 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
                 </Box>
               </Stack>
 
-              <TextField
-                disabled={loading}
-                value={amount}
-                onChange={({ target }) => setAmount(formatNumberInput(target.value, token?.decimals))}
-                type='number'
-                placeholder='0'
-                slotProps={{
-                  input: { endAdornment: <InputAdornment position='end'>{token?.symbol}</InputAdornment> },
-                }}
-                sx={{ minHeight: 50 }}
-                fullWidth
-              />
+              <Stack spacing={0.5}>
+                <TextField
+                  disabled={loading}
+                  value={amount}
+                  onChange={({ target }) => setAmount(formatNumberInput(target.value, token?.decimals))}
+                  type='number'
+                  placeholder='0'
+                  slotProps={{
+                    input: { endAdornment: <InputAdornment position='end'>{token?.symbol}</InputAdornment> },
+                  }}
+                  sx={{
+                    minHeight: 50,
+                    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                      display: 'none',
+                    },
+                    '& input[type=number]': {
+                      MozAppearance: 'textfield',
+                    },
+                  }}
+                  fullWidth
+                />
+                <Typography
+                  align='right'
+                  variant='subtitle2'
+                >{`${balanceFormatted ? balanceFormatted : 0} ${token?.symbol ?? 'USD'}`}</Typography>
+              </Stack>
             </Stack>
 
             <LoadingButton
@@ -149,27 +150,22 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
               Transfer
             </LoadingButton>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Typography>Balance</Typography>
-              <Typography>{`${balanceFormatted ? balanceFormatted : 0} ${token?.symbol ?? 'USD'}`}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+              <Typography variant='subtitle2'>Balance fee</Typography>
+              <Typography variant='subtitle2'>{`${feeBalanceFormatted ? feeBalanceFormatted : 0} ${feeToken?.symbol}`}</Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Typography>Balance fee</Typography>
-              <Typography>{`${feeBalanceFormatted ? feeBalanceFormatted : 0} ${feeToken?.symbol}`}</Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Typography>Transaction fee</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+              <Typography variant='subtitle2'>Transaction fee</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {feeTokens?.length > 1 && (
-                  <SelectFeeTokenDialog currentToken={feeToken!} feeTokens={feeTokens} selectToken={setTokenFee}>
+                  <SelectFeeTokenDialog currentToken={feeToken!} feeTokens={feeTokens} selectToken={changeFeeToken}>
                     <IconButton size='small'>
-                      <EditIcon fontSize='small' />
+                      <EditIcon sx={{ width: 16 }} />
                     </IconButton>
                   </SelectFeeTokenDialog>
                 )}
-                <Typography>{`${fee?.valueFormatted ?? 0} ${feeToken?.symbol}`}</Typography>
+                <Typography variant='subtitle2'>{`${fee?.valueFormatted ?? 0} ${feeToken?.symbol}`}</Typography>
               </Box>
             </Box>
           </Box>

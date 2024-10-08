@@ -11,6 +11,7 @@
     "clean:install": "pnpm clean:node_modules && pnpm install --frozen-lockfile",
     "build": "pnpm clean:bundle && turbo ready && turbo build",
     "dev": "pnpm clean:bundle && turbo watch dev --concurrency 20",
+    "papi:generate": "turbo papi:generate",
     "type-check": "turbo type-check",
     "lint": "turbo lint --continue --",
     "lint:fix": "turbo lint --continue -- --apply",

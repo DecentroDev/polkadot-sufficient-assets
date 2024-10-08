@@ -1,19 +1,22 @@
-import { chains, createConfig, tokens } from '@polkadot-sufficient-assets/react';
+import { chains, createConfig, createToken, tokens } from '@polkadot-sufficient-assets/react';
+
+const USDC = createToken({
+  type: 'asset',
+  assetId: 31337,
+  decimals: 6,
+  symbol: 'USDC',
+  name: 'USDC Coin',
+  logo: './img/tokens/USDC.webp',
+  isSufficient: true,
+});
 
 export const libConfig = createConfig({
-  chains: [chains.paseoAssetHubChain],
+  chains: [chains.westendAssetHubChain],
   lightClients: false,
   tokens: {
-    paseoah: {
-      token: {
-        assetId: 4,
-        decimals: 10,
-        symbol: 'VAR 2 USD',
-        name: 'VAR 2',
-        type: 'asset',
-        isSufficient: false,
-      },
-      feeTokens: [tokens.PAS, tokens.USDC, tokens.USDT],
+    wah: {
+      token: USDC,
+      feeTokens: [tokens.WND, tokens.USDT, USDC],
     },
   },
 });

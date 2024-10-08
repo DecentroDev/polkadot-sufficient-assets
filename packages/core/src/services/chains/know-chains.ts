@@ -6,7 +6,7 @@ export const polkadotChain = createChain({
   wsUrl: 'wss://polkadot-rpc.dwellir.com',
   relay: 'polkadot',
   paraId: null,
-  logo: './tokens/dot.svg',
+  logo: './chains/dot.svg',
   stableTokenId: null,
   blockExplorerUrl: 'https://polkadot.subscan.io',
 });
@@ -28,7 +28,7 @@ export const kusamaChain = createChain({
   wsUrl: 'wss://kusama-rpc.polkadot.io',
   relay: 'kusama',
   paraId: null,
-  logo: './tokens/ksm.svg',
+  logo: './chains/ksm.svg',
   stableTokenId: null,
   blockExplorerUrl: 'https://kusama.subscan.io',
 });
@@ -50,7 +50,7 @@ export const rococoChain = createChain({
   wsUrl: 'wss://rococo-rpc.polkadot.io',
   relay: 'rococo',
   paraId: null,
-  logo: './tokens/roc.svg',
+  logo: './chains/roc.svg',
   stableTokenId: null,
   blockExplorerUrl: 'https://rococo.subscan.io',
 });

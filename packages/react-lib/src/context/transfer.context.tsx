@@ -7,6 +7,7 @@ export interface ITransferContext {
   feeTokens: Token[];
   feeToken: Token;
   token: Token;
+  nativeToken: Token;
   chain: Chain;
   changeFeeToken: (token: Token) => void;
 
@@ -44,6 +45,7 @@ const TransferProviderBase = ({ children }: TransferProvider) => {
         changeFeeToken,
         feeToken: feeToken ?? tokens.DOT,
         feeTokens: feeTokens ?? [],
+        nativeToken: feeTokens?.find((t) => t.type === 'native') ?? tokens.DOT,
         token: token ?? tokens.DOT,
         chain: chains[0],
       }}

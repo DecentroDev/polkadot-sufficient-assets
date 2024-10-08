@@ -4,6 +4,11 @@
   "globalEnv": [],
   "tasks": {
     "papi:update": {},
+    "papi:generate": {},
+    "build:prepare": {
+      "dependsOn": ["^build:prepare"],
+      "outputs": ["dist/**", "build/**"]
+    },
     "ready": {
       "dependsOn": ["^ready"],
       "outputs": ["dist/**", "build/**"]

@@ -17,7 +17,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "clean": "rimraf ./dist && rimraf node_modules",
+    "clean": "rimraf ./dist && rimraf ./node_modules",
     "lint": "biome lint .",
     "lint:fix": "biome lint . --write",
     "format": "biome format . ",

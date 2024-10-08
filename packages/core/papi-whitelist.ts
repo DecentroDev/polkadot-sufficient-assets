@@ -3,10 +3,6 @@ import type { KahWhitelistEntry, PolkadotWhitelistEntry } from '@polkadot-api/de
 type WhiteListEntry = KahWhitelistEntry | PolkadotWhitelistEntry;
 
 export const whitelist: WhiteListEntry[] = [
-  'tx.AssetConversion.swap_exact_tokens_for_tokens',
-  'tx.AssetConversion.add_liquidity',
-  'tx.AssetConversion.remove_liquidity',
-  'tx.AssetConversion.create_pool',
   'tx.Assets.transfer',
   'tx.Assets.transfer_keep_alive',
   'tx.Balances.transfer_keep_alive',

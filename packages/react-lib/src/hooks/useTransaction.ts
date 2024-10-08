@@ -1,7 +1,9 @@
 import {
   type Api,
   type ChainId,
+  type ChainIdAssetHub,
   formatBalance,
+  getAssetConvertPlancks,
   getFeeAssetLocation,
   getTransferExtrinsic,
   type Token,
@@ -18,6 +20,7 @@ export const useTransaction = (
   api: Api<ChainId>,
   token?: Token,
   feeToken?: Token,
+  nativeToken?: Token,
   amount?: string,
   from?: string,
   to?: string
@@ -35,13 +38,26 @@ export const useTransaction = (
   }, [api, amount, to, token]);
 
   useEffect(() => {
-    if (!tx || !from) return;
+    if (!tx || !from || !token) return;
     const estimate = async () => {
       try {
         setFeeEstimate({ isLoading: true, value: 0n, valueFormatted: '0' });
-        const fee = await tx.getEstimatedFees(from, {
+        const { nonce } = await (api as Api<ChainIdAssetHub>).query.System.Account.getValue(from);
+
+        const feeRaw = await tx.getEstimatedFees(from, {
           asset: feeToken ? getFeeAssetLocation(feeToken) : undefined,
+          nonce: nonce,
+          mortality: { mortal: true, period: 64 },
         });
+
+        const _fee = await getAssetConvertPlancks(api as Api<ChainIdAssetHub>, {
+          nativeToken: nativeToken,
+          plancks: feeRaw,
+          tokenIn: nativeToken,
+          tokenOut: feeToken,
+        });
+        const fee = _fee ?? 0n;
+
         setFeeEstimate({
           isLoading: false,
           value: fee,
