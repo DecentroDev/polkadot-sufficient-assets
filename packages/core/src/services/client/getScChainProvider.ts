@@ -4,7 +4,7 @@ import { type Chain, type ScClient, WellKnownChain, createScClient } from '@subs
 import type { ChainId, ChainIdRelay } from '../chains';
 
 // No intellisense on WellKnownChain ?
-const getWellKnownChain = (chainId: ChainId): WellKnownChain | null => {
+export const getWellKnownChain = (chainId: ChainId): WellKnownChain | null => {
   switch (chainId) {
     case 'polkadot':
       return WellKnownChain.polkadot;
@@ -21,11 +21,11 @@ const getWellKnownChain = (chainId: ChainId): WellKnownChain | null => {
   }
 };
 
-const noop = () => {};
+export const noop = () => {};
 
 let client: ScClient;
 
-type ScProviderProps = {
+export type ScProviderProps = {
   chainId: ChainId;
   relayChainId?: ChainIdRelay;
   chainSpec: string;

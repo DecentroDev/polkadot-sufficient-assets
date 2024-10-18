@@ -1,31 +1,34 @@
 import EditIcon from '@mui/icons-material/BorderColor';
 import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  IconButton,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import type { InjectedPolkadotAccount } from '@polkadot-sufficient-assets/core';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import Grow from '@mui/material/Grow';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Snackbar from '@mui/material/Snackbar';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+
+import { getFeeAssetLocation, type InjectedPolkadotAccount } from '@polkadot-sufficient-assets/core';
 import { useMemo, useState } from 'react';
-import { useTokenBalance, useTransaction, useTransfer, useWallet } from '../../hooks';
-import { formatNumberInput, prettyBalance } from '../../lib/utils';
-import LoadingButton from './LoadingButton';
-import SelectFeeTokenDialog from './SelectFeeTokenDialog';
-import SelectWalletDialog from './SelectWalletDialog';
-import SelectedWalletDisplay from './SelectedWalletDisplay';
-interface ISelectPaymentDialogProps {
+import { useTokenBalance, useTransaction, useTransfer, useWallet } from '../hooks';
+import { formatNumberInput, prettyBalance } from '../lib/utils';
+import LoadingButton from './components/LoadingButton';
+import SelectFeeTokenDialog from './components/SelectFeeTokenDialog';
+import SelectWalletDialog from './components/SelectWalletDialog';
+import SelectedWalletDisplay from './components/SelectedWalletDisplay';
+import Spinner from './components/Spinner';
+interface Props {
   open: boolean;
   onClose: () => void;
 }
 
-const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
-  const theme = useTheme();
+const XcmTransferDialog = ({ open, onClose }: Props) => {
   const { api, token, feeToken, changeFeeToken, feeTokens, nativeToken, chain, isLoaded } = useTransfer();
   const [to, setTo] = useState<Partial<InjectedPolkadotAccount>>();
   const [amount, setAmount] = useState<string>('0');
@@ -35,6 +38,10 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
 
   const { valueFormatted: balanceFormatted, value: balance } = useTokenBalance(token, signer?.address);
   const { valueFormatted: feeBalanceFormatted, value: feeBalance } = useTokenBalance(feeToken!, signer?.address);
+  const [txResult, setTxResult] = useState<{
+    hash: string;
+    ok: boolean;
+  }>();
 
   const handleTransfer = async () => {
     if (!to || !amount || !signer || !isLoaded || !token) return;
@@ -44,15 +51,36 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
       setLoading(false);
       return;
     }
-    tx.signAndSubmit(signer.polkadotSigner)
+    const { nonce } = await api.query.System.Account.getValue(signer.address, {
+      at: 'best',
+    });
+    console.log(signer.polkadotSigner, {
+      asset: feeToken ? getFeeAssetLocation(feeToken) : undefined,
+      nonce: nonce,
+      mortality: { mortal: true, period: 64 },
+    });
+
+    tx.signAndSubmit(signer.polkadotSigner, {
+      asset: feeToken ? getFeeAssetLocation(feeToken) : undefined,
+      nonce: nonce,
+      mortality: { mortal: true, period: 64 },
+    })
       .then((result) => {
         console.log('Transaction successful:', result);
         setAmount('0');
+        setTxResult({ hash: result.txHash, ok: result.ok });
         setLoading(false);
+        setTimeout(() => {
+          setTxResult(undefined);
+        }, 5200);
       })
       .catch((error) => {
         console.error('Transaction failed:', error);
+        setTxResult({ hash: '', ok: false });
         setLoading(false);
+        setTimeout(() => {
+          setTxResult(undefined);
+        }, 5200);
       });
   };
 
@@ -80,8 +108,36 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
     );
   }, [to, signer, amount, isLoaded, token, loading, feeToken, balance, fee.value, feeBalance]);
 
+  const handleCloseSnackbar = () => {
+    setTxResult(undefined);
+  };
+
   return (
     <>
+      <Snackbar
+        open={!!txResult}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        TransitionComponent={Grow}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={txResult?.ok ? 'success' : 'error'} variant='filled'>
+          <AlertTitle>Transaction executed {txResult?.ok ? 'successful' : 'failed'}!</AlertTitle>
+          {txResult?.hash ? (
+            <Box display='flex' justifyContent='flex-end'>
+              <Button
+                onClick={() => window.open(`${chain.blockExplorerUrl}/extrinsic/${txResult?.hash}`)}
+                color='inherit'
+                size='small'
+                variant='outlined'
+                sx={{ fontSize: 10 }}
+              >
+                View on Explorer
+              </Button>
+            </Box>
+          ) : null}
+        </Alert>
+      </Snackbar>
       <Dialog PaperProps={{ sx: { width: '450px' } }} open={open} onClose={onClose}>
         <DialogContent>
           <Box>
@@ -165,7 +221,11 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
                     </IconButton>
                   </SelectFeeTokenDialog>
                 )}
-                <Typography variant='subtitle2'>{`${fee?.valueFormatted ?? 0} ${feeToken?.symbol}`}</Typography>
+                {fee.isLoading ? (
+                  <Spinner />
+                ) : (
+                  <Typography variant='subtitle2'>{`${fee?.valueFormatted ?? 0} ${feeToken?.symbol}`}</Typography>
+                )}
               </Box>
             </Box>
           </Box>
@@ -175,4 +235,4 @@ const SelectPaymentDialog = ({ open, onClose }: ISelectPaymentDialogProps) => {
   );
 };
 
-export default SelectPaymentDialog;
+export default XcmTransferDialog;

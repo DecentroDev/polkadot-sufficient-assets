@@ -1,6 +1,6 @@
-import type { KahWhitelistEntry, PolkadotWhitelistEntry } from '@polkadot-api/descriptors';
+import type { KahWhitelistEntry, PahWhitelistEntry, PolkadotWhitelistEntry } from '@polkadot-api/descriptors';
 
-type WhiteListEntry = KahWhitelistEntry | PolkadotWhitelistEntry;
+type WhiteListEntry = KahWhitelistEntry | PahWhitelistEntry | PolkadotWhitelistEntry;
 
 export const whitelist: WhiteListEntry[] = [
   'tx.Assets.transfer',
@@ -8,8 +8,8 @@ export const whitelist: WhiteListEntry[] = [
   'tx.Balances.transfer_keep_alive',
   'tx.ForeignAssets.transfer',
   'tx.Utility.batch_all',
-  'tx.PolkadotXcm.limited_teleport_assets',
-  'tx.XcmPallet.limited_teleport_assets',
+  'tx.PolkadotXcm.*',
+  'tx.XcmPallet.*',
   'query.System.Account',
   'query.System.Number',
   'query.AssetConversion.Pools',

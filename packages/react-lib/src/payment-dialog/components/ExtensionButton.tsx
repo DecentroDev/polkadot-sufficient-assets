@@ -1,11 +1,10 @@
-import RefreshIcon from '@mui/icons-material/Refresh';
-import WifiIcon from '@mui/icons-material/Wifi';
-import WifiOffIcon from '@mui/icons-material/WifiOff';
+import { useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import React, { useState } from 'react';
 import { useExtensionInfo, useWallet } from '../../hooks';
+import Spinner from './Spinner';
 import WalletIcon from './WalletIcon';
 
 interface Props {
@@ -13,6 +12,7 @@ interface Props {
 }
 
 const ExtensionButton = ({ name }: Props) => {
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const { connect, disconnect, connectedWallets } = useWallet();
   const { extension } = useExtensionInfo(name);
@@ -34,7 +34,7 @@ const ExtensionButton = ({ name }: Props) => {
   };
 
   return (
-    <Button onClick={handleClick} sx={{ minHeight: 50 }} variant='outlined' disabled={loading} fullWidth>
+    <Button onClick={handleClick} sx={{ minHeight: 50 }} variant={'outlined'} disabled={loading} fullWidth>
       <Box sx={{ display: 'flex', flexGrow: 1, gap: 2, alignItems: 'center' }}>
         <WalletIcon walletId={name} />
 
@@ -44,17 +44,16 @@ const ExtensionButton = ({ name }: Props) => {
       </Box>
 
       {loading ? (
-        <RefreshIcon
-          sx={{
-            animation: 'spin 1s linear infinite',
-            '@keyframes spin': {
-              '0%': { transform: 'rotate(0deg)' },
-              '100%': { transform: 'rotate(360deg)' },
-            },
-          }}
-        />
+        <Spinner />
       ) : (
-        <>{isConnected ? <WifiIcon /> : <WifiOffIcon />}</>
+        <Box
+          sx={{
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            backgroundColor: isConnected ? theme.palette.success.main : theme.palette.error.main,
+          }}
+        ></Box>
       )}
     </Button>
   );

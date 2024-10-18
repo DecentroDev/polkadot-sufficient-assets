@@ -3,6 +3,9 @@ export const formatDecimals = (num?: string | number | null, digits = 4): string
     if (num === null || num === undefined) return '';
 
     const value = Number(num);
+    if (isNaN(value)) {
+      throw new Error(`Invalid number: ${num}`);
+    }
     if (value === 0) return '0';
 
     const minDisplayable = 1 / 10 ** digits;

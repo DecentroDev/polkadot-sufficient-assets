@@ -64,9 +64,11 @@ export const getDescriptors = (id: ChainId): Descriptors<KnowChainId> | undefine
 export type Chain = {
   id: ChainId;
   name: string;
+  specName: string;
   wsUrl: string;
   relay: ChainIdRelay | null;
   paraId: number | null;
+  chainId: string;
   logo: string;
   stableTokenId: string | null;
   blockExplorerUrl: string | null;

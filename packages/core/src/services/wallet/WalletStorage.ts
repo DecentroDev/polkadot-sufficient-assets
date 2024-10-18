@@ -16,6 +16,6 @@ export class WalletStorage<T extends string[]> implements StorageAdapter<T> {
     return localStorage.setItem(this.storeKey, JSON.stringify(value));
   }
   remove(): void {
-    return localStorage.remove(this.storeKey);
+    return localStorage.removeItem(this.storeKey);
   }
 }

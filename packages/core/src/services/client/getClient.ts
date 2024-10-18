@@ -28,7 +28,7 @@ export const getClient = (chainId: ChainId, chains: Chain[], options: ClientOpti
   return CLIENTS_CACHE.get(cacheKey) as Promise<PolkadotClient>;
 };
 
-const getRelayChainClient = async (chain: ChainRelay, options: ClientOptions) => {
+export const getRelayChainClient = async (chain: ChainRelay, options: ClientOptions) => {
   // force ws provider if light clients are disabled or chainSpec is not available
   if (!options.lightClients || !hasChainSpec(chain.id)) {
     return createClient(getWsProvider(chain.wsUrl));
@@ -44,7 +44,7 @@ const getRelayChainClient = async (chain: ChainRelay, options: ClientOptions) =>
   return createClient(await getSmChainProvider({ chainId: chain.id, chainSpec }));
 };
 
-const getParaChainClient = async (chain: Chain, options: ClientOptions) => {
+export const getParaChainClient = async (chain: Chain, options: ClientOptions) => {
   if (!chain.relay) throw new Error(`Chain ${chain.id} does not have a relay chain`);
   const { id: paraChainId, relay: relayChainId } = chain;
 
@@ -57,7 +57,6 @@ const getParaChainClient = async (chain: Chain, options: ClientOptions) => {
     getChainSpec(paraChainId),
   ] as const);
 
-  // use substrate-connect if available
   if (relayChainId !== 'rococo' && (await isScAvailableScProvider())) {
     return createClient(
       getScChainProvider({

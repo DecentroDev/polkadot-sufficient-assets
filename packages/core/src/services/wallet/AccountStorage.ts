@@ -14,6 +14,6 @@ export class AccountStorage<T extends string> implements StorageAdapter<T> {
     return localStorage.setItem(this.storeKey, value);
   }
   remove(): void {
-    return localStorage.remove(this.storeKey);
+    return localStorage.removeItem(this.storeKey);
   }
 }

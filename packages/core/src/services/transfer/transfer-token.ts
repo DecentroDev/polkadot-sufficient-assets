@@ -17,8 +17,8 @@ export const getTransferExtrinsic = (api: Api<ChainId>, token: Token, amount: st
       });
 
     case 'asset': {
-      if (!isApiAssetHub(api)) throw new Error(`Chain ${chain.name} does not have the Assets pallet`);
       if (!token.assetId) throw new Error(`Token ${token.symbol} does not have an assetId`);
+      if (!isApiAssetHub(api)) throw new Error(`Chain ${chain.name} does not have the Assets pallet`);
 
       return api.tx.Assets.transfer({
         id: token.assetId,

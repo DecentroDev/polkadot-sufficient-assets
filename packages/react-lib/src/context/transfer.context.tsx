@@ -10,7 +10,8 @@ export interface ITransferContext {
   nativeToken: Token;
   chain: Chain;
   changeFeeToken: (token: Token) => void;
-
+  useXcmTransfer: boolean;
+  xcmChains: Chain[];
   api: Api<'paseoah'>;
   isLoaded?: boolean;
 }
@@ -22,7 +23,7 @@ export interface TransferProvider {
 }
 
 const TransferProviderBase = ({ children }: TransferProvider) => {
-  const { chains } = useConfig();
+  const { chains, useXcmTransfer, xcmChains } = useConfig();
 
   const [chain] = useState(chains[0]);
   const chainId = chain.id;
@@ -48,6 +49,8 @@ const TransferProviderBase = ({ children }: TransferProvider) => {
         nativeToken: feeTokens?.find((t) => t.type === 'native') ?? tokens.DOT,
         token: token ?? tokens.DOT,
         chain: chains[0],
+        useXcmTransfer: !!useXcmTransfer,
+        xcmChains: xcmChains ?? [],
       }}
     >
       <WalletProvider>{children}</WalletProvider>

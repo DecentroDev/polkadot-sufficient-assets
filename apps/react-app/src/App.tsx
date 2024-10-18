@@ -3,7 +3,11 @@ import './App.css';
 import { libConfig } from './lib/lib-config';
 
 function App() {
-  const theme = createTheme({});
+  const theme = createTheme({
+    palette: {
+      mode: 'light',
+    },
+  });
 
   return (
     <ConfigProvider config={libConfig}>

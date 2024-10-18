@@ -18,9 +18,9 @@ type ChainIdWithChainSpec = (typeof KNOWN_CHAIN_SPECS_IDS)[number];
 export const hasChainSpec = (chainId: ChainId): chainId is ChainIdWithChainSpec =>
   KNOWN_CHAIN_SPECS_IDS.includes(chainId as ChainIdWithChainSpec);
 
-const CHAIN_SPECS_CACHE = new Map<ChainId, Promise<string>>();
+export const CHAIN_SPECS_CACHE = new Map<ChainId, Promise<string>>();
 
-const loadChainSpec = async (chainId: ChainIdWithChainSpec) => {
+export const loadChainSpec = async (chainId: ChainIdWithChainSpec) => {
   try {
     switch (chainId) {
       case 'kusama':
@@ -54,7 +54,13 @@ const loadChainSpec = async (chainId: ChainIdWithChainSpec) => {
 };
 
 export const getChainSpec = async (chainId: ChainIdWithChainSpec) => {
-  if (!CHAIN_SPECS_CACHE.has(chainId)) CHAIN_SPECS_CACHE.set(chainId, loadChainSpec(chainId));
+  if (!hasChainSpec(chainId)) {
+    throw new Error(`Unknown chain: ${chainId}`);
+  }
+
+  if (!CHAIN_SPECS_CACHE.has(chainId)) {
+    CHAIN_SPECS_CACHE.set(chainId, loadChainSpec(chainId));
+  }
 
   return CHAIN_SPECS_CACHE.get(chainId) as Promise<string>;
 };

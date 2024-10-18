@@ -20,7 +20,7 @@ export const getFeeAssetLocation = (feeToken: Token) => {
   return undefined;
 };
 
-const getBalance = async (api: Api<ChainIdAssetHub>, token: Token | Pair, address: string) => {
+export const getBalance = async (api: Api<ChainIdAssetHub>, token: Token | Pair, address: string) => {
   switch (token.type) {
     case 'native': {
       const account = await api.query.System.Account.getValue(address, {
@@ -53,11 +53,11 @@ const getBalance = async (api: Api<ChainIdAssetHub>, token: Token | Pair, addres
     }
   }
 };
-const isTokenEqualPair = (token: Token, pair: Pair) => {
+export const isTokenEqualPair = (token: Token, pair: Pair) => {
   return token.assetId === pair.assetId && token.type === pair.type;
 };
 
-const getPoolReservesByToken = async (
+export const getPoolReservesByToken = async (
   api: Api<ChainIdAssetHub>,
   nativeToken: Token,
   token: Token,

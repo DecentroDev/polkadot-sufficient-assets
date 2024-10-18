@@ -10,7 +10,7 @@ type ChainDef = {
 
 const SMOLDOT_CHAINS_CACHE = new Map<string, Promise<Chain>>();
 
-const loadChain = async ({ chainId, chainSpec }: ChainDef, relay?: Chain) => {
+export const loadChain = async ({ chainId, chainSpec }: ChainDef, relay?: Chain) => {
   const { smoldot } = await import('./smoldot');
 
   const chainPromise = smoldot.addChain({

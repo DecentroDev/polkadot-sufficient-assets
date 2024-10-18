@@ -30,7 +30,7 @@ export const isApiRelay = (api: Api<ChainId>): api is Api<ChainIdRelay> => {
   return isChainIdRelay(api.chainId);
 };
 
-const getApiInner = async <Id extends ChainId>(
+export const getApiInner = async <Id extends ChainId>(
   chainId: ChainId,
   lightClients: boolean,
   chains: Chain[]

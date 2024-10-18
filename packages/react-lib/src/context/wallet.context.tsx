@@ -47,6 +47,8 @@ const WalletProviderBase = ({ children }: { children: React.ReactNode }) => {
     try {
       await api.connect(walletId);
       const accounts = await api.getAllConnectedAccounts();
+      console.log('api :', api);
+      console.log('accounts :', accounts);
       setConnected(true);
       setAccounts(accounts);
     } catch (err) {

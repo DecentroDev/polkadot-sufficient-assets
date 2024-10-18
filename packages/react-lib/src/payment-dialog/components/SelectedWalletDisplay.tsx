@@ -2,16 +2,17 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Box } from '@mui/material';
 import Button from '@mui/material/Button';
 import type { InjectedPolkadotAccount } from '@polkadot-sufficient-assets/core';
-import React, { type ElementRef, forwardRef, useMemo } from 'react';
+import React, { type ElementRef, forwardRef, type ReactNode, useMemo } from 'react';
 import { useWallet } from '../../hooks';
 import { shortenAddress } from '../../lib/utils';
 import WalletIcon from './WalletIcon';
 
 interface Props {
   account?: Partial<InjectedPolkadotAccount> | null;
+  endIcon?: ReactNode;
 }
 
-const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ account, ...props }, ref) => {
+const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ endIcon, account, ...props }, ref) => {
   const { connected } = useWallet();
 
   const label = useMemo(() => {
@@ -21,12 +22,12 @@ const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ ac
       if (account.wallet) {
         return (
           <Box display='flex' alignItems='center' justifyContent='start' gap={1}>
-            {shortenAddress(account.address)}
-            <WalletIcon size={24} walletId={account.wallet} />
+            {shortenAddress(account.address, 7)}
+            <WalletIcon size={18} walletId={account.wallet} />
           </Box>
         );
       }
-      return account.address;
+      return shortenAddress(account.address, 7);
     }
 
     return 'Select Account';
@@ -38,10 +39,10 @@ const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ ac
         justifyContent: 'space-between',
         textTransform: 'capitalize',
         fontWeight: 400,
-        fontSize: 16,
+        fontSize: 14,
         minHeight: 50,
       }}
-      endIcon={<KeyboardArrowDownIcon />}
+      endIcon={endIcon ?? <KeyboardArrowDownIcon />}
       ref={ref}
       variant='outlined'
       fullWidth

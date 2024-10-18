@@ -1,22 +1,14 @@
-import { chains, createConfig, createToken, tokens } from '@polkadot-sufficient-assets/react';
-
-const USDC = createToken({
-  type: 'asset',
-  assetId: 31337,
-  decimals: 6,
-  symbol: 'USDC',
-  name: 'USDC Coin',
-  logo: './img/tokens/USDC.webp',
-  isSufficient: true,
-});
+import { chains, createConfig, tokens } from '@polkadot-sufficient-assets/react';
 
 export const libConfig = createConfig({
   chains: [chains.westendAssetHubChain],
   lightClients: false,
   tokens: {
     wah: {
-      token: USDC,
-      feeTokens: [tokens.WND, tokens.USDT, USDC],
+      token: tokens.WND,
+      feeTokens: [tokens.WND],
     },
   },
+  useXcmTransfer: true,
+  xcmChains: [chains.westendChain, chains.rococoAssetHubChain],
 });
