@@ -24,6 +24,11 @@ export const formatDecimals = (num?: string | number | null, digits = 4): string
 };
 
 export const formatBalance = (rawBalance?: string | number | bigint | null, decimals = 10, digits = 4): string => {
+  const num = formatUnits(rawBalance, decimals);
+  return formatDecimals(num, digits);
+};
+
+export const formatUnits = (rawBalance?: string | number | bigint | null, decimals = 10) => {
   if (!rawBalance) return '0';
   let display = rawBalance.toString();
 
@@ -34,9 +39,7 @@ export const formatBalance = (rawBalance?: string | number | bigint | null, deci
 
   let [integer, fraction] = [display.slice(0, display.length - decimals), display.slice(display.length - decimals)];
   fraction = fraction.replace(/(0+)$/, '');
-  const num = `${negative ? '-' : ''}${integer || '0'}${fraction ? `.${fraction}` : ''}`;
-
-  return formatDecimals(num, digits);
+  return `${negative ? '-' : ''}${integer || '0'}${fraction ? `.${fraction}` : ''}`;
 };
 
 export function parseUnits(value: string, decimals = 10) {

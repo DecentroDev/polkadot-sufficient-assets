@@ -15,11 +15,18 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
 import { MenuItem } from '@mui/material';
-import { type Chain, getFeeAssetLocation, type InjectedPolkadotAccount } from '@polkadot-sufficient-assets/core';
+import {
+  type Api,
+  type Chain,
+  formatUnits,
+  getFeeAssetLocation,
+  type InjectedPolkadotAccount,
+} from '@polkadot-sufficient-assets/core';
 import { useMemo, useState } from 'react';
 import { useTokenBalance, useTransfer, useWallet } from '../hooks';
 import { useXcmTransaction } from '../hooks/useXcmTransaction';
-import { formatNumberInput, prettyBalance } from '../lib/utils';
+import { formatNumberInput } from '../lib/utils';
+import CrossChainBalance from './components/CrossChainBalance';
 import LoadingButton from './components/LoadingButton';
 import SelectFeeTokenDialog from './components/SelectFeeTokenDialog';
 import SelectWalletDialog from './components/SelectWalletDialog';
@@ -52,10 +59,7 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
 
   const { valueFormatted: balanceFormatted, value: balance } = useTokenBalance(token, signer?.address);
   const { valueFormatted: feeBalanceFormatted, value: feeBalance } = useTokenBalance(feeToken!, signer?.address);
-  const [txResult, setTxResult] = useState<{
-    hash: string;
-    ok: boolean;
-  }>();
+  const [txResult, setTxResult] = useState<{ hash: string; ok: boolean }>();
 
   const handleTransfer = async () => {
     if (!to || !amount || !signer || !isLoaded || !token) return;
@@ -65,7 +69,7 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
       setLoading(false);
       return;
     }
-    const { nonce } = await api.query.System.Account.getValue(signer.address, {
+    const { nonce } = await (api as Api<'pah'>).query.System.Account.getValue(signer.address, {
       at: 'best',
     });
 
@@ -112,8 +116,8 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
       !fee?.value ||
       !feeBalance ||
       loading ||
-      Number.parseFloat(amount) > prettyBalance(balance, token?.decimals) ||
-      prettyBalance(fee.value, feeToken?.decimals) > prettyBalance(feeBalance, feeToken?.decimals)
+      Number.parseFloat(amount) > +formatUnits(balance, token?.decimals) ||
+      +formatUnits(fee.value, feeToken?.decimals) > +formatUnits(feeBalance, feeToken?.decimals)
     );
   }, [to, signer, amount, isLoaded, token, loading, feeToken, balance, fee.value, feeBalance]);
 
@@ -224,10 +228,11 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
                   }}
                   fullWidth
                 />
-                <Typography align='right' variant='subtitle2'>
-                  {`${balanceFormatted ? balanceFormatted : 0} ${token?.symbol ?? 'USD'}`}
-                </Typography>
               </Stack>
+
+              <Typography align='right' variant='subtitle2'>
+                {`${balanceFormatted ? balanceFormatted : 0} ${token?.symbol ?? 'USD'}`}
+              </Typography>
             </Stack>
 
             <LoadingButton
@@ -236,10 +241,12 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
               disabled={isDisableTransfer}
               fullWidth
               variant='contained'
-              sx={{ mt: 4 }}
+              sx={{ my: 4 }}
             >
               Transfer
             </LoadingButton>
+
+            <CrossChainBalance token={token} originChain={chain} destChain={destChain} from={signer} to={to} />
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
               <Typography variant='subtitle2'>Balance fee</Typography>

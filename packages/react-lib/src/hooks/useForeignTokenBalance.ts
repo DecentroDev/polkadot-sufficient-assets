@@ -1,13 +1,7 @@
-import {
-  type Api,
-  type BalancePallet,
-  formatBalance,
-  getAssetIdByChain,
-  type Token,
-} from '@polkadot-sufficient-assets/core';
+import { type Api, type BalancePallet, type Chain, formatBalance, type Token } from '@polkadot-sufficient-assets/core';
 import { useEffect, useState } from 'react';
 import type { TokenBalance } from '../types';
-import { useTransfer } from './useTransfer';
+import useApi from './useApi';
 
 type _Subscription = {
   unsubscribe: () => void;
@@ -15,23 +9,23 @@ type _Subscription = {
 
 type Subscription = _Subscription | null;
 
-export const useTokenBalance = (token?: Token, address?: string) => {
+export const useForeignTokenBalance = (chain?: Chain, token?: Token, address?: string) => {
   const [balance, setBalance] = useState<TokenBalance>({
     isLoading: true,
     value: 0n,
     valueFormatted: '0',
   });
-  const { api, isLoaded } = useTransfer();
+  const [api, isLoaded] = useApi(chain?.id);
 
   useEffect(() => {
     if (!address || !isLoaded || !token) return;
-
+    console.log({ isLoaded, chain });
     let subscription: Subscription | null;
     const chainId = api.chain.id;
 
     const subscribers: Record<BalancePallet, () => Subscription> = {
       assets: () => {
-        const assetId = getAssetIdByChain(token, chainId);
+        const assetId = token.assetIds?.[chainId] ?? token.assetId;
         if (!assetId) return null;
         return (api as Api<'pah'>).query.Assets.Account.watchValue(Number(assetId), address, 'best').subscribe(
           (assetAccount) => {
@@ -47,6 +41,7 @@ export const useTokenBalance = (token?: Token, address?: string) => {
       system: () => {
         return (api as Api<'pah'>).query.System.Account.watchValue(address, 'best').subscribe((res) => {
           const balance = res.data.free - res.data.frozen;
+
           setBalance({
             isLoading: false,
             value: balance ?? 0n,
@@ -55,11 +50,12 @@ export const useTokenBalance = (token?: Token, address?: string) => {
         });
       },
       balances: () => {
-        const assetId = getAssetIdByChain(token, chainId);
+        const assetId = token.assetIds?.[chainId] ?? token.assetId;
         if (!assetId) return null;
         return (api as Api<'hdx'>).query.Balances.Account.watchValue(address, 'best').subscribe((accountBalance) => {
           console.log({ accountBalance });
           const balance = accountBalance.free - accountBalance.frozen;
+
           setBalance({
             isLoading: false,
             value: balance ?? 0n,
@@ -68,11 +64,13 @@ export const useTokenBalance = (token?: Token, address?: string) => {
         });
       },
       tokens: () => {
-        const assetId = getAssetIdByChain(token, chainId);
+        const assetId = token.assetIds?.[chainId] ?? token.assetId;
         if (!assetId) return null;
         return (api as Api<'hdx'>).query.Tokens.Accounts.watchValue(address, Number(assetId), 'best').subscribe(
           (accountBalance) => {
+            console.log({ accountBalance });
             const balance = accountBalance.free - accountBalance.frozen;
+
             setBalance({
               isLoading: false,
               value: balance ?? 0n,
@@ -82,11 +80,12 @@ export const useTokenBalance = (token?: Token, address?: string) => {
         );
       },
       ormlTokens: () => {
-        const assetId = getAssetIdByChain(token, chainId);
+        const assetId = token.assetIds?.[chainId] ?? token.assetId;
         if (!assetId) return null;
         return (api as any).query.OrmlTokens.Accounts.watchValue(address, Number(assetId), 'best').subscribe(
           (res: { frozen: bigint; free: bigint; reserved: bigint; flags: bigint }) => {
             const balance = res.free - res.frozen;
+
             setBalance({
               isLoading: false,
               value: balance ?? 0n,
@@ -98,7 +97,7 @@ export const useTokenBalance = (token?: Token, address?: string) => {
     };
 
     const balancePallet = token.balancePallet?.[chainId];
-
+    console.log({ balancePallet, chainId });
     if (balancePallet) {
       subscription = subscribers[balancePallet]();
     } else {

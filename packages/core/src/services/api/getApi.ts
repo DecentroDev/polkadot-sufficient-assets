@@ -43,6 +43,7 @@ export const getApiInner = async <Id extends ChainId>(
   if (!client) throw new Error(`Could not create client for chain ${chainId}/${lightClients}`);
 
   const api = client.getTypedApi(descriptors ?? polkadot) as Api<Id>;
+
   api.chainId = chainId as Id;
   api.chain = chain;
   api.waitReady = new Promise<void>((resolve, reject) => {

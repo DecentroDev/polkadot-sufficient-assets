@@ -41,11 +41,11 @@ export const getBalance = async (api: Api<ChainIdAssetHub>, token: Token | Pair,
     case 'foreign-asset': {
       if (!isApiAssetHub(api) || !token.assetId)
         throw new Error(`Cannot watch balance for ${token.assetId}. Assets are not supported on ${api.chainId}`);
-
-      const account = await api.query.ForeignAssets.Account.getValue(token.location, address, {
-        at: 'best',
-      });
-      return account?.status.type === 'Liquid' ? account.balance : 0n;
+      return 0n;
+      // const account = await api.query.ForeignAssets.Account.getValue(token.location, address, {
+      //   at: 'best',
+      // });
+      // return account?.status.type === 'Liquid' ? account.balance : 0n;
     }
 
     default: {

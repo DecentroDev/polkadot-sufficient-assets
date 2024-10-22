@@ -8,11 +8,6 @@ export const shortenAddress = (address: string, length: number = 12): string => 
   return `${address.slice(0, length)}...${address.slice(-length)}`;
 };
 
-export const prettyBalance = (value: bigint | number, decimals: number = 10): number => {
-  const divisor = BigInt(10 ** decimals);
-  return Number(value) / Number(divisor);
-};
-
 export const isValidNumber = (value: string) => {
   const arr = value.split('');
   if (Number.isNaN(value)) return false;

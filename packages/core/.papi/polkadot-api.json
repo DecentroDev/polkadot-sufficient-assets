@@ -41,6 +41,10 @@
     "paseoah": {
       "wsUrl": "wss://asset-hub-paseo-rpc.dwellir.com/",
       "metadata": ".papi/metadata/paseoah.scale"
+    },
+    "hdx": {
+      "wsUrl": "wss://hydradx-rpc.dwellir.com",
+      "metadata": ".papi/metadata/hdx.scale"
     }
   }
 }

@@ -1,13 +1,16 @@
 import { isNumber } from '../../utils/is-number';
+import type { Chain } from './chains';
 
 /**
  * Determines if a chain is a system chain based on the value of its chainId being strictly greater than 0 and less than 2000
  * @param chainId
  * @returns boolean
  */
-export const isSystemChain = (chainId: string): boolean => {
-  if (isNumber(chainId)) {
-    const chainIdAsNumber = Number(chainId);
+export const isSystemChain = (chain: Chain): boolean => {
+  if (chain.type === 'system') return true;
+
+  if (isNumber(chain.chainId)) {
+    const chainIdAsNumber = Number(chain.chainId);
     return chainIdAsNumber > 0 && chainIdAsNumber < 2000;
   }
 
@@ -16,12 +19,13 @@ export const isSystemChain = (chainId: string): boolean => {
 
 /**
  * Determines if a chain is a parachain based on the value of its chainId being strictly greater than or equal to 2000
- * @param chainId
+ * @param Chain
  * @returns boolean
  */
-export const isParachain = (chainId: string): boolean => {
-  if (isNumber(chainId)) {
-    const chainIdAsNumber = Number(chainId);
+export const isParachain = (chain: Chain): boolean => {
+  if (chain.type === 'para' && chain.paraId) return true;
+  if (isNumber(chain.chainId)) {
+    const chainIdAsNumber = Number(chain.chainId);
     return chainIdAsNumber > 2000;
   }
 

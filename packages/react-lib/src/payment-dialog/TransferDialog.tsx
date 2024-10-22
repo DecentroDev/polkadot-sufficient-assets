@@ -14,10 +14,15 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import { getFeeAssetLocation, type InjectedPolkadotAccount } from '@polkadot-sufficient-assets/core';
+import {
+  type Api,
+  formatUnits,
+  getFeeAssetLocation,
+  type InjectedPolkadotAccount,
+} from '@polkadot-sufficient-assets/core';
 import { useMemo, useState } from 'react';
 import { useTokenBalance, useTransaction, useTransfer, useWallet } from '../hooks';
-import { formatNumberInput, prettyBalance } from '../lib/utils';
+import { formatNumberInput } from '../lib/utils';
 import LoadingButton from './components/LoadingButton';
 import SelectFeeTokenDialog from './components/SelectFeeTokenDialog';
 import SelectWalletDialog from './components/SelectWalletDialog';
@@ -51,10 +56,10 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
       setLoading(false);
       return;
     }
-    const { nonce } = await api.query.System.Account.getValue(signer.address, {
+    const { nonce } = await (api as Api<'pah'>).query.System.Account.getValue(signer.address, {
       at: 'best',
     });
-    console.log(signer.polkadotSigner, {
+    console.log({
       asset: feeToken ? getFeeAssetLocation(feeToken) : undefined,
       nonce: nonce,
       mortality: { mortal: true, period: 64 },
@@ -103,8 +108,8 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
       !fee?.value ||
       !feeBalance ||
       loading ||
-      Number.parseFloat(amount) > prettyBalance(balance, token?.decimals) ||
-      prettyBalance(fee.value, feeToken?.decimals) > prettyBalance(feeBalance, feeToken?.decimals)
+      Number.parseFloat(amount) > +formatUnits(balance, token?.decimals) ||
+      +formatUnits(fee.value, feeToken?.decimals) > +formatUnits(feeBalance, feeToken?.decimals)
     );
   }, [to, signer, amount, isLoaded, token, loading, feeToken, balance, fee.value, feeBalance]);
 

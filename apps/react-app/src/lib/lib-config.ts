@@ -1,14 +1,13 @@
 import { chains, createConfig, tokens } from '@polkadot-sufficient-assets/react';
+import { USDT } from './assets';
 
 export const libConfig = createConfig({
-  chains: [chains.westendAssetHubChain],
+  chains: [chains.polkadotAssetHubChain],
   lightClients: false,
   tokens: {
-    wah: {
-      token: tokens.WND,
-      feeTokens: [tokens.WND],
+    pah: {
+      token: USDT,
+      feeTokens: [tokens.DOT, tokens.USDT],
     },
   },
-  useXcmTransfer: true,
-  xcmChains: [chains.westendChain, chains.rococoAssetHubChain],
 });

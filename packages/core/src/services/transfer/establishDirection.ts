@@ -78,9 +78,9 @@ export function establishDirection(api: Api<ChainId>, destChain: Chain): Directi
   const isOriginRelayChain = SYSTEM_RELAY_NAMES.includes(api.chain.specName.toLocaleLowerCase());
   const isOriginSystemChain = SYSTEM_PARACHAINS_NAMES.includes(api.chain.specName.toLocaleLowerCase());
   const isDestRelayChain = destChainId === RELAY_CHAIN_IDS[0];
-  const isDestSystemChain = isSystemChain(destChainId);
-  const isOriginParachain = isParachain(api.chain.chainId);
-  const isDestParachain = isParachain(destChainId);
+  const isDestSystemChain = isSystemChain(destChain);
+  const isOriginParachain = isParachain(api.chain);
+  const isDestParachain = isParachain(destChain);
   const isDestBridge = chainDestIsBridge(destChainId);
 
   console.log({

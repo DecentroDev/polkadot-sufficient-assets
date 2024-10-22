@@ -25,7 +25,7 @@ export const getTokenIdFromXcmV3Multilocation = (chainId: ChainId, multilocation
   if (isChainIdAssetHub(chainId))
     return {
       type: 'foreign-asset',
-      location: multilocation,
+      location: () => multilocation as any,
     };
   return null;
 };

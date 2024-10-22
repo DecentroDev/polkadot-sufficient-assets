@@ -1,6 +1,6 @@
 import { MultiAddress } from '@polkadot-api/descriptors';
 import type { SS58String } from 'polkadot-api';
-import { parseUnits } from '../../utils';
+import { getAssetIdByChain, parseUnits } from '../../utils';
 import { isApiAssetHub, type Api } from '../api';
 import type { ChainId, ChainIdAssetHub } from '../chains';
 import type { Token } from '../tokens';
@@ -19,9 +19,9 @@ export const getTransferExtrinsic = (api: Api<ChainId>, token: Token, amount: st
     case 'asset': {
       if (!token.assetId) throw new Error(`Token ${token.symbol} does not have an assetId`);
       if (!isApiAssetHub(api)) throw new Error(`Chain ${chain.name} does not have the Assets pallet`);
-
+      const assetId = getAssetIdByChain(token, chain.id);
       return api.tx.Assets.transfer({
-        id: token.assetId,
+        id: Number(assetId),
         target: MultiAddress.Id(dest),
         amount: plancks,
       });

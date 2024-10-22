@@ -1,4 +1,4 @@
-import { kah, kusama, pah, paseo, paseoah, polkadot, rah, rococo, wah, westend } from '@polkadot-api/descriptors';
+import { hdx, kah, kusama, pah, paseo, paseoah, polkadot, rah, rococo, wah, westend } from '@polkadot-api/descriptors';
 
 type DescriptorsRelayType = {
   polkadot: typeof polkadot;
@@ -14,6 +14,10 @@ type DescriptorsAssetHubType = {
   rah: typeof rah;
   wah: typeof wah;
   paseoah: typeof paseoah;
+};
+
+type DescriptorsParaType = {
+  hdx: typeof hdx;
 };
 
 const DESCRIPTORS_RELAY: DescriptorsRelayType = {
@@ -32,18 +36,25 @@ const DESCRIPTORS_ASSET_HUB: DescriptorsAssetHubType = {
   paseoah,
 };
 
+const DESCRIPTORS_PARA: DescriptorsParaType = {
+  hdx,
+};
+
 export const DESCRIPTORS_ALL = {
   ...DESCRIPTORS_RELAY,
   ...DESCRIPTORS_ASSET_HUB,
+  ...DESCRIPTORS_PARA,
 };
 
 type DescriptorsAssetHub = typeof DESCRIPTORS_ASSET_HUB;
 type DescriptorsRelay = typeof DESCRIPTORS_RELAY;
-export type DescriptorsAll = DescriptorsRelay & DescriptorsAssetHub;
+type DescriptorsPara = typeof DESCRIPTORS_PARA;
+export type DescriptorsAll = DescriptorsRelay & DescriptorsAssetHub & DescriptorsPara;
 
 export type ChainIdAssetHub = keyof DescriptorsAssetHub;
 export type ChainIdRelay = keyof DescriptorsRelay;
-export type KnowChainId = ChainIdRelay | ChainIdAssetHub;
+export type ChainIdPara = keyof DescriptorsParaType;
+export type KnowChainId = ChainIdRelay | ChainIdAssetHub | ChainIdPara;
 type UnKnowChainId = string & {};
 export type ChainId = KnowChainId | UnKnowChainId;
 
@@ -65,11 +76,12 @@ export type Chain = {
   id: ChainId;
   name: string;
   specName: string;
-  wsUrl: string;
+  wsUrls: string[];
   relay: ChainIdRelay | null;
   paraId: number | null;
   chainId: string;
   logo: string;
+  type: 'system' | 'relay' | 'para';
   stableTokenId: string | null;
   blockExplorerUrl: string | null;
 };

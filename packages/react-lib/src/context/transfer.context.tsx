@@ -1,4 +1,4 @@
-import { tokens, type Api, type Chain, type Token } from '@polkadot-sufficient-assets/core';
+import { tokens, type Api, type Chain, type ChainId, type Token } from '@polkadot-sufficient-assets/core';
 import { createContext, memo, useEffect, useState } from 'react';
 import { useApi, useConfig, useToken } from '../hooks';
 import { WalletProvider } from './wallet.context';
@@ -12,7 +12,7 @@ export interface ITransferContext {
   changeFeeToken: (token: Token) => void;
   useXcmTransfer: boolean;
   xcmChains: Chain[];
-  api: Api<'paseoah'>;
+  api: Api<ChainId>;
   isLoaded?: boolean;
 }
 
@@ -41,7 +41,7 @@ const TransferProviderBase = ({ children }: TransferProvider) => {
   return (
     <TransferContext.Provider
       value={{
-        api: api as Api<'paseoah'>,
+        api,
         isLoaded: loaded,
         changeFeeToken,
         feeToken: feeToken ?? tokens.DOT,

@@ -1,6 +1,11 @@
-import type { KahWhitelistEntry, PahWhitelistEntry, PolkadotWhitelistEntry } from '@polkadot-api/descriptors';
+import type {
+  HdxWhitelistEntry,
+  KahWhitelistEntry,
+  PahWhitelistEntry,
+  PolkadotWhitelistEntry,
+} from '@polkadot-api/descriptors';
 
-type WhiteListEntry = KahWhitelistEntry | PahWhitelistEntry | PolkadotWhitelistEntry;
+type WhiteListEntry = KahWhitelistEntry | HdxWhitelistEntry | PahWhitelistEntry | PolkadotWhitelistEntry;
 
 export const whitelist: WhiteListEntry[] = [
   'tx.Assets.transfer',
@@ -8,8 +13,16 @@ export const whitelist: WhiteListEntry[] = [
   'tx.Balances.transfer_keep_alive',
   'tx.ForeignAssets.transfer',
   'tx.Utility.batch_all',
-  'tx.PolkadotXcm.*',
-  'tx.XcmPallet.*',
+  'tx.PolkadotXcm.limited_teleport_assets',
+  'tx.XcmPallet.limited_teleport_assets',
+  'tx.PolkadotXcm.reserve_transfer_assets',
+  'tx.XcmPallet.reserve_transfer_assets',
+  'tx.PolkadotXcm.limited_reserve_transfer_assets',
+  'tx.XcmPallet.limited_reserve_transfer_assets',
+  'tx.PolkadotXcm.teleport_assets',
+  'tx.XcmPallet.teleport_assets',
+  'tx.PolkadotXcm.transfer_assets',
+  'tx.XcmPallet.transfer_assets',
   'query.System.Account',
   'query.System.Number',
   'query.AssetConversion.Pools',
@@ -22,6 +35,8 @@ export const whitelist: WhiteListEntry[] = [
   'query.ForeignAssets.Account',
   'query.ForeignAssets.Metadata',
   'query.Balances.TotalIssuance',
+  'query.Balances.Account',
+  'query.Tokens.Accounts',
   'const.AssetConversion.LPFee',
   'const.Balances.ExistentialDeposit',
   'api.AssetConversionApi.*',
