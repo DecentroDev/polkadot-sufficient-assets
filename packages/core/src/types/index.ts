@@ -5,3 +5,5 @@ type Assign_<T, U> = {
 };
 
 export type Assign<T, U> = Assign_<T, U> & U;
+
+export type StringWithDefault = 'DEFAULT' & (string | {});

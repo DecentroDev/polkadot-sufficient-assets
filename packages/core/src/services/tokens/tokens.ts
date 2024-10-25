@@ -85,4 +85,12 @@ export const tokens = {
     logo: './img/tokens/USDT.svg',
     isSufficient: true,
   }),
+  HDX: createToken({
+    type: 'native',
+    decimals: 12,
+    symbol: 'HDX',
+    name: 'HDX',
+    logo: './img/tokens/HDX.svg',
+    isSufficient: true,
+  }),
 };

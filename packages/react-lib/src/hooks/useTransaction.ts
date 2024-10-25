@@ -37,17 +37,20 @@ export const useTransaction = (
     return getTransferExtrinsic(api, token, amount, to);
   }, [api, amount, to, token]);
 
+  const txForFee = useMemo(() => {
+    if (!api || !to || !amount || !token) return null;
+
+    return getTransferExtrinsic(api, token, '100', to);
+  }, [api, amount, to, token]);
+
   useEffect(() => {
-    if (!tx || !from || !token) return;
+    if (!txForFee || !from || !token) return;
     const estimate = async () => {
       try {
-        setFeeEstimate({ isLoading: true, value: 0n, valueFormatted: '0' });
-        const { nonce } = await (api as Api<ChainIdAssetHub>).query.System.Account.getValue(from);
+        setFeeEstimate({ isLoading: true, value: 0n, valueFormatted: '0', error: false });
 
-        const feeRaw = await tx.getEstimatedFees(from, {
-          asset: feeToken ? getFeeAssetLocation(feeToken) : undefined,
-          nonce: nonce,
-          mortality: { mortal: true, period: 64 },
+        const feeRaw = await txForFee.getEstimatedFees(from, {
+          asset: feeToken ? getFeeAssetLocation(feeToken, api.chainId) : undefined,
         });
 
         const _fee = await getAssetConvertPlancks(api as Api<ChainIdAssetHub>, {
@@ -62,15 +65,16 @@ export const useTransaction = (
           isLoading: false,
           value: fee,
           valueFormatted: formatBalance(fee.toString(), feeToken?.decimals ?? 12),
+          error: false,
         });
       } catch (err) {
-        setFeeEstimate({ isLoading: false, value: 0n, valueFormatted: '0' });
+        setFeeEstimate({ isLoading: false, value: 0n, valueFormatted: '0', error: true });
         console.log(err);
       }
     };
 
     estimate();
-  }, [tx, from, feeToken]);
+  }, [txForFee, from, feeToken]);
 
   return {
     tx,

@@ -47,6 +47,10 @@
       "dependsOn": ["^clean:turbo"],
       "cache": false
     },
+    "clean:papi": {
+      "dependsOn": ["^clean:papi"],
+      "cache": false
+    },
     "clean:bundle": {
       "dependsOn": ["^clean:bundle"],
       "cache": false

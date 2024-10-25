@@ -83,17 +83,6 @@ export function establishDirection(api: Api<ChainId>, destChain: Chain): Directi
   const isDestParachain = isParachain(destChain);
   const isDestBridge = chainDestIsBridge(destChainId);
 
-  console.log({
-    destChainId,
-    isOriginRelayChain,
-    isOriginSystemChain,
-    isDestRelayChain,
-    isDestSystemChain,
-    isOriginParachain,
-    isDestParachain,
-    isDestBridge,
-  });
-
   /**
    * Check if the origin is a System Parachain
    */

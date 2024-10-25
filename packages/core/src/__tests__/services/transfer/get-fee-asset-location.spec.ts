@@ -7,7 +7,7 @@ import {
   getPoolReservesByToken,
   isTokenEqualPair,
 } from '../../../services/transfer/get-fee-asset-location';
-import { type AssetConvertionPoolDef, fetchAssetConvertionPool } from '../../../services/transfer/reserve-pool';
+import { type AssetConvertionPool, fetchAssetConvertionPool } from '../../../services/transfer/reserve-pool';
 import type { Pair } from '../../../utils/xcm-v3-multi-location';
 
 const mockApi: Api<ChainIdAssetHub> = {
@@ -44,7 +44,7 @@ vi.mock(import('../../../services/api'), () => ({
 
 describe('getFeeAssetLocation', () => {
   it('should return the correct XCM location for a non-native asset', () => {
-    const result = getFeeAssetLocation(assetToken);
+    const result = getFeeAssetLocation(assetToken, 'pah');
     expect(result).toEqual({
       parents: 0,
       interior: XcmV3Junctions.X2([
@@ -55,13 +55,13 @@ describe('getFeeAssetLocation', () => {
   });
 
   it('should throw an error if the token is not sufficient', () => {
-    expect(() => getFeeAssetLocation({ ...assetToken, isSufficient: false })).toThrow(
+    expect(() => getFeeAssetLocation({ ...assetToken, isSufficient: false }, 'pah')).toThrow(
       `Token ${assetToken.symbol} (${assetToken.assetId}) is not sufficient`
     );
   });
 
   it('should return undefined for native tokens', () => {
-    const result = getFeeAssetLocation(nativeToken);
+    const result = getFeeAssetLocation(nativeToken, 'pah');
     expect(result).toBeUndefined();
   });
 });
@@ -203,7 +203,7 @@ describe('getPoolReservesByToken', () => {
   });
 
   it('should return reverse token if is asset token', async () => {
-    const nonMatchingPools: AssetConvertionPoolDef[] = [
+    const nonMatchingPools: AssetConvertionPool[] = [
       {
         chainId: 'polkadot',
         owner: '',
@@ -218,7 +218,7 @@ describe('getPoolReservesByToken', () => {
 });
 
 describe('getAssetConvertPlancks', () => {
-  const mockPools: AssetConvertionPoolDef[] = [
+  const mockPools: AssetConvertionPool[] = [
     {
       chainId: 'polkadot',
       owner: '',

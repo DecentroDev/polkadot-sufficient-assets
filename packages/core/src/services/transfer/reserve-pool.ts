@@ -5,7 +5,7 @@ import type { Api } from '../api';
 import type { ChainId, ChainIdAssetHub } from '../chains';
 import type { Token } from '../tokens';
 
-export type AssetConvertionPoolDef = {
+export type AssetConvertionPool = {
   type: 'asset-convertion';
   chainId: ChainId;
   poolAssetId: number;
@@ -22,13 +22,13 @@ export const fetchAssetConvertionPool = async (api: Api<ChainIdAssetHub>) => {
   const chain = api.chain;
 
   return rawPools
-    .map<AssetConvertionPoolDef | null>((d) => {
+    .map<AssetConvertionPool | null>((d) => {
       const poolAssetId = d.value;
       const poolAsset = rawPoolAssets.find((p) => p.keyArgs[0] === poolAssetId);
 
       if (!poolAsset) return null;
 
-      const pool: AssetConvertionPoolDef = {
+      const pool: AssetConvertionPool = {
         type: 'asset-convertion',
         chainId: chain.id,
         poolAssetId,
@@ -38,6 +38,6 @@ export const fetchAssetConvertionPool = async (api: Api<ChainIdAssetHub>) => {
 
       return pool;
     })
-    .filter((p): p is AssetConvertionPoolDef => !!p)
-    .filter((p): p is AssetConvertionPoolDef => p.tokenIds.every((t) => !!t));
+    .filter((p): p is AssetConvertionPool => !!p)
+    .filter((p): p is AssetConvertionPool => p.tokenIds.every((t) => !!t));
 };

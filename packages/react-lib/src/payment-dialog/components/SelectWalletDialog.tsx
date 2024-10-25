@@ -117,7 +117,7 @@ const SelectWalletDialog = ({ children, selected, token, withInput, onChange }: 
                         <Stack spacing={1}>
                           {accounts.map((account) => (
                             <WalletItem
-                              key={account.address}
+                              key={account.address + '_' + account.wallet}
                               token={token}
                               account={account}
                               onClick={() => handleSelectAccount(account)}

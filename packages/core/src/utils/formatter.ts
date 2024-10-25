@@ -1,3 +1,15 @@
+/**
+ * Formats a number into a compact string representation with a specified number of significant digits.
+ *
+ * @param num - The number to format, which can be a string, number, or null. If null or undefined, returns an empty string.
+ * @param digits - The number of significant digits to include in the formatted output. Defaults to 4.
+ *
+ * @returns A string representing the compact format of the number. If the number is zero, returns '0'. If the number is
+ * smaller than the minimum displayable value based on the number of significant digits, returns a string in the format
+ * `< minDisplayable>`.
+ *
+ * @throws An error if the input is not a valid number.
+ */
 export const formatDecimals = (num?: string | number | null, digits = 4): string => {
   try {
     if (num === null || num === undefined) return '';
@@ -23,11 +35,19 @@ export const formatDecimals = (num?: string | number | null, digits = 4): string
   }
 };
 
-export const formatBalance = (rawBalance?: string | number | bigint | null, decimals = 10, digits = 4): string => {
-  const num = formatUnits(rawBalance, decimals);
-  return formatDecimals(num, digits);
-};
-
+/**
+ * Format a raw balance from a chain into a string, including decimal notation.
+ *
+ * @param rawBalance The raw balance from the chain, as a string, number, or bigint. If not provided, returns '0'.
+ * @param decimals The number of decimal places to use when formatting. Defaults to 10.
+ *
+ * @returns The formatted balance as a string.
+ *
+ * @example
+ * formatUnits('1000000000', 12) // '1000.000000'
+ * formatUnits('1000000000', 10) // '10000.0000'
+ * formatUnits('1000000000', 4) // '1000.0'
+ */
 export const formatUnits = (rawBalance?: string | number | bigint | null, decimals = 10) => {
   if (!rawBalance) return '0';
   let display = rawBalance.toString();
@@ -42,6 +62,39 @@ export const formatUnits = (rawBalance?: string | number | bigint | null, decima
   return `${negative ? '-' : ''}${integer || '0'}${fraction ? `.${fraction}` : ''}`;
 };
 
+/**
+ * Format a raw balance from a chain into a compact string representation with a specified number of significant digits.
+ *
+ * @param rawBalance The raw balance from the chain, as a string, number, or bigint. If not provided, returns '0'.
+ * @param decimals The number of decimal places to use when formatting. Defaults to 10.
+ * @param digits The number of significant digits to include in the formatted output. Defaults to 4.
+ *
+ * @returns A string representing the compact format of the balance. If the number is zero, returns '0'. If the number is
+ * smaller than the minimum displayable value based on the number of significant digits, returns a string in the format
+ * `< minDisplayable>`.
+ *
+ * @throws An error if the input is not a valid number.
+ */
+export const formatBalance = (rawBalance?: string | number | bigint | null, decimals = 10, digits = 4): string => {
+  const num = formatUnits(rawBalance, decimals);
+  return formatDecimals(num, digits);
+};
+
+/**
+ * Parse a string value into a raw balance, as a bigint.
+ *
+ * @param value The value to parse, as a string. If not provided, returns 0n.
+ * @param decimals The number of decimal places to use when parsing. Defaults to 10.
+ *
+ * @returns The parsed raw balance as a bigint.
+ *
+ * @throws {Error} If the value is not a valid number.
+ *
+ * @example
+ * parseUnits('1000000000', 12) // 1000000000000n
+ * parseUnits('1000000000', 10) // 10000000000n
+ * parseUnits('1000000000', 4) // 100000000n
+ */
 export function parseUnits(value: string, decimals = 10) {
   if (!/^(-?)([0-9]*)\.?([0-9]*)$/.test(value)) throw new Error('Invalid value');
 

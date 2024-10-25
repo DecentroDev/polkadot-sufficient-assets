@@ -43,7 +43,7 @@
       "metadata": ".papi/metadata/paseoah.scale"
     },
     "hdx": {
-      "wsUrl": "wss://hydradx-rpc.dwellir.com",
+      "wsUrl": "wss://rpc.hydradx.cloud",
       "metadata": ".papi/metadata/hdx.scale"
     }
   }

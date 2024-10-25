@@ -1,4 +1,4 @@
-import { isNumber } from '../../utils/is-number';
+import { isNumber } from '../../utils';
 import type { Chain } from './chains';
 
 /**

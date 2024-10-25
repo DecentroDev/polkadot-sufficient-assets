@@ -15,7 +15,6 @@ interface Props {
 const CrossChainBalance = ({ destChain, token, from, originChain, to }: Props) => {
   const { valueFormatted: fromBalanceFormatted } = useTokenBalance(token, from?.address);
   const { valueFormatted: toBalanceFormatted } = useForeignTokenBalance(destChain, token, to?.address);
-
   return (
     <Card sx={{ p: 2 }} variant='outlined'>
       <Typography align='center' variant='body1' fontWeight={500} mb={2}>
@@ -25,7 +24,7 @@ const CrossChainBalance = ({ destChain, token, from, originChain, to }: Props) =
         <Typography variant='subtitle2'>{originChain.name}</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant='subtitle2'>
-            {`${fromBalanceFormatted ? fromBalanceFormatted : 0} ${token?.symbol ?? 'USD'}`}
+            {`${fromBalanceFormatted ? fromBalanceFormatted : '-'} ${token?.symbol ?? 'USD'}`}
           </Typography>
         </Box>
       </Box>
@@ -35,7 +34,7 @@ const CrossChainBalance = ({ destChain, token, from, originChain, to }: Props) =
           <Typography variant='subtitle2'>{destChain.name}</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant='subtitle2'>
-              {`${toBalanceFormatted ? toBalanceFormatted : 0} ${token?.symbol ?? 'USD'}`}
+              {`${toBalanceFormatted ? toBalanceFormatted : '-'} ${token?.symbol ?? 'USD'}`}
             </Typography>
           </Box>
         </Box>

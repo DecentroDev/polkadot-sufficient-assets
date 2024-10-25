@@ -1,13 +1,15 @@
-import { chains, createConfig, tokens } from '@polkadot-sufficient-assets/react';
-import { USDT } from './assets';
+import { chains, createConfig } from '@polkadot-sufficient-assets/react';
+import { HDX } from './assets';
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotAssetHubChain],
+  chains: [chains.hydration],
   lightClients: false,
   tokens: {
-    pah: {
-      token: USDT,
-      feeTokens: [tokens.DOT, tokens.USDT],
+    hdx: {
+      token: HDX,
+      feeTokens: [HDX],
     },
   },
+  useXcmTransfer: true,
+  xcmChains: [chains.polkadotAssetHubChain],
 });

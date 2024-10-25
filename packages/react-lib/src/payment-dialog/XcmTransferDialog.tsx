@@ -21,9 +21,10 @@ import {
   formatUnits,
   getFeeAssetLocation,
   type InjectedPolkadotAccount,
+  parseUnits,
 } from '@polkadot-sufficient-assets/core';
 import { useMemo, useState } from 'react';
-import { useTokenBalance, useTransfer, useWallet } from '../hooks';
+import { useExistentialDeposit, useTokenBalance, useTransfer, useWallet } from '../hooks';
 import { useXcmTransaction } from '../hooks/useXcmTransaction';
 import { formatNumberInput } from '../lib/utils';
 import CrossChainBalance from './components/CrossChainBalance';
@@ -57,10 +58,10 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
     destChain
   );
 
-  const { valueFormatted: balanceFormatted, value: balance } = useTokenBalance(token, signer?.address);
+  const { value: balance, isLoading: loadingBalance } = useTokenBalance(token, signer?.address);
   const { valueFormatted: feeBalanceFormatted, value: feeBalance } = useTokenBalance(feeToken!, signer?.address);
   const [txResult, setTxResult] = useState<{ hash: string; ok: boolean }>();
-
+  const { value: edToken, isLoading: loadingEdToken } = useExistentialDeposit(chain, token);
   const handleTransfer = async () => {
     if (!to || !amount || !signer || !isLoaded || !token) return;
     setLoading(true);
@@ -74,7 +75,7 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
     });
 
     tx.signAndSubmit(signer.polkadotSigner, {
-      asset: feeToken ? getFeeAssetLocation(feeToken) : undefined,
+      asset: feeToken ? getFeeAssetLocation(feeToken, api.chainId) : undefined,
       nonce: nonce,
       mortality: { mortal: true, period: 64 },
     })
@@ -105,8 +106,38 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
     }
   };
 
+  const maxAmount = useMemo(() => {
+    if (loadingBalance || fee.isLoading || loadingEdToken) return 0;
+
+    // Subtract fee after estimation
+    const feeMargin = feeToken.assetId === token.assetId ? fee.value : 0n;
+
+    // To keep account alive we need to substract essential deposit
+    const edMargin = feeToken.assetId === token.assetId ? edToken : 0n;
+
+    return balance - feeMargin - edMargin;
+  }, [balance, chain, fee.value, edToken]);
+
+  const errorMessage = useMemo(() => {
+    if (amount === '0' || loadingEdToken || loadingBalance) return null;
+    const plancks = parseUnits(amount, token.decimals);
+
+    // Subtract fee after estimation
+    const feeMargin = feeToken.assetId === token.assetId ? fee.value : 0n;
+
+    // To keep account alive we need to substract essential deposit
+    const edMargin = feeToken.assetId === token.assetId ? edToken : 0n;
+
+    if (balance < plancks) return 'Insufficient balance';
+    if (balance < plancks + feeMargin) return 'Insufficient balance to pay for fee';
+    if (balance < plancks + feeMargin + edMargin) return 'Insufficient balance to keep account alive';
+
+    return null;
+  }, [amount, balance, feeToken, token, fee, edToken, loadingBalance]);
+
   const isDisableTransfer = useMemo(() => {
     return (
+      !!errorMessage ||
       !to ||
       !amount ||
       !signer ||
@@ -115,11 +146,9 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
       amount === '0' ||
       !fee?.value ||
       !feeBalance ||
-      loading ||
-      Number.parseFloat(amount) > +formatUnits(balance, token?.decimals) ||
-      +formatUnits(fee.value, feeToken?.decimals) > +formatUnits(feeBalance, feeToken?.decimals)
+      loading
     );
-  }, [to, signer, amount, isLoaded, token, loading, feeToken, balance, fee.value, feeBalance]);
+  }, [to, signer, amount, isLoaded, token, loading, feeToken, balance, fee.value, feeBalance, errorMessage]);
 
   const handleCloseSnackbar = () => {
     setTxResult(undefined);
@@ -152,13 +181,13 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
         </Alert>
       </Snackbar>
       <Dialog PaperProps={{ sx: { width: '450px' } }} open={open} onClose={onClose}>
-        <DialogContent>
+        <DialogContent sx={{ position: 'relative' }}>
           <Box mt={2}>
             <Box sx={{ display: 'flex', justifyContent: 'end' }}>
               <CloseIcon sx={{ cursor: 'pointer' }} onClick={onClose} />
             </Box>
 
-            <Stack spacing={1.5}>
+            <Stack spacing={1.5} mt={2}>
               <Box display='flex' justifyContent='space-between' alignItems='center'>
                 <Typography>From</Typography>
 
@@ -205,6 +234,14 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
             <Stack spacing={1} mt={2}>
               <Stack direction='row' justifyContent='space-between'>
                 <Typography>Tokens</Typography>
+                <Button
+                  onClick={() => setAmount(formatUnits(maxAmount, token.decimals))}
+                  variant='outlined'
+                  size='small'
+                  disabled={!maxAmount}
+                >
+                  Max
+                </Button>
               </Stack>
 
               <Stack spacing={0.5}>
@@ -229,31 +266,33 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
                   fullWidth
                 />
               </Stack>
-
-              <Typography align='right' variant='subtitle2'>
-                {`${balanceFormatted ? balanceFormatted : 0} ${token?.symbol ?? 'USD'}`}
-              </Typography>
             </Stack>
 
             <LoadingButton
               onClick={handleTransfer}
-              loading={loading}
+              loading={loading || !isLoaded}
               disabled={isDisableTransfer}
               fullWidth
               variant='contained'
-              sx={{ my: 4 }}
+              sx={{ my: 2 }}
             >
               Transfer
             </LoadingButton>
 
+            {errorMessage && (
+              <Alert sx={{ mb: 2 }} severity='error'>
+                {errorMessage}
+              </Alert>
+            )}
+
             <CrossChainBalance token={token} originChain={chain} destChain={destChain} from={signer} to={to} />
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
               <Typography variant='subtitle2'>Balance fee</Typography>
-              <Typography variant='subtitle2'>{`${feeBalanceFormatted ? feeBalanceFormatted : 0} ${feeToken?.symbol}`}</Typography>
+              <Typography variant='subtitle2'>{`${feeBalanceFormatted ? feeBalanceFormatted : '-'} ${feeToken?.symbol}`}</Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography variant='subtitle2'>Transaction fee</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {feeTokens?.length > 1 && (
@@ -266,7 +305,13 @@ const XcmTransferDialog = ({ open, onClose }: Props) => {
                 {fee.isLoading ? (
                   <Spinner />
                 ) : (
-                  <Typography variant='subtitle2'>{`${fee?.valueFormatted ?? 0} ${feeToken?.symbol}`}</Typography>
+                  <>
+                    {fee?.error ? (
+                      <Typography variant='subtitle2'>{"Can't estimate fee"}</Typography>
+                    ) : (
+                      <Typography variant='subtitle2'>{`${fee?.valueFormatted ?? '-'} ${feeToken?.symbol}`}</Typography>
+                    )}
+                  </>
                 )}
               </Box>
             </Box>

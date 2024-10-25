@@ -21,6 +21,7 @@
     "build:prepare": "papi --whitelist papi-whitelist.ts && tsup",
     "papi:update": "papi update polkadot,kusama,rococo,westend,paseo,kah,pah,wah,rah,paseoah",
     "clean": "rimraf ./dist && rimraf ./node_modules",
+    "clean:papi": "rimraf ./.papi/descriptors/dist",
     "lint": "biome lint .",
     "lint:fix": "biome lint . --write",
     "format": "biome format . ",
@@ -34,7 +35,7 @@
     "@polkadot-api/descriptors": "file:.papi/descriptors",
     "@polkadot-api/json-rpc-provider-proxy": "^0.2.1",
     "@substrate/connect": "^1.2.1",
-    "polkadot-api": "^1.6.2",
+    "polkadot-api": "^1.6.4",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {

@@ -145,7 +145,12 @@ export const hydration = createChain({
   id: 'hdx',
   name: 'Hydration',
   specName: 'hydradx',
-  wsUrls: ['wss://hydradx-rpc.dwellir.com', 'wss://rpc.helikon.io/hydradx', 'wss://hydration.dotters.network'],
+  wsUrls: [
+    'wss://rpc.hydradx.cloud',
+    'wss://hydradx-rpc.dwellir.com',
+    'wss://rpc.helikon.io/hydradx',
+    'wss://hydration.dotters.network',
+  ],
   relay: 'polkadot',
   paraId: 2034,
   chainId: '2034',
