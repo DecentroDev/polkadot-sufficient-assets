@@ -1,11 +1,6 @@
-import type {
-  HdxWhitelistEntry,
-  KahWhitelistEntry,
-  PahWhitelistEntry,
-  PolkadotWhitelistEntry,
-} from '@polkadot-api/descriptors';
+import type { HdxWhitelistEntry, PahWhitelistEntry, PolkadotWhitelistEntry } from '@polkadot-api/descriptors';
 
-type WhiteListEntry = KahWhitelistEntry | HdxWhitelistEntry | PahWhitelistEntry | PolkadotWhitelistEntry;
+type WhiteListEntry = HdxWhitelistEntry | PahWhitelistEntry | PolkadotWhitelistEntry;
 
 export const whitelist: WhiteListEntry[] = [
   'tx.Assets.transfer',
@@ -28,7 +23,7 @@ export const whitelist: WhiteListEntry[] = [
   'tx.XTokens.transfer',
   'tx.XTokens.transfer_multiasset',
   'query.System.Account',
-  'query.System.Number',
+  // 'query.System.Number',
   'query.AssetConversion.Pools',
   'query.PoolAssets.Asset',
   'query.PoolAssets.Account',

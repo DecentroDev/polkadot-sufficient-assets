@@ -1,4 +1,5 @@
 import { getSmProvider } from 'polkadot-api/sm-provider';
+import type { SmoldotClient } from '../../types';
 import type { ChainId } from '../chains';
 
 type Chain = Awaited<Parameters<typeof getSmProvider>[0]>;
@@ -10,9 +11,7 @@ type ChainDef = {
 
 const SMOLDOT_CHAINS_CACHE = new Map<string, Promise<Chain>>();
 
-export const loadChain = async ({ chainId, chainSpec }: ChainDef, relay?: Chain) => {
-  const { smoldot } = await import('./smoldot');
-
+export const loadChain = async (smoldot: SmoldotClient, { chainId, chainSpec }: ChainDef, relay?: Chain) => {
   const chainPromise = smoldot.addChain({
     chainSpec,
     potentialRelayChains: relay ? [relay] : undefined,
@@ -24,11 +23,12 @@ export const loadChain = async ({ chainId, chainSpec }: ChainDef, relay?: Chain)
 };
 
 export const getSmChainProvider = async (
+  smoldot: SmoldotClient,
   chainDef: ChainDef,
   relayDef?: ChainDef
 ): Promise<ReturnType<typeof getSmProvider>> => {
-  const relay = relayDef ? await loadChain(relayDef) : undefined;
-  const chain = await loadChain(chainDef, relay);
+  const relay = relayDef ? await loadChain(smoldot, relayDef) : undefined;
+  const chain = await loadChain(smoldot, chainDef, relay);
 
   return getSmProvider(chain);
 };

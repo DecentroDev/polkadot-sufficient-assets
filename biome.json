@@ -3,7 +3,7 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [".turbo", "dist", "build", "out", "node_modules", "**/.papi"]
+    "ignore": [".turbo", "dist", "build", "out", "node_modules", "**/.papi", ".angular", "*.vue"]
   },
   "formatter": {
     "enabled": true,

@@ -13,8 +13,9 @@ import {
   type Descriptors,
   type KnowChainId,
 } from '../chains';
-import { getClient } from '../client/getClient';
+import { getClient, type ClientOptions } from '../client/getClient';
 
+export type LightClients = ClientOptions['lightClients'];
 type ApiBase<Id extends ChainId> = Id extends KnowChainId ? TypedApi<Descriptors<Id>> : TypedApi<ChainDefinition>;
 export type Api<Id extends ChainId> = ApiBase<Id> & {
   chainId: Id;
@@ -32,7 +33,7 @@ export const isApiRelay = (api: Api<ChainId>): api is Api<ChainIdRelay> => {
 
 export const getApiInner = async <Id extends ChainId>(
   chainId: ChainId,
-  lightClients: boolean,
+  lightClients: LightClients,
   chains: Chain[]
 ): Promise<Api<Id>> => {
   const chain = getChainById(chainId, chains);
@@ -57,7 +58,8 @@ export const getApiInner = async <Id extends ChainId>(
   return api;
 };
 
-const getApiCacheId = (chainId: ChainId, lightClient: boolean): string => `${chainId}-${lightClient}`;
+const getApiCacheId = (chainId: ChainId, lightClient: LightClients): string =>
+  `${chainId}-${lightClient?.enable ?? 'false'}`;
 
 const API_CACHE = new Map<string, Promise<Api<ChainId>>>();
 
@@ -65,7 +67,7 @@ export const getApi = async <Id extends ChainId, Papi = Api<Id>>(
   id: Id,
   chains: Chain[] = [],
   waitReady = true,
-  lightClients = true
+  lightClients: LightClients
 ): Promise<Papi> => {
   const cacheKey = getApiCacheId(id, lightClients);
 

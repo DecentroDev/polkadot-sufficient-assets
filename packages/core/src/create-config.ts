@@ -2,7 +2,7 @@
  * * Currently we only support 1 chain only, We will update it later
  */
 
-import type { Chain } from './services';
+import type { Chain, LightClients } from './services';
 import type { Token } from './services/tokens/create-token';
 
 export type TokenConfig = {
@@ -12,7 +12,7 @@ export type TokenConfig = {
 
 export type Config<Chains extends readonly [Chain] = readonly [Chain]> = {
   readonly chains: Chains;
-  readonly lightClients?: boolean;
+  readonly lightClients?: LightClients;
   readonly tokens?: Partial<Record<Chains[number]['id'], TokenConfig>>;
   readonly useXcmTransfer?: boolean;
   readonly xcmChains?: Chain[];

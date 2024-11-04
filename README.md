@@ -1,15 +1,15 @@
-# Polkadot-sufficient-assets Monorepo
+# Polkadot-Sufficient-Assets Monorepo
 
-This is the monorepo for the Polkadot-sufficient-assets library.
+This repository contains the monorepo for the `polkadot-sufficient-assets` library.
 
-## Usage
+## Prerequisites
 
-### Pre-requisites
+Before using the library, ensure you have the following installed:
 
-Node.js v20.6.0 or higher
-pnpm v9.1.1 or higher
+- **Node.js**: v20.6.0 or higher
+- **pnpm**: v9.1.1 or higher
 
-If you don't have pnpm, please install it first.
+If you don't have `pnpm` installed, you can install it globally using `npm`:
 
 ```bash
 npm install -g pnpm
@@ -17,7 +17,7 @@ npm install -g pnpm
 
 ### Installation
 
-To run the library, run the following command in the root directory:
+Once the prerequisites are installed, navigate to the root directory of the project and run the following command to install the necessary dependencies:
 
 ```bash
 pnpm install
@@ -25,14 +25,18 @@ pnpm install
 
 ### Generate papi descriptors
 
+To generate the PAPI descriptors required by the library, run the following command:
+
 ```bash
 pnpm papi:generate
 ```
 
-### Running the test website in development mode
+### Running the Example Website (Development Mode)
+
+To start the development server and test the website, use the command below:
 
 ```bash
  pnpm dev
 ```
 
-This command will start all packages and expose <http://localhost:5173/> in the browser.
+This will start all packages and expose the application at http://localhost:5173/ in your browser.
