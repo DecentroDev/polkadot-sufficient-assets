@@ -1,0 +1,27 @@
+<main class="main">
+  <psa-dialog
+    #psaDialog
+    [config]="appConfig"
+    [theme]="appTheme"
+    [handleClose]="handleClose.bind(this)"
+  />
+
+  <button (click)="handleOpen()">Open Dialog</button>
+  <div
+    style="
+      max-width: 450px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    "
+  >
+    <div style="width: 100%">
+      <psa-form [config]="appConfig" [theme]="appTheme" />
+    </div>
+  </div>
+</main>
+
+<router-outlet />

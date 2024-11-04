@@ -1,0 +1,70 @@
+{
+  "name": "polkadot-sufficient-assets",
+  "license": "MIT",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "clean": "rimraf ./dist && rimraf ./node_modules",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint . --write",
+    "format": "biome format . ",
+    "format:fix": "biome format .  --write",
+    "type-check": "tsc --noEmit"
+  },
+  "files": ["src", "dist", "README.md"],
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "module": "./dist/index.mjs",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.js"
+    },
+    "./smoldot": {
+      "types": "./dist/smoldot/index.d.ts",
+      "module": "./dist/smoldot/index.mjs",
+      "import": "./dist/smoldot/index.mjs",
+      "default": "./dist/smoldot/index.js"
+    },
+    "./smoldot/*": {
+      "types": "./dist/smoldot/*/index.d.ts",
+      "module": "./dist/smoldot/*/index.mjs",
+      "import": "./dist/smoldot/*/index.mjs",
+      "default": "./dist/smoldot/*/index.js"
+    },
+    "./chain-specs/*": {
+      "types": "./dist/chain-specs/*/index.d.ts",
+      "module": "./dist/chain-specs/*/index.mjs",
+      "import": "./dist/chain-specs/*/index.mjs",
+      "default": "./dist/chain-specs/*/index.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^6.1.1",
+    "@mui/material": "^6.1.1",
+    "@polkadot-sufficient-assets/core": "workspace:*",
+    "@polkadot-ui/assets": "0.0.1-alpha.2",
+    "@r2wc/react-to-web-component": "^2.0.3"
+  },
+  "devDependencies": {
+    "@polkadot-sufficient-assets/tsconfig": "workspace:*",
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
