@@ -173,7 +173,7 @@ function App() {
 export default App;
 ```
 
-**For other frameworks: We use web component so you can check out our example folder.**
+**For other frameworks: We use web component so you can check out our [example folder](https://github.com/DecentroDev/polkadot-sufficient-assets/tree/main/example).**
 
 ### 2. Multi-Chain Transfers via XCM
 
