@@ -1,18 +1,19 @@
+import ClearIcon from '@mui/icons-material/Clear';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import type { InjectedPolkadotAccount } from '@polkadot-sufficient-assets/core';
-import React, { type ElementRef, forwardRef, type ReactNode, useMemo } from 'react';
+import React, { type ElementRef, forwardRef, useMemo } from 'react';
 import { useWallet } from '../../../hooks';
 import { shortenAddress } from '../../../lib/utils';
 import WalletIcon from './WalletIcon';
 
 interface Props {
   account?: Partial<InjectedPolkadotAccount> | null;
-  endIcon?: ReactNode;
+  onClear?: () => void;
 }
 
-const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ endIcon, account, ...props }, ref) => {
+const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ onClear, account, ...props }, ref) => {
   const { connected } = useWallet();
 
   const label = useMemo(() => {
@@ -42,7 +43,7 @@ const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ en
         fontSize: 14,
         minHeight: 50,
       }}
-      endIcon={endIcon ?? <KeyboardArrowDownIcon />}
+      endIcon={account ? <ClearIcon onClick={onClear} /> : <KeyboardArrowDownIcon />}
       ref={ref}
       variant='outlined'
       fullWidth

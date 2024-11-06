@@ -20,7 +20,7 @@ import {
   type InjectedPolkadotAccount,
   parseUnits,
 } from '@polkadot-sufficient-assets/core';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useExistentialDeposit, useTokenBalance, useTransfer, useWallet, useXcmTransaction } from '../../hooks';
 import { formatNumberInput } from '../../lib/utils';
 import Balance from './core/Balance';
@@ -33,7 +33,7 @@ import Spinner from './core/Spinner';
 
 const XcmTransferDialog = () => {
   const { xcmChains, api, token, feeToken, changeFeeToken, feeTokens, nativeToken, chain, isLoaded } = useTransfer();
-  const [to, setTo] = useState<Partial<InjectedPolkadotAccount>>();
+  const [to, setTo] = useState<Partial<InjectedPolkadotAccount> | null>(null);
   const [amount, setAmount] = useState<string>('0');
   const [loading, setLoading] = useState<boolean>(false);
   const { signer, setSigner } = useWallet();
@@ -96,7 +96,7 @@ const XcmTransferDialog = () => {
       });
   };
 
-  const handleChange = (acc: Partial<InjectedPolkadotAccount>, type: 'from' | 'to' = 'from') => {
+  const handleChange = (acc: Partial<InjectedPolkadotAccount> | null, type: 'from' | 'to' = 'from') => {
     if (type === 'from') {
       setSigner(acc as InjectedPolkadotAccount);
     } else {
@@ -194,8 +194,8 @@ const XcmTransferDialog = () => {
               <MenuItem value={chain.id}>{chain.name}</MenuItem>
             </TextField>
           </Box>
-          <SelectWalletDialog token={token} selected={signer} onChange={(v) => handleChange(v, 'from')}>
-            <SelectedWalletDisplay account={signer} />
+          <SelectWalletDialog token={token} onChange={(v) => handleChange(v, 'from')}>
+            <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={signer} />
           </SelectWalletDialog>
         </Stack>
         <Stack spacing={1.5} mt={2}>
@@ -219,7 +219,7 @@ const XcmTransferDialog = () => {
             </TextField>
           </Box>
           <SelectWalletDialog token={token} withInput={true} onChange={(v) => handleChange(v, 'to')}>
-            <SelectedWalletDisplay account={to} />
+            <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={to} />
           </SelectWalletDialog>
         </Stack>
 

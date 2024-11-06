@@ -39,7 +39,7 @@ export default defineConfig((options: Options) => ({
   dts: true,
   minify: true,
   clean: !options.watch,
-  external: ['react'],
+  external: ['react', 'react-dom'],
   sourcemap: false,
   async onSuccess() {
     await cleanFile();

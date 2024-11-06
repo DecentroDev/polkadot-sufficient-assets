@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:react": "vite",
     "build": "tsc -b && vite build",
     "clean": "rimraf ./dist && rimraf ./node_modules",
     "lint": "biome lint .",

@@ -19,6 +19,18 @@
       "cache": false,
       "persistent": true
     },
+    "dev:vue": {
+      "dependsOn": ["^ready"],
+      "outputs": ["dist/**", "build/**"],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:angular": {
+      "dependsOn": ["^ready"],
+      "outputs": ["dist/**", "build/**"],
+      "cache": false,
+      "persistent": true
+    },
     "build": {
       "dependsOn": ["^ready", "^build:prepare", "^build"],
       "outputs": ["../../dist/**", "dist/**", "build/**"],

@@ -8,7 +8,7 @@ import Balance from './Balance';
 
 interface Props {
   from: InjectedPolkadotAccount | null;
-  to?: Partial<InjectedPolkadotAccount>;
+  to?: Partial<InjectedPolkadotAccount> | null;
   originChain: Chain;
   destChain?: Chain;
   token: Token;

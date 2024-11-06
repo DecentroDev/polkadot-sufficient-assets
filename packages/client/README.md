@@ -9,15 +9,12 @@
 - **Same Chain Transfers**: Quickly configure and transfer assets within the same chain.
 - **Multi-Chain Transfers**: Leverage XCM to transfer assets across different chains.
 - **Configurable Tokens and Chains**: Support for native and non-native tokens, with easy configuration for custom chains and assets.
-- **Predefined Tokens and Chains**: Predefined configurations for popular chains and tokens within the Polkadot ecosystem.
-- **Custom Token Support**: Easily create and configure custom tokens.
-- **Custom Chain Support**: Define and configure custom chains for asset transfers.
 
 ## Prerequisites
 
 Before you begin using the library, ensure that you have the following:
 
-- A [Polkadot.js wallet](https://polkadot.js.org/apps/#/accounts) installed and configured.
+- A Polkadot wallet.
 - A basic understanding of Polkadot, parachains, and how XCM (Cross-Consensus Messaging) works. For more information, check the [Polkadot documentation](https://wiki.polkadot.network/).
 
 ## Installation
@@ -176,7 +173,7 @@ function App() {
 export default App;
 ```
 
-**For other frameworks: check out our example folder.**
+**For other frameworks: We use web component so you can check out our example folder.**
 
 ### 2. Multi-Chain Transfers via XCM
 
@@ -276,7 +273,7 @@ In the example:
 
 ### `assetIds`
 
-Specifies the asset ID on each chain.
+Specifies the asset ID on each chain, if native token then set to `0`.
 
 For example:
 
@@ -289,18 +286,18 @@ Defines the extrinsic to be used for the XCM transfer. It accepts a callback fun
 
 Possible values are:
 
-- `'limited_reserve_transfer_assets'`
-- `'limited_teleport_assets'`
-- `'reserve_transfer_assets'`
-- `'teleport_assets'`
-- `'XTokens.transfer_multiasset'`
-- `'XTokens.transfer'`
-- `'transfer_asset'`
+- `limited_reserve_transfer_assets`
+- `limited_teleport_assets`
+- `reserve_transfer_assets`
+- `teleport_assets`
+- `XTokens.transfer_multiasset`
+- `XTokens.transfer`
+- `transfer_asset`
 
 In the example:
 
-- On **Polkadot Asset Hub**, the extrinsic is `'limited_reserve_transfer_assets'`.
-- On **Hydration**, the extrinsic is `'XTokens.transfer_multiasset'`.
+- On **Polkadot Asset Hub**, the extrinsic is `limited_reserve_transfer_assets`.
+- On **Hydration**, the extrinsic is `XTokens.transfer_multiasset`.
 
 ### `location`
 

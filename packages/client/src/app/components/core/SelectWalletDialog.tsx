@@ -19,12 +19,12 @@ import WalletItemSkeleton from './WalletItemSkeleton';
 interface SelectWalletDialogProps {
   children?: ReactNode;
   withInput?: boolean;
-  selected?: InjectedPolkadotAccount | null;
+  exclude?: Partial<InjectedPolkadotAccount> | InjectedPolkadotAccount | null;
   token: Token;
   onChange: (value: Partial<InjectedPolkadotAccount>) => void;
 }
 
-const SelectWalletDialog = ({ children, selected, token, withInput, onChange }: SelectWalletDialogProps) => {
+const SelectWalletDialog = ({ children, exclude, token, withInput, onChange }: SelectWalletDialogProps) => {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [toAddress, setToAddress] = useState('');
@@ -123,14 +123,16 @@ const SelectWalletDialog = ({ children, selected, token, withInput, onChange }: 
                         <WalletItemSkeleton />
                       ) : (
                         <Stack spacing={1}>
-                          {accounts.map((account) => (
-                            <WalletItem
-                              key={account.address + '_' + account.wallet}
-                              token={token}
-                              account={account}
-                              onClick={() => handleSelectAccount(account)}
-                            />
-                          ))}
+                          {accounts
+                            .filter((account) => account.address !== exclude?.address)
+                            .map((account) => (
+                              <WalletItem
+                                key={account.address + '_' + account.wallet}
+                                token={token}
+                                account={account}
+                                onClick={() => handleSelectAccount(account)}
+                              />
+                            ))}
                         </Stack>
                       )}
                     </>

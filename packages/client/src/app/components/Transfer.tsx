@@ -18,7 +18,7 @@ import {
   type InjectedPolkadotAccount,
   parseUnits,
 } from '@polkadot-sufficient-assets/core';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useExistentialDeposit, useTokenBalance, useTransaction, useTransfer, useWallet } from '../../hooks';
 import { formatNumberInput } from '../../lib/utils';
 import Balance from './core/Balance';
@@ -30,7 +30,7 @@ import Spinner from './core/Spinner';
 
 const Transfer = () => {
   const { api, token, feeToken, changeFeeToken, feeTokens, nativeToken, chain, isLoaded } = useTransfer();
-  const [to, setTo] = useState<Partial<InjectedPolkadotAccount>>();
+  const [to, setTo] = useState<Partial<InjectedPolkadotAccount> | null>(null);
   const [amount, setAmount] = useState<string>('0');
   const [loading, setLoading] = useState<boolean>(false);
   const { signer, setSigner } = useWallet();
@@ -94,7 +94,7 @@ const Transfer = () => {
       });
   };
 
-  const handleChange = (acc: Partial<InjectedPolkadotAccount>, type: 'from' | 'to' = 'from') => {
+  const handleChange = (acc: Partial<InjectedPolkadotAccount> | null, type: 'from' | 'to' = 'from') => {
     if (type === 'from') {
       setSigner(acc as InjectedPolkadotAccount);
     } else {
@@ -180,14 +180,14 @@ const Transfer = () => {
       <Box>
         <Stack spacing={2}>
           <Typography>From</Typography>
-          <SelectWalletDialog token={token} selected={signer} onChange={(v) => handleChange(v, 'from')}>
-            <SelectedWalletDisplay account={signer} />
+          <SelectWalletDialog token={token} exclude={to} onChange={(v) => handleChange(v, 'from')}>
+            <SelectedWalletDisplay onClear={() => handleChange(null, 'from')} account={signer} />
           </SelectWalletDialog>
         </Stack>
         <Stack spacing={2} mt={2}>
           <Typography>To</Typography>
-          <SelectWalletDialog token={token} withInput={true} onChange={(v) => handleChange(v, 'to')}>
-            <SelectedWalletDisplay account={to} />
+          <SelectWalletDialog token={token} exclude={signer} withInput={true} onChange={(v) => handleChange(v, 'to')}>
+            <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={to} />
           </SelectWalletDialog>
         </Stack>
 
@@ -236,7 +236,7 @@ const Transfer = () => {
 
         <LoadingButton
           onClick={handleTransfer}
-          loading={loading}
+          loading={loading || !isLoaded}
           disabled={isDisableTransfer}
           fullWidth
           variant='contained'
