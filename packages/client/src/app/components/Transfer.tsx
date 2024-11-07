@@ -64,11 +64,6 @@ const Transfer = () => {
     const { nonce } = await (api as Api<ChainIdPara>).query.System.Account.getValue(signer.address, {
       at: 'best',
     });
-    console.log({
-      asset: feeToken ? getFeeAssetLocation(feeToken, api.chainId) : undefined,
-      nonce: nonce,
-      mortality: { mortal: true, period: 64 },
-    });
 
     tx.signAndSubmit(signer.polkadotSigner, {
       asset: feeToken ? getFeeAssetLocation(feeToken, api.chainId) : undefined,

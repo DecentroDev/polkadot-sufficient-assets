@@ -1,4 +1,4 @@
-import { ConfigProvider, createTheme, PSADialog } from 'polkadot-sufficient-assets';
+import { ConfigProvider, createTheme, PSADialog, PSAForm } from 'polkadot-sufficient-assets';
 import './App.css';
 import { libConfig } from './lib/lib-config';
 
@@ -11,15 +11,10 @@ function App() {
 
   return (
     <ConfigProvider config={libConfig}>
+      <PSAForm theme={theme} />
+
       <PSADialog theme={theme}>
-        <button
-          style={{
-            outline: 'none',
-            color: '#fff',
-          }}
-        >
-          Open Dialog
-        </button>
+        <button className='btn'>Open Dialog</button>
       </PSADialog>
     </ConfigProvider>
   );

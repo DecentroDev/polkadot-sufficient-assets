@@ -13,7 +13,6 @@ export const getXcmTransferExtrinsic = (
   address: SS58String,
   destChain: Chain
 ) => {
-  console.log(token);
   const plancks = parseUnits(amount, token.decimals);
   const direction = establishDirection(api, destChain);
 

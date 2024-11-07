@@ -133,6 +133,12 @@ const XcmTransferDialog = () => {
     return null;
   }, [amount, balance, feeToken, token, fee, edToken, loadingBalance]);
 
+  const warningMessage = useMemo(() => {
+    if (!to || !signer) return null;
+    if (to.address !== signer.address)
+      return 'Transferring assets to CEX through XCM directly will result in loss of funds. Please send them to your address on the relevant network first.';
+  }, [signer, to]);
+
   const isDisableTransfer = useMemo(() => {
     return (
       !!errorMessage ||
@@ -274,8 +280,14 @@ const XcmTransferDialog = () => {
         </LoadingButton>
 
         {errorMessage && (
-          <Alert sx={{ mb: 2 }} severity='error'>
+          <Alert sx={{ mb: warningMessage ? 1 : 2 }} severity='error'>
             {errorMessage}
+          </Alert>
+        )}
+
+        {warningMessage && (
+          <Alert sx={{ mb: 2 }} severity='warning'>
+            {warningMessage}
           </Alert>
         )}
 

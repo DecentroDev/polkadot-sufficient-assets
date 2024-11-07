@@ -5,6 +5,7 @@ import SmWorker from 'polkadot-sufficient-assets/smoldot/worker?worker';
 
 import { chainSpec as polkadotChainSpec } from 'polkadot-sufficient-assets/chain-specs/polkadot';
 import { chainSpec as polkadotAssetHubChainSpec } from 'polkadot-sufficient-assets/chain-specs/polkadot_asset_hub';
+import { USDT } from './assets';
 
 const smoldot = startFromWorker(new SmWorker());
 
@@ -20,8 +21,10 @@ export const libConfig = createConfig({
   },
   tokens: {
     pah: {
-      token: tokens.DOT,
-      feeTokens: [tokens.DOT],
+      token: USDT,
+      feeTokens: [tokens.DOT, USDT],
     },
   },
+  useXcmTransfer: true,
+  xcmChains: [chains.hydration],
 });
