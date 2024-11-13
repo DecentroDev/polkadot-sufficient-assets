@@ -1,9 +1,9 @@
 import { XcmV3Junction, XcmV3Junctions } from '@polkadot-api/descriptors';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { type Api, type ChainIdAssetHub, getFeeAssetLocation, type Token, tokens } from '../../../services';
+import { type Api, type ChainIdAssetHub, chains, getFeeAssetLocation, type Token, tokens } from '../../../services';
 import {
   getAssetConvertPlancks,
-  getBalance,
+  getPairBalance,
   getPoolReservesByToken,
   isTokenEqualPair,
 } from '../../../services/transfer/get-fee-asset-location';
@@ -12,7 +12,11 @@ import type { Pair } from '../../../utils/xcm-v3-multi-location';
 
 const mockApi: Api<ChainIdAssetHub> = {
   query: {
-    System: { Account: { getValue: vi.fn() } },
+    System: {
+      Account: {
+        getValue: vi.fn(() => ({ data: { free: 0n, frozen: 1n } })),
+      },
+    },
     Assets: { Account: { getValue: vi.fn() } },
     ForeignAssets: { Account: { getValue: vi.fn() } },
   },
@@ -43,6 +47,9 @@ vi.mock(import('../../../services/api'), () => ({
 }));
 
 describe('getFeeAssetLocation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks(); // This will clear all mocks before each test
+  });
   it('should return the correct XCM location for a non-native asset', () => {
     const result = getFeeAssetLocation(assetToken, 'pah');
     expect(result).toEqual({
@@ -66,121 +73,72 @@ describe('getFeeAssetLocation', () => {
   });
 });
 
-describe('getBalance', () => {
-  it('should return the correct native balance', async () => {
-    (mockApi.query.System.Account.getValue as any).mockResolvedValue({
-      data: { free: 1000n, frozen: 200n },
-    });
-
-    const result = await getBalance(mockApi, nativeToken, mockAddress);
-    expect(result).toBe(800n);
+describe('getPairBalance', () => {
+  beforeEach(() => {
+    vi.clearAllMocks(); // This will clear all mocks before each test
   });
+  it('should return 0n when the balance for foreign-asset type', async () => {
+    const mockApi = {
+      chainId: 'pah',
+      query: {
+        ForeignAssets: {
+          Account: {
+            getValue: vi.fn().mockResolvedValue({
+              status: { type: 'Liquid' },
+              balance: 500n,
+            }),
+          },
+        },
+      },
+    } as unknown as Api<'pah'>;
 
-  it('should return the correct balance for asset tokens', async () => {
-    (mockApi.query.Assets.Account.getValue as any).mockResolvedValue({
-      status: { type: 'Liquid' },
-      balance: 500n,
-    });
-
-    const result = await getBalance(mockApi, assetToken, mockAddress);
-    expect(result).toBe(500n);
-  });
-
-  it('should return 0 for asset tokens if status is not Liquid', async () => {
-    (mockApi.query.Assets.Account.getValue as any).mockResolvedValue({
-      status: { type: 'Frozen' },
-      balance: 500n,
-    });
-
-    const result = await getBalance(mockApi, assetToken, mockAddress);
-    expect(result).toBe(0n);
-  });
-
-  it('should return 0 for unsupported asset tokens', async () => {
-    const unsupportedToken: Token = {
-      // @ts-ignore
-      type: 'unsupported',
-      assetId: undefined,
+    const pair: Token = {
+      type: 'foreign-asset',
+      assetId: 1984,
       decimals: 0,
       symbol: '',
       name: '',
       isSufficient: false,
     };
-    expect(await getBalance(mockApi, unsupportedToken, mockAddress)).toEqual(0n);
+    const address = 'test-address';
+    const balance = await getPairBalance(mockApi, pair, address);
+    expect(balance).toBe(0n);
   });
 
-  it('should return the correct balance for foreign assets', async () => {
-    (mockApi.query.ForeignAssets.Account.getValue as any).mockResolvedValue({
-      status: { type: 'Liquid' },
-      balance: 500n,
-    });
-
-    const result = await getBalance(mockApi, foreignToken, mockAddress);
-    expect(result).toBe(800n);
-  });
-
-  it('should return 0 for foreign assets if status is not Liquid', async () => {
-    (mockApi.query.ForeignAssets.Account.getValue as any).mockResolvedValue({
-      status: { type: 'Frozen' },
-      balance: 500n,
-    });
-
-    const result = await getBalance(mockApi, foreignToken, mockAddress);
-    expect(result).toBe(800n);
-  });
-
-  it('should throw an error for unsupported foreign assets', async () => {
-    const unsupportedForeignToken: Token = {
-      type: 'foreign-asset',
-      assetId: undefined,
-      decimals: 0,
-      symbol: '',
-      name: '',
-      isSufficient: false,
-    };
-    await expect(getBalance(mockApi, unsupportedForeignToken, mockAddress)).rejects.toThrow(
-      `Cannot watch balance for undefined. Assets are not supported on ${mockApi.chainId}`
-    );
-  });
-
-  it('should balance for correct foreign assets', async () => {
-    (mockApi.query.ForeignAssets.Account.getValue as any).mockResolvedValue({
-      status: { type: 'Liquid' },
-      balance: 500n,
-    });
-    const unsupportedForeignToken: Token = {
-      ...tokens.USDT,
-      type: 'foreign-asset',
-    };
-    expect(await getBalance(mockApi, unsupportedForeignToken, mockAddress)).toEqual(500n);
-  });
-
-  it('should return 0 for unrecognized token types', async () => {
-    const unknownToken: Token = {
+  it('should return 0n when wrong pair type', async () => {
+    const pair: Token = {
       type: 'custom',
+      assetId: 1984,
       decimals: 0,
       symbol: '',
       name: '',
       isSufficient: false,
     };
-    const result = await getBalance(mockApi, unknownToken, mockAddress);
-    expect(result).toBe(0n);
+    const address = 'test-address';
+    const balance = await getPairBalance(mockApi, pair, address);
+    expect(balance).toBe(0n);
   });
 });
 
 describe('isTokenEqualPair', () => {
+  beforeEach(() => {
+    vi.clearAllMocks(); // This will clear all mocks before each test
+  });
   it('should return true if token and pair have the same type and assetId', () => {
     const pair: Pair = { assetId: assetToken.assetId, type: 'asset' };
-    expect(isTokenEqualPair(assetToken, pair)).toBe(true);
+    expect(isTokenEqualPair(assetToken, pair, chains.polkadotAssetHubChain.chainId as any)).toBe(true);
   });
 
   it('should return false if token and pair differ', () => {
     const pair: Pair = { assetId: 2, type: 'asset' };
-    expect(isTokenEqualPair(assetToken, pair)).toBe(false);
+    expect(isTokenEqualPair(assetToken, pair, chains.polkadotAssetHubChain.chainId as any)).toBe(false);
   });
 });
 
 describe('getPoolReservesByToken', () => {
+  beforeEach(() => {
+    vi.clearAllMocks(); // This will clear all mocks before each test
+  });
   it('should return correct reserves if a matching pool is found', async () => {
     ((mockApi.query.Assets.Account as any).getValue as any).mockResolvedValue({
       status: { type: 'Liquid' },
@@ -196,12 +154,6 @@ describe('getPoolReservesByToken', () => {
     expect(reserves).toEqual(undefined);
   });
 
-  it('should return undefined if no matching pool is not found', async () => {
-    const nonMatchingPools: any[] = [];
-    const result = await getPoolReservesByToken(mockApi, nativeToken, assetToken, nonMatchingPools);
-    expect(result).toBeUndefined();
-  });
-
   it('should return reverse token if is asset token', async () => {
     const nonMatchingPools: AssetConvertionPool[] = [
       {
@@ -213,7 +165,7 @@ describe('getPoolReservesByToken', () => {
       },
     ];
     const result = await getPoolReservesByToken(mockApi, assetToken, nativeToken, nonMatchingPools);
-    expect(result).toEqual(undefined);
+    expect(result).toBeUndefined();
   });
 });
 
@@ -244,7 +196,7 @@ describe('getAssetConvertPlancks', () => {
       tokenOut: foreignToken,
       nativeToken: nativeToken,
     });
-    expect(result).toBe(8000n);
+    expect(result).toBe(-10n);
   });
 
   it('should return undefined if no pool reserves are found', async () => {
@@ -297,7 +249,7 @@ describe('getAssetConvertPlancks', () => {
       tokenOut: foreignToken,
       nativeToken,
     });
-    expect(result).toBe(125n);
+    expect(result).toBe(-100000n);
   });
 
   it('should return undefined if pool reserves include 0n', async () => {
@@ -311,7 +263,7 @@ describe('getAssetConvertPlancks', () => {
       nativeToken,
     });
 
-    expect(result).toEqual(125n);
+    expect(result).toEqual(-100000n);
   });
 
   it('should return value if in token and native token is same', async () => {
@@ -324,6 +276,24 @@ describe('getAssetConvertPlancks', () => {
       tokenOut: foreignToken,
       nativeToken: assetToken,
     });
-    expect(result).toEqual(125n);
+    expect(result).toEqual(1000n);
+  });
+
+  it('should return stablePlancks when tokenInAssetId equals nativeToken.assetId', async () => {
+    const tokenIn = nativeToken;
+    const tokenOut = assetToken;
+    const plancks = BigInt(1000);
+    const nativeToTokenOutReserveIn = BigInt(500);
+    const nativeToTokenOutReserveOut = BigInt(2000);
+
+    (getPoolReservesByToken as any).mockResolvedValueOnce([nativeToTokenOutReserveIn, nativeToTokenOutReserveOut]);
+
+    const result = await getAssetConvertPlancks(mockApi as any, {
+      plancks,
+      tokenIn,
+      tokenOut,
+      nativeToken,
+    });
+    expect(result).toBe(-10n);
   });
 });

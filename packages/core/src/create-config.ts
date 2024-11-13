@@ -16,6 +16,7 @@ export type Config<Chains extends readonly [Chain] = readonly [Chain]> = {
   readonly tokens?: Partial<Record<Chains[number]['id'], TokenConfig>>;
   readonly useXcmTransfer?: boolean;
   readonly xcmChains?: Chain[];
+  readonly destinationAddress?: string;
 };
 
 /**

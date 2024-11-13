@@ -1,0 +1,174 @@
+---
+title: "Light Client"
+description: "Light Client Configuration"
+---
+
+import { Callout, Steps, Tab, Tabs } from "nextra-theme-docs";
+
+# Light Client Configuration
+
+By default, the Polkadot-Sufficient-Assets library uses WebSocket providers to connect to the blockchain networks. These WebSocket URLs are specified in the predefined chain configurations. If you are fine with using external RPC nodes, you don’t need to make any changes to the configuration.
+
+### Default WebSocket Provider
+
+When using the default configuration, the library connects to the blockchain networks via WebSocket URLs specified in the chains. For example, the **Polkadot Asset Hub** chain might use a WebSocket URL like this:
+
+```typescript
+import { chains } from "polkadot-sufficient-assets";
+
+const defaultConfig = {
+  chains: [chains.polkadotAssetHubChain], // Polkadot Asset Hub will use its default WebSocket URL
+};
+```
+
+In this case, the library will automatically connect to the chain using the WebSocket URL defined in chains.polkadotAssetHubChain.wsUrls, which might look like:
+
+```ts
+polkadotAssetHubChain.wsUrls = ["wss://polkadot.rpc.dwellir.com"];
+```
+
+### Switching to Smoldot (Light Client)
+
+If you want to enable the light client (Smoldot) and run a lightweight node directly within your application, you will need to follow these steps. The light client allows you to interact with the blockchain without relying on external WebSocket nodes, improving decentralization and security.
+
+## Steps to Enable Light Clients
+
+1. **Install Smoldot**: Ensure that your project has access to the Smoldot package, which is part of `polkadot-sufficient-assets`.
+
+2. **Instantiate Smoldot**: You can instantiate Smoldot either on the **main thread** (not recommended for performance reasons) or via a **WebWorker** (recommended).
+
+3. **Add Chain Specs**: Provide the **chain spec files** for each chain. These files contain the necessary configuration for the chain to run in Smoldot.
+
+## Instantiating Smoldot
+
+### Main Thread
+
+This is the easiest way to instantiate Smoldot, but it blocks the main thread and may have performance issues.
+
+```typescript
+import { start } from "polkadot-sufficient-assets/smoldot";
+
+const smoldot = start();
+```
+
+### WebWorker (Recommended)
+
+WebWorkers are available in modern browser environments and Bun. Having Smoldot in a worker allows the main thread to remain free for other tasks. Smoldot can block the main thread during demanding tasks, so WebWorkers are highly recommended.
+
+Different bundlers have different methods for creating workers. Below are examples for various bundlers.
+
+**Vite (and possibly other bundlers)**
+
+This method is guaranteed to work on Vite, but it might also work on some other bundlers.
+
+```ts
+import { startFromWorker } from "polkadot-sufficient-assets/smoldot/from-worker";
+import SmWorker from "polkadot-sufficient-assets/smoldot/worker?worker";
+
+const smoldot = startFromWorker(new SmWorker());
+```
+
+**Bun**
+
+This method is safer than the previous one and could work in other bundlers.
+
+```ts
+import { startFromWorker } from "polkadot-sufficient-assets/smoldot/from-worker";
+
+const smWorker = new Worker(
+  import.meta.resolve("polkadot-sufficient-assets/smoldot/worker")
+);
+const smoldot = startFromWorker(smWorker);
+```
+
+**Webpack (Safest, should work in most bundlers)**
+
+This is the safest option and should work in almost every bundler.
+
+```ts
+import { startFromWorker } from "polkadot-sufficient-assets/smoldot/from-worker";
+
+const smWorker = new Worker(
+  new URL("polkadot-sufficient-assets/smoldot/worker", import.meta.url)
+);
+const smoldot = startFromWorker(smWorker);
+```
+
+## Configuring Light Clients
+
+Once Smoldot is instantiated, you don’t need to manually add chains — the polkadot-sufficient-assets library handles that for you. All you need to do is provide the necessary chain spec files in the lightClients configuration.
+
+### Example: Enabling Light Clients with Smoldot
+
+```ts
+import { chains, createConfig, tokens } from "polkadot-sufficient-assets";
+import { startFromWorker } from "polkadot-sufficient-assets/smoldot/from-worker";
+import SmWorker from "polkadot-sufficient-assets/smoldot/worker?worker";
+import { chainSpec as polkadotChainSpec } from "polkadot-sufficient-assets/chain-specs/polkadot";
+import { chainSpec as polkadotAssetHubChainSpec } from "polkadot-sufficient-assets/chain-specs/polkadot_asset_hub";
+import { USDT } from "./assets";
+
+// Step 1: Initialize Smoldot using a WebWorker
+const smoldot = startFromWorker(new SmWorker());
+
+// Step 2: Create the configuration with light client enabled
+export const libConfig = createConfig({
+  chains: [chains.polkadotAssetHubChain], // Specify the chains
+
+  // Step 3: Enable light clients
+  lightClients: {
+    enable: true, // Enable the light client
+    smoldot, // Use the Smoldot client
+    chainSpecs: {
+      [chains.polkadotAssetHubChain.id]: polkadotAssetHubChainSpec, // Chain spec for Polkadot Asset Hub
+      [chains.polkadotChain.id]: polkadotChainSpec, // Chain spec for Polkadot relay chain
+    },
+  },
+
+  // Token and fee configuration
+  tokens: {
+    pah: {
+      token: USDT,
+      feeTokens: [tokens.DOT, USDT], // USDT and DOT used for transaction fees
+    },
+  },
+});
+```
+
+### Explanation of the Light Client Configuration
+
+- **chains**: This defines the blockchain networks involved in the configuration. By default, the library connects to the network using WebSocket URLs. When light clients are enabled, the WebSocket connection is replaced by the Smoldot client.
+
+- **lightClients**: This is the key configuration to enable light clients.
+
+  - **enable**: Set this to `true` to switch from WebSocket connections to Smoldot.
+  - **smoldot**: This is the instance of the Smoldot client. In this example, we initialize it using a WebWorker for better performance.
+  - **chainSpecs**: This is a mapping of the chain IDs to their respective chain specification files. These files are necessary for Smoldot to run the chains locally. Once provided, the library automatically handles adding the chains.
+
+- **tokens**: Specifies the tokens used for transfers and transaction fees. In this example, **USDT** is the main token being transferred, and both **DOT** and **USDT** are allowed for paying transaction fees.
+
+### Default vs. Light Client (Smoldot)
+
+| Feature              | Default Configuration (WebSocket Provider)                                     | Light Client Configuration (Smoldot)                   |
+| -------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| **Connection Type**  | Connects to chains via WebSocket URLs (e.g., `wss://polkadot.rpc.dwellir.com`) | Runs a local light client (Smoldot) within the app     |
+| **Resource Usage**   | Relies on external RPC nodes for blockchain data                               | Downloads and processes chain data locally             |
+| **Performance**      | Minimal impact on the main thread                                              | Offloads blockchain processing to a separate WebWorker |
+| **Decentralization** | Depends on centralized RPC nodes                                               | Fully decentralized, no reliance on external nodes     |
+| **Configuration**    | No need to specify chain specs                                                 | Requires chain spec files for each chain               |
+
+### When to Use Light Clients
+
+- **Improved Decentralization**: If you want to avoid relying on centralized RPC nodes, light clients are a great option.
+- **Security**: Using a light client ensures that you interact directly with the blockchain, reducing trust in third-party providers.
+
+- **Offline Use**: Light clients can work in environments where you need to operate offline, syncing chain data locally.
+
+### Steps Recap
+
+- **By default**: The library connects to networks via WebSocket URLs defined in the chain configuration.
+
+- **To enable light clients**:
+  1. Set `lightClients.enable` to `true`.
+  2. Initialize the Smoldot client using `startFromWorker()`.
+  3. Provide the chain specification files for each chain in `lightClients.chainSpecs`.

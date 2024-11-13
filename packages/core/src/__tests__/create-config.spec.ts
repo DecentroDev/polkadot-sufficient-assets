@@ -49,6 +49,6 @@ describe('createConfig', () => {
 
     const result = createConfig(config);
 
-    expect(result).toEqual(config); // Should still return the same object
+    expect(result).toEqual(config);
   });
 });

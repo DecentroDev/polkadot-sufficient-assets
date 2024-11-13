@@ -1,37 +1,49 @@
-import { type Codec, createClient, type SS58String } from 'polkadot-api';
+import { createClient } from 'polkadot-api';
+import { chainSpec as polkadotChainspec } from 'polkadot-api/chains/rococo_v2_2';
+import { start } from 'polkadot-api/smoldot';
 import { getWsProvider } from 'polkadot-api/ws-provider/web';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   type Chain,
   type ChainRelay,
   chains,
+  type ClientOptions,
   getChainById,
   getClient,
   getParaChainClient,
   getRelayChainClient,
-  isRelay,
 } from '../../../services';
 import { getChainSpec, hasChainSpec } from '../../../services/client/getChainSpec';
-import { getScChainProvider } from '../../../services/client/getScChainProvider';
 import { getSmChainProvider } from '../../../services/client/getSmChainProvider';
-import { isScAvailableScProvider } from '../../../services/client/isScAvailable';
+
+const smoldot = start();
 
 vi.mock(import('polkadot-api'), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
     createClient: vi.fn(),
-    getWsProvider: vi.fn(() => 'mockWsProvider'),
-    AccountId: vi.fn(() => '5GrwvaEFiu5H8p8b5rZqQ4f6RexF6p2U6zWkQZopVvGg7Yg' as unknown as Codec<SS58String>),
   };
 });
+getRelayChainClient;
 
 vi.mock(import('polkadot-api/ws-provider/web'), () => ({
   getWsProvider: vi.fn(),
 }));
 
+vi.mock(import('../../../services/client/getSmChainProvider'), () => {
+  return {
+    getSmChainProvider: vi.fn(),
+  };
+});
+
+vi.mock(import('../../../services/client/getChainSpec'), () => ({
+  getChainSpec: vi.fn(),
+  hasChainSpec: vi.fn(),
+}));
+
 // @ts-ignore
-vi.mock(import('../../../services/chains/chains'), async (importOriginal) => {
+vi.mock(import('../../../services/chains'), async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -40,180 +52,138 @@ vi.mock(import('../../../services/chains/chains'), async (importOriginal) => {
   };
 });
 
-// @ts-ignore
-vi.mock(import('../../../services/client/getChainSpec'), async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    getChainSpec: vi.fn(),
-    hasChainSpec: vi.fn(),
+const polkadot = await smoldot.addChain({
+  chainSpec: polkadotChainspec,
+  disableJsonRpc: true,
+});
+
+describe('Client Functions', () => {
+  let mockChain: Chain = chains.polkadotAssetHubChain;
+  let mockRelayChain: ChainRelay = chains.polkadotChain;
+  let mockOptions: ClientOptions = {
+    lightClients: {
+      enable: true,
+      smoldot: {
+        addChain: vi.fn(),
+        terminate: vi.fn(),
+      },
+      chainSpecs: { 'chain-1': 'spec-1', 'relay-1': 'relay-spec' },
+    },
   };
-});
-
-// Mock other necessary providers
-vi.mock(import('../../../services/client/getScChainProvider'), () => ({
-  getScChainProvider: vi.fn(),
-}));
-
-vi.mock(import('../../../services/client/getSmChainProvider'), () => ({
-  getSmChainProvider: vi.fn(),
-}));
-
-vi.mock(import('../../../services/client/isScAvailable'), () => ({
-  isScAvailableScProvider: vi.fn(),
-}));
-
-describe('getClient', () => {
-  const mockChainId = chains.westendAssetHubChain.id;
-  const mockChain: Chain = chains.westendAssetHubChain;
-  const mockChains: Chain[] = [mockChain];
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.mocked(getChainById).mockReturnValue(mockChain);
+    vi.mocked(getWsProvider).mockReturnValue({} as any);
+    vi.mocked(getSmChainProvider).mockResolvedValue({} as any);
+    vi.mocked(createClient).mockReturnValue({} as any);
   });
 
-  it('should cache and return a client for a relay chain', async () => {
-    (getChainById as any).mockReturnValue(mockChain);
-    (isRelay as any).mockReturnValue(true);
-    (hasChainSpec as any).mockReturnValue(true);
-    (createClient as any).mockResolvedValue('mockClient');
+  describe('getClient', () => {
+    it('should return a cached client if available', async () => {
+      const client1 = await getClient('chain-1', [mockChain], mockOptions);
+      const client2 = await getClient('chain-1', [mockChain], mockOptions);
 
-    const client1 = await getClient(mockChainId, mockChains, { lightClients: true });
-    const client2 = await getClient(mockChainId, mockChains, { lightClients: true });
+      expect(client1).toBe(client2);
+      expect(createClient).toHaveBeenCalledTimes(1);
+    });
 
-    expect(client1).toBe(client2);
-    expect(createClient).toHaveBeenCalledTimes(1);
+    it('should create a new client if not cached', async () => {
+      await getClient('chain-1', [mockChain], mockOptions);
+
+      expect(createClient).toHaveBeenCalled();
+    });
   });
 
-  it('should create a client using the WS provider if lightClients is false', async () => {
-    (getChainById as any).mockReturnValue(mockChain);
-    (isRelay as any).mockReturnValue(true);
-    (hasChainSpec as any).mockReturnValue(false);
-    (getWsProvider as any).mockReturnValue('wsProvider');
-    (createClient as any).mockResolvedValue('mockClient');
+  describe('getRelayChainClient', () => {
+    it('should create a client using wsProvider when light clients are disabled', async () => {
+      const chain = chains.kusamaChain;
+      const options: ClientOptions = { lightClients: { enable: false, smoldot: {} as any, chainSpecs: {} } };
 
-    const client = await getClient(mockChainId, mockChains, { lightClients: false });
+      const mockClient = { someClientProperty: 'value' };
+      (createClient as any).mockResolvedValue(mockClient);
+      (getWsProvider as any).mockReturnValue('mockProvider');
 
-    expect(createClient).toHaveBeenCalledWith('wsProvider');
+      const client = await getRelayChainClient(chain, options);
+
+      expect(createClient).toHaveBeenCalledWith('mockProvider');
+      expect(client).toBe(mockClient);
+    });
+
+    it('should create a client using wsProvider when chainSpec is not available', async () => {
+      const chain = chains.kusamaChain;
+      const options: ClientOptions = {
+        lightClients: {
+          enable: true,
+          smoldot: {} as any,
+          chainSpecs: {},
+        },
+      };
+
+      (hasChainSpec as any).mockReturnValue(false);
+      const mockClient = { someClientProperty: 'value' };
+      (createClient as any).mockResolvedValue(mockClient);
+      (getWsProvider as any).mockReturnValue('mockProvider');
+
+      const client = await getRelayChainClient(chain, options);
+
+      expect(createClient).toHaveBeenCalledWith('mockProvider');
+      expect(client).toBe(mockClient);
+    });
+
+    it('should create a client using smoldot when light clients are enabled and chainSpec is available', async () => {
+      const chain = chains.kusamaChain;
+      const options: ClientOptions = {
+        lightClients: {
+          enable: true,
+          smoldot: {} as any,
+          chainSpecs: { chain1: 'chainSpec' },
+        },
+      };
+
+      (hasChainSpec as any).mockReturnValue(true);
+      (getChainSpec as any).mockReturnValue('mockChainSpec');
+      const mockSmChainProvider = 'mockSmChainProvider';
+      (getSmChainProvider as any).mockResolvedValue(mockSmChainProvider);
+      const mockClient = { someClientProperty: 'value' };
+      (createClient as any).mockResolvedValue(mockClient);
+
+      const client = await getRelayChainClient(chain, options);
+
+      expect(getChainSpec).toHaveBeenCalledWith(chain.id, options?.lightClients?.chainSpecs);
+      expect(createClient).toHaveBeenCalledWith(mockSmChainProvider);
+      expect(client).toBe(mockClient);
+    });
   });
 
-  it('should create a client using the substrate-connect provider if available', async () => {
-    (getChainById as any).mockReturnValue(mockChain);
-    (isRelay as any).mockReturnValue(true);
-    (hasChainSpec as any).mockReturnValue(true);
-    (getChainSpec as any).mockResolvedValue('chainSpec');
-    (isScAvailableScProvider as any).mockResolvedValue(true);
-    (getScChainProvider as any).mockReturnValue('scProvider');
-    (createClient as any).mockResolvedValue('mockClient');
-  });
+  describe('getParaChainClient', () => {
+    it('should throw an error if relay chain is not available', async () => {
+      mockChain.relay = null;
+      await expect(getParaChainClient(mockChain, mockOptions)).rejects.toThrow(
+        `Chain ${mockChain.id} does not have a relay chain`
+      );
+    });
 
-  it('should create a client for parachains', async () => {
-    const mockParaChain = { id: 'paraChain', relay: 'polkadot', wsUrl: 'wss://para.api' };
-    (getChainById as any).mockReturnValue(mockParaChain);
-    (isRelay as any).mockReturnValue(false);
-    (getWsProvider as any).mockReturnValue('scProvider');
-    (createClient as any).mockResolvedValue('mockClient');
+    // it('should use ws provider if lightClients are disabled', async () => {
+    //   const client = await getParaChainClient(mockChain, {
+    //     ...mockOptions,
+    //     lightClients: { ...mockOptions.lightClients, enable: false },
+    //   });
 
-    const client = await getClient(mockParaChain.id, mockChains, { lightClients: true });
+    //   expect(getWsProvider).toHaveBeenCalledWith(mockChain.wsUrls);
+    //   expect(createClient).toHaveBeenCalledWith({ ws: 'mock-ws-provider' });
+    // });
 
-    expect(createClient).toHaveBeenCalledWith('scProvider');
-  });
+    it('should use smoldot provider if enabled and chainSpec is available', async () => {
+      vi.mocked(getChainSpec).mockReturnValueOnce('relay-spec').mockReturnValueOnce('spec-1');
 
-  it('should throw an error if a parachain does not have a relay', async () => {
-    const mockParaChain = { id: 'paraChain', relay: null, wsUrl: 'wss://para.api' };
-    (getChainById as any).mockReturnValue(mockParaChain);
+      const client = await getParaChainClient(mockRelayChain, mockOptions);
 
-    expect(await getClient(mockParaChain.id, mockChains, { lightClients: true })).toEqual('mockClient');
-  });
-});
-
-describe('getRelayChainClient', () => {
-  const mockChainId = chains.polkadotChain.id;
-  const mockChain: ChainRelay = chains.polkadotChain;
-  const mockChains: Chain[] = [mockChain];
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should use WS provider if light clients are disabled', async () => {
-    (hasChainSpec as any).mockReturnValue(false);
-    (getWsProvider as any).mockReturnValue('wsProvider');
-    (createClient as any).mockResolvedValue('mockClient');
-
-    const client = await getRelayChainClient(mockChain, { lightClients: false });
-
-    expect(createClient).toHaveBeenCalledWith('wsProvider');
-  });
-
-  it('should use Substrate-connect provider if available', async () => {
-    (hasChainSpec as any).mockReturnValue(true);
-    (getChainSpec as any).mockResolvedValue('chainSpec');
-    (isScAvailableScProvider as any).mockResolvedValue(true);
-    (getScChainProvider as any).mockReturnValue('scProvider');
-    (createClient as any).mockResolvedValue('mockClient');
-
-    const client = await getRelayChainClient(mockChain, { lightClients: true });
-
-    expect(createClient).toHaveBeenCalledWith('scProvider');
-  });
-
-  it('should fall back to smoldot if Substrate-connect is unavailable', async () => {
-    (hasChainSpec as any).mockReturnValue(true);
-    (getChainSpec as any).mockResolvedValue('chainSpec');
-    (isScAvailableScProvider as any).mockResolvedValue(false);
-    (getSmChainProvider as any).mockResolvedValue('smProvider');
-    (createClient as any).mockResolvedValue('mockClient');
-
-    const client = await getRelayChainClient(mockChain, { lightClients: true });
-
-    expect(createClient).toHaveBeenCalledWith('smProvider');
-  });
-});
-
-describe('getParaChainClient', () => {
-  it('should throw an error if the parachain has no relay', async () => {
-    const mockParaChain = { id: 'paraChain', relay: null, wsUrl: 'wss://para.api' };
-
-    await expect(() => getParaChainClient(mockParaChain as Chain, { lightClients: true })).rejects.toThrow(
-      `Chain paraChain does not have a relay chain`
-    );
-  });
-
-  it('should use WS provider if light clients are disabled', async () => {
-    const mockParaChain = { id: 'paraChain', relay: 'polkadot', wsUrl: 'wss://para.api' };
-    (hasChainSpec as any).mockReturnValue(false);
-    (getWsProvider as any).mockReturnValue('wsProvider');
-    (createClient as any).mockResolvedValue('mockClient');
-
-    const client = await getParaChainClient(mockParaChain as Chain, { lightClients: false });
-
-    expect(createClient).toHaveBeenCalledWith('wsProvider');
-  });
-
-  it('should use Substrate-connect if available', async () => {
-    const mockParaChain = { id: 'paraChain', relay: 'polkadot', wsUrl: 'wss://para.api' };
-    (hasChainSpec as any).mockReturnValue(true);
-    (getChainSpec as any).mockResolvedValue('paraChainSpec');
-    (isScAvailableScProvider as any).mockResolvedValue(true);
-    (getScChainProvider as any).mockReturnValue('scProvider');
-    (createClient as any).mockResolvedValue('mockClient');
-
-    const client = await getParaChainClient(mockParaChain as Chain, { lightClients: true });
-
-    expect(createClient).toHaveBeenCalledWith('scProvider');
-  });
-
-  it('should fall back to smoldot if Substrate-connect is unavailable', async () => {
-    const mockParaChain = { id: 'paraChain', relay: 'polkadot', wsUrl: 'wss://para.api' };
-    (hasChainSpec as any).mockReturnValue(true);
-    (getChainSpec as any).mockResolvedValue('paraChainSpec');
-    (isScAvailableScProvider as any).mockResolvedValue(false);
-    (getSmChainProvider as any).mockResolvedValue('smProvider');
-    (createClient as any).mockResolvedValue('mockClient');
-
-    const client = await getParaChainClient(mockParaChain as Chain, { lightClients: true });
-
-    expect(createClient).toHaveBeenCalledWith('smProvider');
+      // expect(getSmChainProvider).toHaveBeenCalledWith(
+      //   mockOptions.lightClients?.smoldot,
+      //   { chainId: 'chain-1', chainSpec: 'spec-1' },
+      //   { chainId: 'relay-1', chainSpec: 'relay-spec' }
+      // );
+      expect(createClient).toHaveBeenCalledWith({});
+    });
   });
 });

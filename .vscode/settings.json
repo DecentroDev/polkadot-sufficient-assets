@@ -20,13 +20,18 @@
   ],
   "html.format.wrapAttributes": "auto",
   "cSpell.words": [
+    "Convertion",
     "immer",
     "lucide",
     "Neue",
     "outdir",
     "papi",
+    "Parachain",
     "paseoah",
+    "plancks",
     "Polkadot",
+    "smoldot",
+    "substract",
     "tanstack",
     "tsup",
     "wordlist",
@@ -48,12 +53,18 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "[markdown]": {
-    "editor.defaultFormatter": "biomejs.biome"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[mdx]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

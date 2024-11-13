@@ -31,8 +31,36 @@
       "cache": false,
       "persistent": true
     },
+    "dev:web": {
+      "dependsOn": ["^ready"],
+      "outputs": ["dist/**", "build/**"],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:app": {
+      "dependsOn": ["^ready"],
+      "outputs": ["dist/**", "build/**"],
+      "cache": false,
+      "persistent": true
+    },
+    "build:core": {
+      "outputs": ["../../dist/**", "dist/**", "build/**"]
+    },
+    "build:client": {
+      "outputs": ["../../dist/**", "dist/**", "build/**"]
+    },
     "build": {
-      "dependsOn": ["^ready", "^build:prepare", "^build"],
+      "dependsOn": ["^build:core", "^build:client", "^build"],
+      "outputs": ["../../dist/**", "dist/**", "build/**"],
+      "cache": false
+    },
+    "build:app": {
+      "dependsOn": ["^build:core", "^build:client", "^build"],
+      "outputs": ["../../dist/**", "dist/**", "build/**"],
+      "cache": false
+    },
+    "preview": {
+      "dependsOn": ["^build:app"],
       "outputs": ["../../dist/**", "dist/**", "build/**"],
       "cache": false
     },
@@ -72,6 +100,8 @@
       "cache": false
     },
     "test": {},
-    "test:cov": {}
+    "test:cov": {},
+    "test:client": {},
+    "test:client:cov": {}
   }
 }

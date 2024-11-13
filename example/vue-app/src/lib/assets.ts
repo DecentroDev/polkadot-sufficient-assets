@@ -38,7 +38,7 @@ export const USDT = createToken({
           id: XcmV3MultiassetAssetId.Concrete({
             parents: 1,
             interior: XcmV3Junctions.X3([
-              XcmV3Junction.Parachain(destChain.paraId!),
+              XcmV3Junction.Parachain(destChain.chainId!),
               XcmV3Junction.PalletInstance(50),
               XcmV3Junction.GeneralIndex(1984n),
             ]),

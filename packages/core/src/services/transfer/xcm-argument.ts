@@ -12,7 +12,7 @@ import { isParachain, isSystemChain, type Chain } from '../chains';
 import type { Token, XTokenVersionedAsset } from '../tokens';
 import type { Direction } from './establishDirection';
 
-const getBeneficiary = (address: SS58String | Uint8Array): XcmVersionedLocation =>
+export const getBeneficiary = (address: SS58String | Uint8Array): XcmVersionedLocation =>
   XcmVersionedLocation.V3({
     parents: 0,
     interior: XcmV3Junctions.X1(
@@ -23,7 +23,7 @@ const getBeneficiary = (address: SS58String | Uint8Array): XcmVersionedLocation 
     ),
   });
 
-const _getGlobalConsensus = (destChain: Chain) => {
+export const _getGlobalConsensus = (destChain: Chain) => {
   switch (destChain.relay) {
     case 'kusama':
       return XcmV3Junction.GlobalConsensus(XcmV3JunctionNetworkId.Kusama());
@@ -43,7 +43,7 @@ const _getGlobalConsensus = (destChain: Chain) => {
   }
 };
 
-function _getMultiLocationParent(originChainInfo: Chain, isSameRelayChain: boolean): number {
+export function _getMultiLocationParent(originChainInfo: Chain, isSameRelayChain: boolean): number {
   let parent = 0;
 
   if (isParachain(originChainInfo) || isSystemChain(originChainInfo)) {
@@ -57,18 +57,22 @@ function _getMultiLocationParent(originChainInfo: Chain, isSameRelayChain: boole
   return parent;
 }
 
-function _getMultiLocationInterior(destChain: Chain, isSameRelayChain: boolean, recipient?: SS58String | Uint8Array) {
+export function _getMultiLocationInterior(
+  destChain: Chain,
+  isSameRelayChain: boolean,
+  recipient?: SS58String | Uint8Array
+) {
   const junctions: XcmV3Junction[] = [];
 
   if (isSameRelayChain) {
     if (isParachain(destChain) || isSystemChain(destChain)) {
-      junctions.push(XcmV3Junction.Parachain(destChain.paraId!));
+      junctions.push(XcmV3Junction.Parachain(destChain.chainId!));
     }
   } else {
     junctions.push(_getGlobalConsensus(destChain));
 
     if (isParachain(destChain) || isSystemChain(destChain)) {
-      junctions.push(XcmV3Junction.Parachain(destChain.paraId!));
+      junctions.push(XcmV3Junction.Parachain(destChain.chainId!));
     }
   }
 
@@ -95,7 +99,7 @@ function _getMultiLocationInterior(destChain: Chain, isSameRelayChain: boolean, 
   }
 }
 
-const getDest = (
+export const getDest = (
   isSameRelayChain: boolean,
   originChain: Chain,
   destChain: Chain,

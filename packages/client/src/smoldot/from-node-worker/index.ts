@@ -1,1 +1,2 @@
-export * from '@polkadot-sufficient-assets/core/smoldot/from-node-worker';
+// @ts-ignore
+export * from '@polkadot-api/smoldot/from-node-worker';

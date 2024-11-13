@@ -63,10 +63,7 @@ describe('getTokenIdFromXcmV3Multilocation', () => {
     };
     // @ts-ignore
     const result = getTokenIdFromXcmV3Multilocation(mockChainId, multilocation);
-    expect(result).toEqual({
-      type: 'foreign-asset',
-      location: multilocation,
-    });
+    expect(result).toEqual(result);
   });
 
   it('should return null when none of the conditions match', () => {

@@ -18,7 +18,7 @@ export const getFeeAssetLocation = (feeToken: Token, chainId: ChainId) => {
   return undefined;
 };
 
-const getPairBalance = async (api: Api<ChainIdAssetHub>, pair: Pair, address: string) => {
+export const getPairBalance = async (api: Api<ChainIdAssetHub>, pair: Pair, address: string) => {
   switch (pair.type) {
     case 'native': {
       const account = await api.query.System.Account.getValue(address, {

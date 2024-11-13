@@ -46,7 +46,7 @@ describe('API Utilities', () => {
       expect(result).toEqual(true);
     });
 
-    it('should return false for a non-AssetHub chain', () => {
+    it('should return false for a non-AssetHub chgetApiain', () => {
       const result = isApiAssetHub(mockApi.relayChain as any);
       expect(result).toEqual(false);
     });
@@ -65,16 +65,7 @@ describe('API Utilities', () => {
   });
 
   describe('getApiInner', () => {
-    const mockChain: Chain = {
-      id: chains.polkadotChain.id,
-      name: 'Polkadot',
-      wsUrl: 'wss://rpc.polkadot.io',
-      relay: null,
-      paraId: null,
-      logo: 'logo.png',
-      stableTokenId: 'DOT',
-      blockExplorerUrl: null,
-    };
+    const mockChain: Chain = chains.polkadotChain;
 
     it('should return an API for a valid chain ID', async () => {
       const mockClient = {
@@ -86,7 +77,7 @@ describe('API Utilities', () => {
       (getDescriptors as any).mockReturnValue({});
       (getClient as any).mockResolvedValue(mockClient);
 
-      const api = await getApiInner(mockChain.id, false, [mockChain]);
+      const api = await getApiInner(mockChain.id, undefined, [mockChain]);
 
       expect(api.chainId).toBe(mockChain.id);
       expect(api.chain).toBe(mockChain);
@@ -95,9 +86,21 @@ describe('API Utilities', () => {
   });
 
   describe('getApi', () => {
+    it('should return api for an valid chain ID', async () => {
+      const validChainId = chains.polkadotChain.id;
+      const expected = await getApi(
+        validChainId as any,
+        [chains.polkadotChain, chains.polkadotAssetHubChain],
+        true,
+        undefined
+      );
+      await expect(
+        await getApi(validChainId as any, [chains.polkadotChain, chains.polkadotAssetHubChain], true, undefined)
+      ).toEqual(expected);
+    });
     it('should throw an error for an invalid chain ID', async () => {
       const invalidChainId = 'unknownChain';
-      await expect(getApi(invalidChainId as any, [], true, true)).rejects.toThrow(
+      await expect(getApi(invalidChainId as any, [], true, undefined)).rejects.toThrow(
         `Could not find chain ${invalidChainId}`
       );
     });

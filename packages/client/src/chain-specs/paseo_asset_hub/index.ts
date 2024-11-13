@@ -1,1 +1,1 @@
-export * from '@polkadot-sufficient-assets/core/chain-specs/paseo_asset_hub';
+export * from '@polkadot-api/known-chains/paseo_asset_hub';

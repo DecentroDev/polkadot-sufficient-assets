@@ -1,7 +1,7 @@
 import { type PolkadotClient, createClient } from 'polkadot-api';
 import { getWsProvider } from 'polkadot-api/ws-provider/web';
 import type { SmoldotClient } from '../../types';
-import { type Chain, type ChainId, type ChainRelay, getChainById, isRelay } from '../chains';
+import { type Chain, type ChainId, type ChainRelay, getChainById, isRelayChain } from '../chains';
 import { getChainSpec, hasChainSpec } from './getChainSpec';
 import { getSmChainProvider } from './getSmChainProvider';
 
@@ -13,10 +13,10 @@ export type ClientOptions = {
   };
 };
 
-const getClientCacheId = (chainId: ChainId, { lightClients }: ClientOptions) =>
+export const getClientCacheId = (chainId: ChainId, { lightClients }: ClientOptions) =>
   `${chainId}-${lightClients?.enable ?? 'false'}`;
 
-const CLIENTS_CACHE = new Map<string, Promise<PolkadotClient>>();
+export const CLIENTS_CACHE = new Map<string, Promise<PolkadotClient>>();
 
 export const getClient = (chainId: ChainId, chains: Chain[], options: ClientOptions): Promise<PolkadotClient> => {
   const cacheKey = getClientCacheId(chainId, options);
@@ -25,7 +25,7 @@ export const getClient = (chainId: ChainId, chains: Chain[], options: ClientOpti
     const chain = getChainById(chainId, chains);
     CLIENTS_CACHE.set(
       cacheKey,
-      isRelay(chain) ? getRelayChainClient(chain, options) : getParaChainClient(chain, options)
+      isRelayChain(chain) ? getRelayChainClient(chain, options) : getParaChainClient(chain, options)
     );
   }
 

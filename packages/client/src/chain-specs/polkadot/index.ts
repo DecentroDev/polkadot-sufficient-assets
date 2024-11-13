@@ -1,1 +1,1 @@
-export * from '@polkadot-sufficient-assets/core/chain-specs/polkadot';
+export * from '@polkadot-api/known-chains/polkadot';

@@ -10,10 +10,14 @@
     "clean:turbo": "turbo daemon stop && rimraf .turbo && turbo clean:turbo",
     "clean": "pnpm clean:bundle && pnpm clean:papi && pnpm clean:turbo && pnpm clean:node_modules",
     "clean:install": "pnpm clean:node_modules && pnpm install --frozen-lockfile",
-    "build": "pnpm clean:bundle && turbo ready && turbo build",
-    "dev": "pnpm clean:bundle && turbo watch dev --concurrency 20",
+    "build:package": "pnpm clean:bundle && turbo build:core && turbo build:client",
+    "build": "pnpm build:package && turbo build:app",
+    "dev": "pnpm clean:bundle && turbo ready && turbo watch dev --concurrency 20",
     "dev:angular": "pnpm clean:bundle && turbo watch dev:angular --concurrency 20",
     "dev:vue": "pnpm clean:bundle && turbo watch dev:vue --concurrency 20",
+    "dev:web": "pnpm clean:bundle && turbo dev:web",
+    "dev:app": "pnpm clean:bundle && turbo dev:app",
+    "preview": "turbo preview --filter=mini-app",
     "papi:generate": "turbo papi:generate",
     "type-check": "turbo type-check",
     "lint": "turbo lint --continue --",
@@ -22,6 +26,8 @@
     "format:fix": "turbo format --continue -- --write",
     "test": "turbo test",
     "test:cov": "turbo test:cov",
+    "test:client": "turbo test:client",
+    "test:client:cov": "turbo test:client:cov",
     "prepare": "husky",
     "update-version": "run-script-os",
     "update-version:win32": "bash update_version.sh",
@@ -47,5 +53,8 @@
   "packageManager": "pnpm@9.1.1",
   "engines": {
     "node": ">=20.6.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.6.1"
   }
 }

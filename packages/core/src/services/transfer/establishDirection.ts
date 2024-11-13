@@ -1,5 +1,5 @@
 import type { Api } from '../api';
-import { chainDestIsBridge, isParachain, isSystemChain, type Chain, type ChainId } from '../chains';
+import { chainDestIsBridge, isParachain, isRelayChain, isSystemChain, type Chain, type ChainId } from '../chains';
 
 export enum Direction {
   /**
@@ -44,40 +44,11 @@ export enum Direction {
   RelayToBridge = 'RelayToBridge',
 }
 
-/**
- * List of all known system parachains.
- */
-export const SYSTEM_PARACHAINS_NAMES = [
-  'statemine',
-  'statemint',
-  'westmint',
-  'asset-hub-kusama',
-  'asset-hub-polkadot',
-  'asset-hub-westend',
-  'asset-hub-rococo',
-  'asset-hub-paseo',
-  'bridge-hub-kusama',
-  'bridge-hub-paseo',
-  'bridge-hub-polkadot',
-  'encointer-parachain',
-  'collectives',
-];
-
-/**
- * List of all known system parachains.
- */
-export const SYSTEM_RELAY_NAMES = ['kusama', 'polkadot', 'westend', 'rococo', 'paseo-testnet'];
-
-/**
- * As of now all the known relay chains have an ID of 0.
- */
-export const RELAY_CHAIN_IDS = ['0'];
-
 export function establishDirection(api: Api<ChainId>, destChain: Chain): Direction {
   const destChainId = destChain.chainId;
-  const isOriginRelayChain = SYSTEM_RELAY_NAMES.includes(api.chain.specName.toLocaleLowerCase());
-  const isOriginSystemChain = SYSTEM_PARACHAINS_NAMES.includes(api.chain.specName.toLocaleLowerCase());
-  const isDestRelayChain = destChainId === RELAY_CHAIN_IDS[0];
+  const isOriginRelayChain = isRelayChain(api.chain);
+  const isOriginSystemChain = isSystemChain(api.chain);
+  const isDestRelayChain = isRelayChain(destChain);
   const isDestSystemChain = isSystemChain(destChain);
   const isOriginParachain = isParachain(api.chain);
   const isDestParachain = isParachain(destChain);

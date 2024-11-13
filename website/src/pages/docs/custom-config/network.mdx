@@ -1,0 +1,118 @@
+---
+title: "Network Configuration"
+description: "How to configure networks in your application"
+---
+
+import { Callout, Steps, Tab, Tabs } from "nextra-theme-docs";
+
+# Network Configuration
+
+This document explains how to configure networks in your application using the `polkadot-sufficient-assets` library. You'll learn how to set up specific blockchain networks (chains), customize them, and use predefined chains.
+
+## Configuration File
+
+To start, take a look at the `config.ts` file:
+
+```ts filename="config.ts"
+import {
+  chains,
+  createConfig,
+  createTheme,
+  tokens,
+} from "polkadot-sufficient-assets";
+
+export const config = createConfig({
+  chains: [chains.polkadotAssetHubChain], // Specify the chain
+  tokens: {
+    pah: {
+      token: tokens.USDT, // Token you want to transfer
+      feeTokens: [tokens.DOT, tokens.USDT], // Tokens used to pay transaction fees
+    },
+  },
+  useXcmTransfer: false,
+  xcmChains: [chains.hydration], // Optional cross-chain transfer configuration
+});
+```
+
+### Explanation
+
+In the `createConfig` function, you can specify:
+
+- **chains**: The blockchain networks your application will interact with. In this case, the `polkadotAssetHubChain` has been selected.
+- **xcmChains**: If cross-chain transfers (XCM) are enabled, you can specify the chains involved, such as `hydration`.
+
+### Default Chains
+
+The library provides a list of predefined chains that you can use directly in your configuration. Here's an example of the available default chains:
+
+```ts
+import { chains } from "./create-chain";
+
+const knownChains = [
+  chains.polkadotChain,
+  chains.polkadotAssetHubChain,
+  chains.kusamaChain,
+  chains.kusamaAssetHubChain,
+  chains.rococoChain,
+  chains.rococoAssetHubChain,
+  chains.westendChain,
+  chains.westendAssetHubChain,
+  chains.paseoChain,
+  chains.paseoAssetHubChain,
+  chains.hydration,
+];
+```
+
+## Creating a Custom Chain
+
+If you need to use a custom chain that isn't predefined, you can create one using the `createChain` function.
+
+### Example: Adding Polkadot Asset Hub
+
+The configuration below shows how to set up a custom chain, **Polkadot Asset Hub**, using the `createChain` function:
+
+```ts
+import { createChain } from "polkadot-sufficient-assets";
+
+const yourChain = createChain({
+  id: "pah", // A unique chain ID
+  name: "Polkadot Asset Hub", // Display name for the network
+  specName: "asset-hub-polkadot", // The chain's specName (can be fetched via RPC calls to state -> getRuntimeVersion)
+  wsUrls: ["wss://statemint-rpc.dwellir.com"], // WebSocket URLs for RPC connection (specify multiple for fallback)
+  relay: "polkadot", // The relay chain (e.g., 'polkadot', 'kusama')
+  chainId: 1000, // The chain ID (used for parachains or system chains)
+  type: "system", // Chain type ('system', 'relay', or 'para')
+  logo: "./chains/pah.svg", // Path to the chain logo (optional)
+  blockExplorerUrl: "https://assethub-polkadot.subscan.io", // URL of the block explorer
+});
+```
+
+### Explanation
+
+- **id**: A unique identifier for the chain.
+- **name**: The chain's display name for use in your application.
+- **specName**: The chain's specification name, which can be retrieved via RPC calls (state -> `getRuntimeVersion`).
+- **wsUrls**: List of WebSocket URLs for RPC connections. Multiple URLs can provide redundancy in case one node fails.
+- **relay**: Specifies the relay chain (e.g., 'polkadot', 'kusama'). Use `null` for standalone chains.
+- **chainId**: The chain ID for parachains or system chains.
+- **type**: Specifies the type of chain (`system`, `relay`, or `para`).
+- **logo**: Optional path to the chain's logo.
+- **blockExplorerUrl**: URL of the block explorer for viewing transactions and blocks.
+
+For **Polkadot Asset Hub**, you can use [Subscan](https://assethub-polkadot.subscan.io) to explore the chain's data, including finalized blocks, signed extrinsics, total issuance, token holders, and transfers.
+
+## API Reference
+
+Here’s a quick reference for the properties used in the `createChain` function:
+
+| Property           | Type                                                            | Description                                                                                            | Default |
+| :----------------- | :-------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------- | ------: |
+| `id`               | `string`                                                        | Network ID for identifying the chain in your application configuration.                                |     `-` |
+| `name`             | `string`                                                        | The name of the chain, used for display in your application.                                           |     `-` |
+| `specName`         | `string`                                                        | The chain's system identifier (can be fetched using RPC calls to `state -> getRuntimeVersion`).        |     `-` |
+| `wsUrls`           | `Array<string>`                                                 | WebSocket URLs for RPC connections (you can specify multiple URLs for redundancy).                     |     `-` |
+| `relay`            | `polkadot`\| `kusama`\| `paseo`\| `rococo`\| `westend`\| `null` | The relay chain the network is associated with (e.g., 'polkadot', 'kusama', or `null` for standalone). |     `-` |
+| `chainId`          | `number` \| `null`                                              | Parachain ID or system chain ID.                                                                       |     `-` |
+| `type`             | `system` \| `relay` \| `para`                                   | Specifies the type of chain (`system`, `relay`, or `para`).                                            |     `-` |
+| `logo`             | `string` \| `null`                                              | Path to the network logo (optional).                                                                   |     `-` |
+| `blockExplorerUrl` | `string` \| `null`                                              | URL of the block explorer for viewing transactions and blocks.                                         |     `-` |

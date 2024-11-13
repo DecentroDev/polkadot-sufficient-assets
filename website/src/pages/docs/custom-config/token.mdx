@@ -1,0 +1,95 @@
+---
+title: "Token Configuration"
+description: "How to config your application"
+---
+
+import { Callout, Steps, Tab, Tabs } from "nextra-theme-docs";
+
+# Token Configuration
+
+Take a look at config file.
+
+```ts filename="config.ts"
+import {
+  chains,
+  createConfig,
+  createTheme,
+  tokens,
+} from "polkadot-sufficient-assets";
+
+export const config = createConfig({
+  chains: [chains.polkadotAssetHubChain], // Specify the chain
+  tokens: {
+    pah: {
+      token: tokens.USDT, // Token you want to transfer
+      feeTokens: [tokens.DOT, tokens.USDT], // Tokens used to pay transaction fees
+    },
+  },
+  useXcmTransfer: false,
+  xcmChains: [chains.hydration],
+});
+```
+
+In `createConfig` we have `tokens` setup which will use for selecting network you would like to use for your application.
+
+## Default Tokens
+
+The library exports a list of predefined tokens that you can use directly in your configuration. Here's an example of the default tokens available:
+
+```ts
+import { tokens } from "./create-chain";
+
+const knownTokens = [
+  tokens.DOT,
+  tokens.KSM,
+  tokens.PAS,
+  tokens.ROC,
+  tokens.WND,
+];
+```
+
+## Creating Custom Tokens
+
+If you need to use a custom token that isn't predefined, you can create one using the createToken function.
+
+### Example: Adding USDT
+
+To configure USDT (Tether USD) as a token, use the following setup:
+
+```typescript
+import { createToken } from "polkadot-sufficient-assets";
+
+export const USDT = createToken({
+  assetId: 1984, // Unique asset ID on the chain
+  type: "asset", // Type of the asset ('asset' or 'native')
+  decimals: 6, // Number of decimal places for the token
+  symbol: "USDT", // Token symbol
+  name: "Tether USD", // Full token name
+  logo: "./img/tokens/USDT.svg", // Path to token logo (optional)
+  isSufficient: true, // Whether the token is sufficient for certain operations (like fee payments)
+});
+```
+
+### Explanation
+
+- **assetId**: The unique identifier for the token on the chain.
+- **type**: Specifies if the token is a native asset or another type (like an asset issued on a parachain).
+- **decimals**: Defines the precision of the token (e.g., 6 for USDT).
+- **symbol**: The short identifier for the token, often used in UIs.
+- **name**: The full descriptive name of the token.
+- **logo**: Optional path to the token's logo image.
+- **isSufficient**: A boolean indicating if the token can be used to pay fees directly without needing additional balances of native tokens.
+
+## API Reference
+
+Here’s a quick reference for the properties used in the `createToken` function:
+
+| Property       | Type                | Description                                       | Default |
+| :------------- | :------------------ | :------------------------------------------------ | ------: |
+| `assetId`      | `number`            | The unique asset ID of the token.                 |       - |
+| `type`         | `asset` \| `native` | Type of asset (`asset` or `native`).              |       - |
+| `decimals`     | `number`            | The number of decimal places.                     |       - |
+| `symbol`       | `string`            | The symbol used for the token.                    |       - |
+| `name`         | `string`            | The full name of the token.                       |       - |
+| `logo`         | `string`            | Path to the token’s logo (optional).              |       - |
+| `isSufficient` | `boolean`           | Whether the token is sufficient for fee payments. | `false` |

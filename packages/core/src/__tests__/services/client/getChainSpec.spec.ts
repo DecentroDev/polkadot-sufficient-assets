@@ -1,159 +1,67 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import type { ChainId } from '../../../services';
-import { CHAIN_SPECS_CACHE, getChainSpec, hasChainSpec, loadChainSpec } from '../../../services/client/getChainSpec';
+import { CHAIN_SPECS_CACHE, getChainSpec, hasChainSpec } from '../../../services/client/getChainSpec';
 
-// Define mock chain specs to simulate the dynamic imports
-export const mockChainSpecs = {
-  kusama: 'Kusama Spec',
-  rococo: 'Rococo Spec',
-  westend: 'Westend Spec',
-  polkadot: 'Polkadot Spec',
-  kah: 'Kah Spec',
-  rah: 'Rah Spec',
-  wah: 'Wah Spec',
-  pah: 'Pah Spec',
-  paseo: 'Paseo Spec',
-  paseoah: 'Paseo Asset Hub Spec',
-};
-
-// Mock dynamic imports with vi.mock for all known chains
-vi.mock('polkadot-api/chains/ksmcc3', () => ({
-  chainSpec: mockChainSpecs.kusama,
-}));
-vi.mock('polkadot-api/chains/rococo_v2_2', () => ({
-  chainSpec: mockChainSpecs.rococo,
-}));
-vi.mock('polkadot-api/chains/westend2', () => ({
-  chainSpec: mockChainSpecs.westend,
-}));
-vi.mock('polkadot-api/chains/polkadot', () => ({
-  chainSpec: mockChainSpecs.polkadot,
-}));
-vi.mock('polkadot-api/chains/ksmcc3_asset_hub', () => ({
-  chainSpec: mockChainSpecs.kah,
-}));
-vi.mock('polkadot-api/chains/rococo_v2_2_asset_hub', () => ({
-  chainSpec: mockChainSpecs.rah,
-}));
-vi.mock('polkadot-api/chains/westend2_asset_hub', () => ({
-  chainSpec: mockChainSpecs.wah,
-}));
-vi.mock('polkadot-api/chains/polkadot_asset_hub', () => ({
-  chainSpec: mockChainSpecs.pah,
-}));
-vi.mock('polkadot-api/chains/paseo', () => ({
-  chainSpec: mockChainSpecs.paseo,
-}));
-vi.mock('polkadot-api/chains/paseo_asset_hub', () => ({
-  chainSpec: mockChainSpecs.paseoah,
-}));
-
-describe('Chain Specifications', () => {
+describe('Chain Spec Utilities', () => {
+  // Reset the CHAIN_SPECS_CACHE before each test to prevent interference between tests.
   beforeEach(() => {
-    CHAIN_SPECS_CACHE.clear(); // Clear cache before each test
-    vi.clearAllMocks(); // Reset mock history
+    CHAIN_SPECS_CACHE.clear();
   });
 
   describe('hasChainSpec', () => {
-    it('should return true for known chain specs', () => {
-      expect(hasChainSpec('kusama')).toBe(true);
-      expect(hasChainSpec('paseo')).toBe(true);
-      expect(hasChainSpec('unknown' as any)).toBe(false); // Ensure unknown chains return false
-    });
-  });
+    it('should return true if chainId exists in chainSpecList', () => {
+      const chainId = 'testChain' as ChainId;
+      const chainSpecList = { [chainId]: 'specData' };
 
-  describe('loadChainSpec', () => {
-    // it('should return spec chain import success for kusama chain', async () => {
-    //   const chainId: ChainId = 'kusama';
-    //   // @ts-ignore
-    //   await expect(await loadChainSpec(chainId)).toEqual(mockChainSpecs[chainId]);
-    // });
-
-    it('should return spec chain import success for rococo chain', async () => {
-      const chainId: ChainId = 'rococo';
-      // @ts-ignore
-      await expect(await loadChainSpec(chainId)).toEqual(mockChainSpecs[chainId]);
+      expect(hasChainSpec(chainId, chainSpecList)).toBe(true);
     });
 
-    it('should return spec chain import success for polkadot chain', async () => {
-      const chainId: ChainId = 'polkadot';
-      // @ts-ignore
-      await expect(await loadChainSpec(chainId)).toEqual(mockChainSpecs[chainId]);
+    it('should return false if chainId does not exist in chainSpecList', () => {
+      const chainId = 'testChain' as ChainId;
+      const chainSpecList = { anotherChain: 'specData' };
+
+      expect(hasChainSpec(chainId, chainSpecList)).toBe(false);
     });
 
-    it('should return spec chain import success for kah chain', async () => {
-      const chainId: ChainId = 'kah';
-      // @ts-ignore
-      await expect(await loadChainSpec(chainId)).toEqual(mockChainSpecs[chainId]);
-    });
+    it('should return false if chainSpecList is undefined', () => {
+      const chainId = 'testChain' as ChainId;
 
-    it('should return spec chain import success for rah chain', async () => {
-      const chainId: ChainId = 'rah';
-      // @ts-ignore
-      await expect(await loadChainSpec(chainId)).toEqual(mockChainSpecs[chainId]);
-    });
-
-    it('should return spec chain import success for wah chain', async () => {
-      // Simulate an import failure
-      vi.mock('polkadot-api/chains/wah', () => {
-        throw new Error('Import failed');
-      });
-      const chainId: ChainId = 'wah';
-      // @ts-ignore
-      await expect(await loadChainSpec(chainId)).toEqual(mockChainSpecs[chainId]);
-    });
-
-    it('should return spec chain import success for paseoah chain', async () => {
-      // Simulate an import failure
-      vi.mock('polkadot-api/chains/paseoah', () => {
-        throw new Error('Import failed');
-      });
-      const chainId: ChainId = 'paseoah';
-      // @ts-ignore
-      await expect(await loadChainSpec(chainId)).toEqual(mockChainSpecs[chainId]);
-    });
-
-    it('should handle import failures gracefully', async () => {
-      // Simulate an import failure
-      vi.mock('polkadot-api/chains/ksmcc3', () => {
-        throw new Error('Import failed');
-      });
-      const unknownChain = 'unknown';
-      // @ts-ignore
-      await expect(loadChainSpec(unknownChain)).rejects.toThrow(`Failed to load chain spec for chain ${unknownChain}`);
+      expect(hasChainSpec(chainId)).toBe(false);
     });
   });
 
   describe('getChainSpec', () => {
-    it('should cache the chain spec after the first load', async () => {
-      const firstLoad = await getChainSpec('paseo');
-      const cachedLoad = await getChainSpec('paseo');
+    it('should return the spec from cache if already cached', () => {
+      const chainId = 'testChain' as ChainId;
+      const chainSpec = 'cachedSpecData';
+      CHAIN_SPECS_CACHE.set(chainId, chainSpec);
 
-      expect(firstLoad).toBe('Paseo Spec');
-      expect(cachedLoad).toBe(firstLoad); // Should use the cached result
+      const result = getChainSpec(chainId, { [chainId]: 'newSpecData' });
+      expect(result).toBe(chainSpec); // should return cached value
     });
 
-    it('should return cached value if spec is already loaded', async () => {
-      await getChainSpec('pah'); // Load the chain spec to cache it
-      expect(CHAIN_SPECS_CACHE.has('pah')).toBe(true);
+    it('should throw an error if chainSpecList is not provided', () => {
+      const chainId = 'testChain' as ChainId;
 
-      const result = await getChainSpec('pah');
-      expect(result).toBe('Pah Spec');
+      expect(() => getChainSpec(chainId)).toThrowError('chainSpecs is not provided in lightClients config');
     });
 
-    it('should throw an error if trying to load an unknown chain', async () => {
-      await expect(getChainSpec('unknown' as any)).rejects.toThrow('Unknown chain: unknown');
+    it('should throw an error if chainId is not in chainSpecList', () => {
+      const chainId = 'unknownChain' as ChainId;
+      const chainSpecList = { testChain: 'specData' };
+
+      expect(() => getChainSpec(chainId, chainSpecList)).toThrowError(`Unknown chain: ${chainId}`);
     });
 
-    it('should load and cache the spec only once', async () => {
-      const loadSpecSpy = vi.spyOn({ loadChainSpec }, 'loadChainSpec');
+    it('should cache the spec if not already cached and return it', () => {
+      const chainId = 'testChain' as ChainId;
+      const chainSpec = 'specData';
+      const chainSpecList = { [chainId]: chainSpec };
 
-      const firstLoad = await getChainSpec('westend');
-      const secondLoad = await getChainSpec('westend'); // This should use the cache.
+      const result = getChainSpec(chainId, chainSpecList);
 
-      expect(firstLoad).toBe('Westend Spec');
-      expect(secondLoad).toBe(firstLoad); // Verify that it came from cache.
-      expect(loadSpecSpy).toHaveBeenCalledTimes(0); // Ensure loadChainSpec was only called once.
+      expect(result).toBe(chainSpec); // should return the new spec value
+      expect(CHAIN_SPECS_CACHE.get(chainId)).toBe(chainSpec); // should cache the spec
     });
   });
 });

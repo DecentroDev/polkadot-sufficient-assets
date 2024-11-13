@@ -1,0 +1,14 @@
+{
+  "index": "",
+  "-- Documentation": {
+    "type": "separator",
+    "title": "Documentation"
+  },
+  "getting-started": "Getting Started",
+  "custom-config": {
+    "title": "Custom Config"
+  },
+  "advanced": {
+    "title": "Advanced"
+  }
+}

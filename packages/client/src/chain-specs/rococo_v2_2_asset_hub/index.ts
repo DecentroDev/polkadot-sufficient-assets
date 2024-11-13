@@ -1,1 +1,1 @@
-export * from '@polkadot-sufficient-assets/core/chain-specs/rococo_v2_2_asset_hub';
+export * from '@polkadot-api/known-chains/rococo_v2_2_asset_hub';

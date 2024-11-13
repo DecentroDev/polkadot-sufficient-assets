@@ -14,6 +14,8 @@ export interface ITransferContext {
   xcmChains: Chain[];
   api: Api<ChainId>;
   isLoaded?: boolean;
+  destinationAddress?: string;
+  lightClientEnable?: boolean;
 }
 
 export const TransferContext = createContext<ITransferContext | null>(null);
@@ -23,7 +25,7 @@ export interface TransferProvider {
 }
 
 const TransferProviderBase = ({ children }: TransferProvider) => {
-  const { chains, useXcmTransfer, xcmChains } = useConfig();
+  const { chains, useXcmTransfer, xcmChains, destinationAddress, lightClients } = useConfig();
 
   const [chain] = useState(chains[0]);
   const chainId = chain.id;
@@ -51,6 +53,8 @@ const TransferProviderBase = ({ children }: TransferProvider) => {
         chain: chains[0],
         useXcmTransfer: !!useXcmTransfer,
         xcmChains: xcmChains ?? [],
+        destinationAddress,
+        lightClientEnable: lightClients?.enable,
       }}
     >
       <WalletProvider>{children}</WalletProvider>

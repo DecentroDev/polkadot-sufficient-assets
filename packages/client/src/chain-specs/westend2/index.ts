@@ -1,1 +1,1 @@
-export * from '@polkadot-sufficient-assets/core/chain-specs/westend2';
+export * from '@polkadot-api/known-chains/westend2';

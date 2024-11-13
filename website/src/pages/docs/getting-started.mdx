@@ -1,0 +1,129 @@
+---
+title: "Getting Started"
+description: "How to install Polkadot Sufficient Assets into your React project"
+---
+
+import { Callout, Steps, Tab, Tabs } from "nextra-theme-docs";
+
+# Getting Started
+
+## Prerequisites
+
+Before you begin using the library, ensure that you have the following:
+
+- Any Polkadot wallet ([Subwallet](https://www.subwallet.app/), [Talisman](https://talisman.xyz/), [Polkadot\{.js} extension](https://polkadot.js.org/extension/)).
+- A basic understanding of Polkadot, parachains, and how XCM (Cross-Consensus Messaging) works. For more information, check the [Polkadot documentation](https://wiki.polkadot.network/).
+
+## Installation
+
+<Steps>
+## Install
+You can install polkadot-sufficient-assets via different package manager.
+
+<Tabs items={["npm", "pnpm", "yarn", "bun"]} storageKey="selected-pkg-manager">
+  <Tab>```bash copy npm install polkadot-sufficient-assets ```</Tab>
+  <Tab>```bash copy pnpm install polkadot-sufficient-assets ```</Tab>
+  <Tab>```bash copy yarn add polkadot-sufficient-assets ```</Tab>
+  <Tab>```bash copy bun add polkadot-sufficient-assets ```</Tab>
+</Tabs>
+
+### Create Config
+
+Create and export a new library config using `createConfig`.
+
+```ts filename="config.ts"
+import {
+  chains,
+  createConfig,
+  createTheme,
+  tokens,
+} from "polkadot-sufficient-assets";
+
+export const config = createConfig({
+  chains: [chains.polkadotAssetHubChain], // Specify the chain
+  tokens: {
+    pah: {
+      token: tokens.USDT, // Token you want to transfer
+      feeTokens: [tokens.DOT, tokens.USDT], // Tokens used to pay transaction fees
+    },
+  },
+  useXcmTransfer: false,
+  xcmChains: [chains.hydration],
+});
+```
+
+In this example, PSA is configured to use the **Polkadot AssetHub** chain as source chain. **USDT** is token to transfer and we **DOT** or **USDT** as fee token.
+
+**Here’s a breakdown of the configuration options:**
+
+**chains**: The blockchain networks your application will use. In this case, polkadotAssetHubChain.
+
+**tokens**: The tokens your application will interact with, such as USDT for transferring, and DOT and USDT for paying fees.
+
+**useXcmTransfer**: A boolean to enable or disable cross-chain message (XCM) transfer.
+
+**xcmChains**: If cross-chain transfers are enabled, specify the chains involved, such as hydration.
+
+### Start using PSA in your application
+
+Our library using [Material UI](https://mui.com/) as core ui component so you can easy to customize the theme and color of our componennt.
+
+We do have expose 2 components: **PSADialog** and **PSAForm**.
+
+You need to Wrap the Dialog and Form with ConfigProvider and provide the config you have created at Step 2.
+
+**For React:**
+
+```tsx filename="App.ts"
+import {
+  ConfigProvider,
+  createTheme,
+  PSADialog,
+} from "polkadot-sufficient-assets";
+
+import { config } from "./config";
+
+function App() {
+  const theme = createTheme({
+    palette: {
+      mode: "light",
+    },
+  });
+
+  return (
+    <ConfigProvider config={config}>
+      <PSADialog theme={theme}>
+        <button
+          style={{
+            outline: "none",
+            color: "#fff",
+          }}
+        >
+          Open Dialog
+        </button>
+      </PSADialog>
+    </ConfigProvider>
+  );
+}
+
+export default App;
+```
+
+**For other UI frameworks:**
+
+We do expose 2 method to load web component so you can check out our [example folder](https://github.com/DecentroDev/polkadot-sufficient-assets/tree/main/example).
+
+```ts
+import { loadDialogWidget, loadFormWidget } from "polkadot-sufficient-assets";
+```
+
+</Steps>
+
+---
+
+### Next Steps:
+
+For more information on what to do next, check out the following topics.
+
+- [Configuration]() Learn how to custom the token, custom the chain that you want to apply.
+- [XCM Transfer]() Learn how to enable Multichain transfer via XCM.

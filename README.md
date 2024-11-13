@@ -1,6 +1,6 @@
 # Polkadot-Sufficient-Assets Monorepo
 
-This repository contains the monorepo for the `polkadot-sufficient-assets` library.
+**Polkadot-Sufficient-Assets UI Library** is a developer-friendly tool that simplifies the process of building asset transfer functionalities within the Polkadot ecosystem. The library supports two types of transfers: same-chain transfers and multi-chain transfers via XCM (Cross-Consensus Messaging). Developers only need to configure the assets and chains to quickly integrate asset transfer features into their applications.
 
 ## Prerequisites
 
@@ -40,3 +40,21 @@ To start the development server and test the website, use the command below:
 ```
 
 This will start all packages and expose the application at http://localhost:5173/ in your browser.
+
+---
+
+### With Docker Compose
+
+To run the mini apps with docker compose, run the following command:
+
+```bash
+docker-compose -f docker-compose.yml up -d
+```
+
+---
+
+### Running the Documentation Website
+
+```bash
+pnpm dev:web
+```

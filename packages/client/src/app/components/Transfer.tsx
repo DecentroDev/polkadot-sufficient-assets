@@ -23,15 +23,31 @@ import { useExistentialDeposit, useTokenBalance, useTransaction, useTransfer, us
 import { formatNumberInput } from '../../lib/utils';
 import Balance from './core/Balance';
 import LoadingButton from './core/LoadingButton';
+import SelectedWalletDisplay from './core/SelectedWalletDisplay';
 import SelectFeeTokenDialog from './core/SelectFeeTokenDialog';
 import SelectWalletDialog from './core/SelectWalletDialog';
-import SelectedWalletDisplay from './core/SelectedWalletDisplay';
 import Spinner from './core/Spinner';
+import type { XcmTransferDialogProps } from './XcmTransfer';
 
-const Transfer = () => {
-  const { api, token, feeToken, changeFeeToken, feeTokens, nativeToken, chain, isLoaded } = useTransfer();
-  const [to, setTo] = useState<Partial<InjectedPolkadotAccount> | null>(null);
-  const [amount, setAmount] = useState<string>('0');
+interface TransferDialogProps extends XcmTransferDialogProps {}
+
+const Transfer = ({ initialAmount }: TransferDialogProps) => {
+  const {
+    api,
+    token,
+    feeToken,
+    changeFeeToken,
+    feeTokens,
+    nativeToken,
+    chain,
+    destinationAddress,
+    isLoaded,
+    lightClientEnable,
+  } = useTransfer();
+  const [to, setTo] = useState<Partial<InjectedPolkadotAccount> | null>(
+    destinationAddress ? { address: destinationAddress } : null
+  );
+  const [amount, setAmount] = useState<string>(initialAmount ?? '0');
   const [loading, setLoading] = useState<boolean>(false);
   const { signer, setSigner } = useWallet();
   const { tx, fee } = useTransaction(api, token, feeToken, nativeToken, amount, signer?.address, to?.address);
@@ -96,18 +112,6 @@ const Transfer = () => {
       setTo(acc);
     }
   };
-
-  const maxAmount = useMemo(() => {
-    if (loadingBalance || fee.isLoading || loadingEdToken) return 0;
-
-    // Subtract fee after estimation
-    const feeMargin = feeToken.assetId === token.assetId ? fee.value : 0n;
-
-    // To keep account alive we need to substract essential deposit
-    const edMargin = feeToken.assetId === token.assetId ? edToken : 0n;
-
-    return balance - feeMargin - edMargin;
-  }, [balance, chain, fee.value, edToken]);
 
   const errorMessage = useMemo(() => {
     if (amount === '0' || loadingEdToken || loadingBalance) return null;
@@ -181,9 +185,13 @@ const Transfer = () => {
         </Stack>
         <Stack spacing={2} mt={2}>
           <Typography>To</Typography>
-          <SelectWalletDialog token={token} exclude={signer} withInput={true} onChange={(v) => handleChange(v, 'to')}>
-            <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={to} />
-          </SelectWalletDialog>
+          {destinationAddress ? (
+            <SelectedWalletDisplay account={to} />
+          ) : (
+            <SelectWalletDialog token={token} exclude={signer} withInput={true} onChange={(v) => handleChange(v, 'to')}>
+              <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={to} />
+            </SelectWalletDialog>
+          )}
         </Stack>
 
         <Stack spacing={1} mt={2}>
@@ -237,7 +245,7 @@ const Transfer = () => {
           variant='contained'
           sx={{ mt: 2 }}
         >
-          Transfer
+          {!isLoaded && lightClientEnable ? 'Synchronizing light clients' : 'Transfer'}
         </LoadingButton>
 
         {errorMessage && (

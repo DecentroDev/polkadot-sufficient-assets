@@ -31,13 +31,30 @@ import SelectWalletDialog from './core/SelectWalletDialog';
 import SelectedWalletDisplay from './core/SelectedWalletDisplay';
 import Spinner from './core/Spinner';
 
-const XcmTransferDialog = () => {
-  const { xcmChains, api, token, feeToken, changeFeeToken, feeTokens, nativeToken, chain, isLoaded } = useTransfer();
-  const [to, setTo] = useState<Partial<InjectedPolkadotAccount> | null>(null);
-  const [amount, setAmount] = useState<string>('0');
+export interface XcmTransferDialogProps {
+  initialAmount?: string;
+}
+
+const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
+  const {
+    xcmChains,
+    api,
+    token,
+    feeToken,
+    changeFeeToken,
+    feeTokens,
+    nativeToken,
+    chain,
+    isLoaded,
+    destinationAddress,
+    lightClientEnable,
+  } = useTransfer();
+  const [to, setTo] = useState<Partial<InjectedPolkadotAccount> | null>(
+    destinationAddress ? { address: destinationAddress } : null
+  );
+  const [amount, setAmount] = useState<string>(initialAmount ?? '0');
   const [loading, setLoading] = useState<boolean>(false);
   const { signer, setSigner } = useWallet();
-
   const [destChain, setDestChain] = useState<Chain | undefined>(xcmChains?.[0]);
 
   const { tx, fee } = useXcmTransaction(
@@ -224,9 +241,13 @@ const XcmTransferDialog = () => {
               ))}
             </TextField>
           </Box>
-          <SelectWalletDialog token={token} withInput={true} onChange={(v) => handleChange(v, 'to')}>
-            <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={to} />
-          </SelectWalletDialog>
+          {destinationAddress ? (
+            <SelectedWalletDisplay account={to} />
+          ) : (
+            <SelectWalletDialog token={token} withInput={true} onChange={(v) => handleChange(v, 'to')}>
+              <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={to} />
+            </SelectWalletDialog>
+          )}
         </Stack>
 
         <Stack spacing={1} mt={2}>
@@ -276,7 +297,7 @@ const XcmTransferDialog = () => {
           variant='contained'
           sx={{ my: 2 }}
         >
-          Transfer
+          {!isLoaded && lightClientEnable ? 'Synchronizing light clients' : 'Transfer'}
         </LoadingButton>
 
         {errorMessage && (

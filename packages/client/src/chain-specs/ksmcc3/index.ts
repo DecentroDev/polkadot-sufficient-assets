@@ -1,1 +1,1 @@
-export * from '@polkadot-sufficient-assets/core/chain-specs/ksmcc3';
+export * from '@polkadot-api/known-chains/ksmcc3';

@@ -10,13 +10,15 @@ function App() {
   });
 
   return (
-    <ConfigProvider config={libConfig}>
-      <PSAForm theme={theme} />
+    <div>
+      <ConfigProvider config={libConfig}>
+        <PSAForm theme={theme} />
 
-      <PSADialog theme={theme}>
-        <button className='btn'>Open Dialog</button>
-      </PSADialog>
-    </ConfigProvider>
+        <PSADialog theme={theme}>
+          <button className='btn'>Open Dialog</button>
+        </PSADialog>
+      </ConfigProvider>
+    </div>
   );
 }
 

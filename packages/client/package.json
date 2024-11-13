@@ -4,13 +4,15 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "tsup --watch",
-    "build": "tsup",
+    "build:client": "tsup",
     "clean": "rimraf ./dist && rimraf ./node_modules",
     "lint": "biome lint .",
     "lint:fix": "biome lint . --write",
     "format": "biome format . ",
     "format:fix": "biome format .  --write",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test:client": "vitest",
+    "test:client:cov": "vitest --coverage --watch"
   },
   "files": ["src", "dist", "README.md"],
   "types": "dist/index.d.ts",
@@ -20,26 +22,37 @@
     ".": {
       "types": "./dist/index.d.ts",
       "module": "./dist/index.mjs",
-      "import": "./dist/index.mjs",
-      "default": "./dist/index.js"
+      "import": "./dist/index.mjs"
     },
     "./smoldot": {
+      "node": {
+        "import": "./dist/smoldot/index.mjs",
+        "require": "./dist/smoldot/index.js"
+      },
       "types": "./dist/smoldot/index.d.ts",
       "module": "./dist/smoldot/index.mjs",
       "import": "./dist/smoldot/index.mjs",
-      "default": "./dist/smoldot/index.js"
+      "require": "./dist/smoldot/index.js"
     },
     "./smoldot/*": {
+      "node": {
+        "import": "./dist/smoldot/*/index.mjs",
+        "require": "./dist/smoldot/*/index.js"
+      },
       "types": "./dist/smoldot/*/index.d.ts",
       "module": "./dist/smoldot/*/index.mjs",
       "import": "./dist/smoldot/*/index.mjs",
-      "default": "./dist/smoldot/*/index.js"
+      "require": "./dist/smoldot/*/index.js"
     },
     "./chain-specs/*": {
+      "node": {
+        "import": "./dist/chain-specs/*/index.mjs",
+        "require": "./dist/chain-specs/*/index.js"
+      },
       "types": "./dist/chain-specs/*/index.d.ts",
       "module": "./dist/chain-specs/*/index.mjs",
       "import": "./dist/chain-specs/*/index.mjs",
-      "default": "./dist/chain-specs/*/index.js"
+      "require": "./dist/chain-specs/*/index.js"
     }
   },
   "dependencies": {
@@ -47,6 +60,8 @@
     "@mui/material": "6.1.1",
     "@polkadot-sufficient-assets/core": "workspace:*",
     "@polkadot-ui/assets": "0.0.1-alpha.2",
+    "@polkadot-api/known-chains": "^0.5.6",
+    "@polkadot-api/smoldot": "^0.3.5",
     "@r2wc/react-to-web-component": "2.0.3"
   },
   "devDependencies": {
@@ -60,6 +75,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "jsdom": "^25.0.1",
+    "@vitest/coverage-v8": "^2.1.2",
+    "typescript": "^5.6.2",
     "vitest": "^2.1.2"
   },
   "peerDependencies": {

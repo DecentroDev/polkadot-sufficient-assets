@@ -25,6 +25,4 @@ export const libConfig = createConfig({
       feeTokens: [tokens.DOT, USDT],
     },
   },
-  useXcmTransfer: true,
-  xcmChains: [chains.hydration],
 });

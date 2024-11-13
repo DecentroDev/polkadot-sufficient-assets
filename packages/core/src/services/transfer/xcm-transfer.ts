@@ -1,7 +1,14 @@
 import type { SS58String } from 'polkadot-api';
 import { parseUnits } from '../../utils';
 import type { Api } from '../api';
-import type { Chain, ChainId, ChainIdAssetHub, ChainIdPara, ChainIdRelay } from '../chains';
+import {
+  isRelayChain,
+  type Chain,
+  type ChainId,
+  type ChainIdAssetHub,
+  type ChainIdPara,
+  type ChainIdRelay,
+} from '../chains';
 import type { Token } from '../tokens';
 import { establishDirection } from './establishDirection';
 import { getXcmTransferArgs, getXTokenAssetTransferArgs, getXTokenMultiAssetTransferArgs } from './xcm-argument';
@@ -18,7 +25,7 @@ export const getXcmTransferExtrinsic = (
 
   const originChain = api.chain;
 
-  const isOriginRelayChain = api.chain.chainId === '0';
+  const isOriginRelayChain = isRelayChain(originChain);
   const pallet = isOriginRelayChain ? 'XcmPallet' : 'PolkadotXcm';
   const xcmExtrinsic = token.xcmExtrinsic?.(originChain, destChain) ?? 'limited_reserve_transfer_assets';
   switch (xcmExtrinsic) {
@@ -35,12 +42,9 @@ export const getXcmTransferExtrinsic = (
     case 'limited_reserve_transfer_assets': {
       const args = getXcmTransferArgs(direction, originChain, destChain, token, address, plancks);
       if (pallet === 'PolkadotXcm') {
-        return (api as Api<ChainIdAssetHub>).tx.PolkadotXcm.limited_reserve_transfer_assets({ ...args });
+        return (api as Api<ChainIdAssetHub>).tx.PolkadotXcm?.limited_reserve_transfer_assets({ ...args });
       }
-      if (pallet === 'XcmPallet') {
-        return (api as Api<ChainIdRelay>).tx.XcmPallet.limited_reserve_transfer_assets({ ...args });
-      }
-      throw new Error('Xcm pallet not supported');
+      return (api as Api<ChainIdRelay>).tx.XcmPallet?.limited_reserve_transfer_assets({ ...args });
     }
 
     case 'transfer_asset': {
@@ -48,30 +52,21 @@ export const getXcmTransferExtrinsic = (
       if (pallet === 'PolkadotXcm') {
         return (api as Api<ChainIdAssetHub>).tx.PolkadotXcm.transfer_assets({ ...args });
       }
-      if (pallet === 'XcmPallet') {
-        return (api as Api<ChainIdRelay>).tx.XcmPallet.transfer_assets({ ...args });
-      }
-      throw new Error('Xcm pallet not supported');
+      return (api as Api<ChainIdRelay>).tx.XcmPallet.transfer_assets({ ...args });
     }
     case 'limited_teleport_assets': {
       const args = getXcmTransferArgs(direction, originChain, destChain, token, address, plancks);
       if (pallet === 'PolkadotXcm') {
         return (api as Api<ChainIdAssetHub>).tx.PolkadotXcm.limited_teleport_assets({ ...args });
       }
-      if (pallet === 'XcmPallet') {
-        return (api as Api<ChainIdRelay>).tx.XcmPallet.limited_teleport_assets({ ...args });
-      }
-      throw new Error('Xcm pallet not supported');
+      return (api as Api<ChainIdRelay>).tx.XcmPallet.limited_teleport_assets({ ...args });
     }
     case 'teleport_assets': {
       const args = getXcmTransferArgs(direction, originChain, destChain, token, address, plancks);
       if (pallet === 'PolkadotXcm') {
         return (api as Api<ChainIdAssetHub>).tx.PolkadotXcm.teleport_assets({ ...args });
       }
-      if (pallet === 'XcmPallet') {
-        return (api as Api<ChainIdRelay>).tx.XcmPallet.teleport_assets({ ...args });
-      }
-      throw new Error('Xcm pallet not supported');
+      return (api as Api<ChainIdRelay>).tx.XcmPallet.teleport_assets({ ...args });
     }
 
     case 'reserve_transfer_assets': {
@@ -79,10 +74,7 @@ export const getXcmTransferExtrinsic = (
       if (pallet === 'PolkadotXcm') {
         return (api as Api<ChainIdAssetHub>).tx.PolkadotXcm.reserve_transfer_assets({ ...args });
       }
-      if (pallet === 'XcmPallet') {
-        return (api as Api<ChainIdRelay>).tx.XcmPallet.reserve_transfer_assets({ ...args });
-      }
-      throw new Error('Xcm pallet not supported');
+      return (api as Api<ChainIdRelay>).tx.XcmPallet.reserve_transfer_assets({ ...args });
     }
 
     default:

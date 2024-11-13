@@ -1,0 +1,12 @@
+node_modules
+.git
+.husky
+.github
+.turbo
+.gitignore
+*.md
+dist
+website
+example/angular-app
+example/react-app
+example/vue-app

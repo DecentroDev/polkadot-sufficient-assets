@@ -125,12 +125,10 @@ const yourChain = createChain({
   specName: "asset-hub-polkadot",
   wsUrls: ["wss://statemint-rpc.dwellir.com"], // WebSocket URL for RPC connection
   relay: "polkadot", // The relay chain ('polkadot', 'kusama', etc.)
-  paraId: 1000, // Parachain ID
   type: "system", // Type of chain ('system' or 'relay' or 'para')
-  chainId: "1000",
+  chainId: 1000,
   logo: "./chains/pah.svg", // Chain logo
   blockExplorerUrl: "https://assethub-polkadot.subscan.io", // Block explorer URL
-  stableTokenId: "asset::pah::1337", // Stable token ID for the chain
 });
 ```
 
@@ -234,7 +232,7 @@ export const USDT = createToken({
           id: XcmV3MultiassetAssetId.Concrete({
             parents: 1,
             interior: XcmV3Junctions.X3([
-              XcmV3Junction.Parachain(destChain.paraId!),
+              XcmV3Junction.Parachain(destChain.chainId!),
               XcmV3Junction.PalletInstance(50),
               XcmV3Junction.GeneralIndex(1984n),
             ]),

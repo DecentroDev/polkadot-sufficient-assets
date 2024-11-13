@@ -43,7 +43,7 @@ const SelectedWalletDisplay = forwardRef<ElementRef<typeof Button>, Props>(({ on
         fontSize: 14,
         minHeight: 50,
       }}
-      endIcon={account ? <ClearIcon onClick={onClear} /> : <KeyboardArrowDownIcon />}
+      endIcon={account ? onClear ? <ClearIcon onClick={onClear} /> : null : <KeyboardArrowDownIcon />}
       ref={ref}
       variant='outlined'
       fullWidth

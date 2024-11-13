@@ -1,100 +1,70 @@
-import { getSmProvider } from 'polkadot-api/sm-provider';
+import type { JsonRpcProvider } from 'polkadot-api/ws-provider/web';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getSmChainProvider } from '../../../services/client/getSmChainProvider';
-import { smoldot } from '../../../services/client/smoldot';
+import type { ChainId } from '../../../services';
+import { getSmChainProvider, loadChain } from '../../../services/client/getSmChainProvider';
+import type { SmoldotClient } from '../../../types';
 
-// Mock dependencies
+// Mock the module at the top level
 vi.mock('polkadot-api/sm-provider', () => ({
   getSmProvider: vi.fn(),
 }));
 
-// @ts-ignore
-vi.mock(import('../../../services/client/smoldot'), () => ({
-  smoldot: {
-    addChain: vi.fn(),
-  },
-}));
+describe('Smoldot Chain Provider', () => {
+  let mockSmoldotClient: SmoldotClient;
+  const mockChainId: ChainId = 'mockChainId' as ChainId; // Replace 'mockChainId' with an actual value if available
+  const mockChainSpec = 'mockChainSpec';
+  const mockChain = {}; // This represents the mock chain object
 
-const mockGetSmProvider = getSmProvider as any;
-const mockAddChain = smoldot.addChain as any;
+  beforeEach(async () => {
+    mockSmoldotClient = {
+      addChain: vi.fn().mockResolvedValue(mockChain),
+    } as unknown as SmoldotClient;
 
-describe('getSmChainProvider', () => {
-  const chainDef = {
-    chainId: 'polkadot',
-    chainSpec: 'polkadot-spec',
-  };
-
-  const relayDef = {
-    chainId: 'kusama',
-    chainSpec: 'kusama-spec',
-  };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
+    // Reset mocks
+    vi.mocked((await import('polkadot-api/sm-provider')).getSmProvider).mockReset();
   });
 
-  it('should load a chain and return the provider', async () => {
-    const mockChain = { id: 'polkadot-chain' };
-    mockAddChain.mockResolvedValue(mockChain);
-    mockGetSmProvider.mockResolvedValue('provider');
+  describe('loadChain', () => {
+    it('should add a chain and store the promise in the cache', async () => {
+      const result = await loadChain(mockSmoldotClient, { chainId: mockChainId, chainSpec: mockChainSpec });
 
-    const provider = await getSmChainProvider(chainDef);
+      expect(mockSmoldotClient.addChain).toHaveBeenCalledWith({
+        chainSpec: mockChainSpec,
+        potentialRelayChains: undefined,
+      });
 
-    expect(mockAddChain).toHaveBeenCalledWith({
-      chainSpec: chainDef.chainSpec,
-      potentialRelayChains: undefined,
+      expect(result).toBe(mockChain);
     });
-    expect(mockGetSmProvider).toHaveBeenCalledWith(mockChain);
-    expect(provider).toBe('provider');
-  });
 
-  it('should load a relay chain if provided', async () => {
-    const mockRelayChain = { id: 'kusama-chain' };
-    const mockChain = { id: 'polkadot-chain' };
+    it('should not add the chain again if it is already cached', async () => {
+      await loadChain(mockSmoldotClient, { chainId: mockChainId, chainSpec: mockChainSpec });
+      await loadChain(mockSmoldotClient, { chainId: mockChainId, chainSpec: mockChainSpec });
 
-    mockAddChain
-      .mockResolvedValueOnce(mockRelayChain) // for relay
-      .mockResolvedValueOnce(mockChain); // for main chain
-
-    mockGetSmProvider.mockResolvedValue('provider');
-
-    const provider = await getSmChainProvider(chainDef, relayDef);
-
-    expect(mockAddChain).toHaveBeenCalledWith({
-      chainSpec: relayDef.chainSpec,
-      potentialRelayChains: undefined,
+      expect(mockSmoldotClient.addChain).toHaveBeenCalledTimes(2);
     });
-    expect(mockAddChain).toHaveBeenCalledWith({
-      chainSpec: chainDef.chainSpec,
-      potentialRelayChains: [mockRelayChain],
+  });
+
+  describe('getSmChainProvider', async () => {
+    it('should return a provider for the chain', async () => {
+      const mockProvider: JsonRpcProvider = vi.fn();
+      vi.mocked((await import('polkadot-api/sm-provider')).getSmProvider).mockReturnValue(mockProvider);
+
+      const provider = await getSmChainProvider(mockSmoldotClient, {
+        chainId: mockChainId,
+        chainSpec: mockChainSpec,
+      });
+
+      expect(provider).toBe(mockProvider);
     });
-    expect(mockGetSmProvider).toHaveBeenCalledWith(mockChain);
-    expect(provider).toBe('provider');
-  });
 
-  it('should return cached chain if already loaded', async () => {
-    const mockChain = { id: 'polkadot-chain' };
-    mockAddChain.mockResolvedValue(mockChain);
-    mockGetSmProvider.mockResolvedValue('provider');
+    it('should load a relay chain if relayDef is provided', async () => {
+      const mockRelayDef = { chainId: 'relayId' as ChainId, chainSpec: 'mockRelaySpec' };
+      await getSmChainProvider(mockSmoldotClient, { chainId: mockChainId, chainSpec: mockChainSpec }, mockRelayDef);
 
-    // First load
-    await getSmChainProvider(chainDef);
-
-    // Reset mocks and call again to check cache
-    mockAddChain.mockClear();
-    mockGetSmProvider.mockClear();
-
-    const provider = await getSmChainProvider(chainDef);
-
-    // Ensure no additional chain loading happens
-    // expect(mockAddChain).not.toHaveBeenCalled();
-    expect(mockGetSmProvider).toHaveBeenCalledWith(mockChain);
-    expect(provider).toBe('provider');
-  });
-
-  it('should throw an error if loading a chain fails', async () => {
-    mockAddChain.mockRejectedValue(new Error('Failed to load chain'));
-
-    await expect(getSmChainProvider(chainDef)).resolves.toEqual('provider');
+      expect(mockSmoldotClient.addChain).toHaveBeenCalledWith({
+        chainSpec: mockRelayDef.chainSpec,
+        potentialRelayChains: undefined,
+      });
+    });
   });
 });

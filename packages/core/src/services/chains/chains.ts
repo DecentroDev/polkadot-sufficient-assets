@@ -78,28 +78,18 @@ export type Chain = {
   specName: string;
   wsUrls: string[];
   relay: ChainIdRelay | null;
-  paraId: number | null;
-  chainId: string;
+  chainId: number | null;
   logo: string;
   type: 'system' | 'relay' | 'para';
-  stableTokenId: string | null;
   blockExplorerUrl: string | null;
 };
 
-export type ChainRelay = Chain & { paraId: null };
+export type ChainRelay = Chain & { chainId: null };
 
-export type ChainAssetHub = Chain & { paraId: 1000 };
+export type ChainAssetHub = Chain & { chainId: 1000 };
 
 export const getChainById = <T extends Chain>(id: ChainId, chains: Chain[]): T => {
   const foundChain = chains.find((chain) => chain.id === id) as T;
   if (!foundChain) throw new Error(`Could not find chain ${id}`);
   return foundChain as T;
-};
-
-export const isAssetHub = (chain: Chain): chain is ChainAssetHub => {
-  return chain.paraId === 1000;
-};
-
-export const isRelay = (chain: Chain): chain is ChainRelay => {
-  return chain.paraId === null;
 };

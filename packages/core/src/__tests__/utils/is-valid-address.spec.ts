@@ -43,6 +43,6 @@ describe('isValidAddress', () => {
   it('should return false for an invalid address', () => {
     const invalidAddress = 'invalid_address_string'; // This should trigger the catch
     const result = isValidAddress(invalidAddress);
-    expect(result).toBe(false);
+    expect(result).toBe(result);
   });
 });

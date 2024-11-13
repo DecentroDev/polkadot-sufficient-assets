@@ -10,6 +10,13 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
     coverage: {
       include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/chain-specs/*',
+        'src/smoldot/*',
+        'src/types/*',
+        'src/index.ts',
+        'src/services/wallet/StorageAdapter.ts',
+      ],
     },
   },
 });

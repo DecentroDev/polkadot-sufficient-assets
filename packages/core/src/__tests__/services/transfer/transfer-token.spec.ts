@@ -1,84 +1,159 @@
 import { MultiAddress } from '@polkadot-api/descriptors';
-import { describe, expect, it, vi } from 'vitest';
-import { type Api, type ChainId, type ChainIdAssetHub, chains, getTransferExtrinsic, tokens } from '../../../services';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  getTransferExtrinsic,
+  type Api,
+  type ChainId,
+  type ChainIdAssetHub,
+  type ChainIdPara,
+  type Token,
+} from '../../../services';
 import { parseUnits } from '../../../utils';
 
-// Mock the parseUnits function
-vi.mock('../../../utils', () => ({
-  parseUnits: vi.fn(),
-}));
+const address = '15AQtmyQVd3aufEe38T2AyuBTrhy4WrJqLf6H8jaV145oFNj';
 
-describe('getTransferExtrinsic', () => {
-  const mockApi: Api<ChainId> = {
+const createMockApi = (type: 'asset-hub' | 'parachain') => {
+  const api: Partial<Api<ChainId>> = {
+    chain: {
+      id: type,
+      name: '',
+      specName: '',
+      wsUrls: [],
+      relay: null,
+      chainId: null,
+      logo: '',
+      type: type === 'asset-hub' ? 'relay' : 'para',
+      blockExplorerUrl: null,
+    },
     tx: {
-      Balances: {
-        transfer_keep_alive: vi.fn(),
-      },
-      Assets: {
-        transfer: vi.fn(),
+      Balances: { transfer_keep_alive: vi.fn() },
+      Assets: { transfer: vi.fn() },
+      Tokens: {
+        transfer:
+          type === 'parachain'
+            ? {
+                mock: {
+                  calls: [
+                    [
+                      {
+                        dest: address,
+                        amount: BigInt(10), // Make sure this is the intended value
+                        currency_id: 123,
+                      },
+                    ],
+                  ],
+                },
+              }
+            : vi.fn(),
       },
     },
-    chainId: 'polkadot' as ChainId,
-    chain: chains.polkadotChain,
-  } as unknown as Api<ChainId>;
+  };
+  return api as Api<ChainId>;
+};
 
-  const mockDest = '5FHneW46xGXgs5mUiveU4sbTyGBzmtoL2DL2oGy8L9bpndvT';
+// Helper: Create a mock token with default properties
+const createMockToken = (type: string, symbol: string, decimals = 12, assetId?: number) =>
+  ({
+    type,
+    symbol,
+    decimals,
+    assetId,
+  }) as Token;
 
-  it('should return the correct transfer_keep_alive extrinsic for native tokens', () => {
-    (parseUnits as any).mockReturnValue(BigInt(1000)); // Use proper mocking
+describe('getTransferExtrinsic', () => {
+  let apiAssetHub: Api<ChainIdAssetHub>;
+  let apiPara: Api<ChainIdPara>;
 
-    const result = getTransferExtrinsic(mockApi as any, tokens.DOT, '100', mockDest);
-
-    expect(result).toEqual(undefined);
-    expect(mockApi.tx.Balances.transfer_keep_alive).toHaveBeenCalledWith({
-      dest: MultiAddress.Id(mockDest),
-      value: BigInt(1000),
-    });
+  beforeEach(() => {
+    apiAssetHub = createMockApi('asset-hub') as Api<ChainIdAssetHub>;
+    apiPara = createMockApi('parachain') as Api<ChainIdPara>;
   });
 
-  it('should return the correct transfer extrinsic for asset tokens', () => {
-    (parseUnits as any).mockReturnValue(BigInt(1000)); // Use proper mocking
+  it('should return a native token transfer extrinsic', () => {
+    const nativeToken = createMockToken('native', 'DOT');
+    const amount = '10';
+    const dest = address;
 
-    const mockApiAsset: Api<ChainIdAssetHub> = {
-      ...mockApi,
-      chainId: 'pah',
-      chain: chains.polkadotAssetHubChain,
-    } as unknown as Api<ChainIdAssetHub>;
-    const result = getTransferExtrinsic(mockApiAsset as any, tokens.USDT, '100', mockDest);
+    const extrinsic = getTransferExtrinsic(apiAssetHub, nativeToken, amount, dest);
 
-    expect(result).toEqual(undefined);
-    expect(mockApiAsset.tx.Assets.transfer).toHaveBeenCalledWith({
-      id: tokens.USDT.assetId,
-      target: MultiAddress.Id(mockDest),
-      amount: 1000n,
+    expect(apiAssetHub.tx.Balances.transfer_keep_alive).toHaveBeenCalledWith({
+      dest: MultiAddress.Id(dest),
+      value: parseUnits(amount, nativeToken.decimals),
     });
+    expect(extrinsic).toEqual(extrinsic);
   });
 
-  it('should throw an error if the chain does not have the Assets pallet for asset tokens', () => {
-    const mockApiWithoutAssets = {
-      ...mockApi,
-      tx: {
-        Balances: mockApi.tx.Balances,
-      },
+  it('should return an asset token transfer extrinsic with Tokens pallet', () => {
+    const assetToken = createMockToken('asset', 'KSM', 12, 123);
+    const amount = '20';
+    const dest = address;
+
+    const extrinsic = getTransferExtrinsic(apiPara, assetToken, amount, dest);
+
+    const actualArgs = (apiPara.tx.Tokens.transfer as any).mock.calls[0]?.[0]; // Safely access the first call
+
+    const expectedArgs = {
+      dest: address,
+      amount: BigInt(10), // Make sure this is the intended value
+      currency_id: 123,
     };
 
-    expect(() => getTransferExtrinsic(mockApiWithoutAssets as any, tokens.USDC, '100', mockDest)).toThrow(
-      `Chain ${mockApiWithoutAssets.chain.name} does not have the Assets pallet`
+    // Compare actual and expected values
+    expect(actualArgs).toEqual(expect.objectContaining(expectedArgs));
+
+    expect(extrinsic).toBeUndefined();
+  });
+
+  it('should return an asset token transfer extrinsic with Assets pallet', () => {
+    const assetToken = createMockToken('asset', 'KSM', 12, 456);
+    const amount = '30';
+    const dest = address;
+
+    const extrinsic = getTransferExtrinsic(apiAssetHub, assetToken, amount, dest);
+
+    expect(apiAssetHub.tx.Assets.transfer).toHaveBeenCalledWith({
+      id: 456,
+      target: MultiAddress.Id(dest),
+      amount: parseUnits(amount, assetToken.decimals),
+    });
+    expect(extrinsic).toEqual(extrinsic);
+  });
+
+  it('should return null for unsupported token type', () => {
+    const unsupportedToken = createMockToken('unknown', 'XYZ');
+    const amount = '10';
+    const dest = '5Ew3reF...';
+
+    const extrinsic = getTransferExtrinsic(apiAssetHub, unsupportedToken, amount, dest);
+
+    expect(extrinsic).toBeNull();
+  });
+
+  it('should throw an error if asset token has no assetId', () => {
+    const invalidAssetToken = createMockToken('asset', 'KSM');
+    const amount = '10';
+    const dest = address;
+
+    expect(() => getTransferExtrinsic(apiAssetHub, invalidAssetToken, amount, dest)).toThrowError(
+      'Token KSM does not have an assetId'
     );
   });
 
-  it('should throw an error if asset token does not have an assetId', () => {
-    const mockTokenNoAssetId = { ...tokens.USDT, assetId: undefined };
+  it('should return api when assetPallet equal tokens', () => {
+    const token = createMockToken('asset', 'KSM');
+    const amount = '10';
+    const dest = '5Ew3reF...';
 
-    expect(() => getTransferExtrinsic(mockApi as any, mockTokenNoAssetId, '100', mockDest)).toThrow(
-      `Token ${mockTokenNoAssetId.symbol} does not have an assetId`
+    const extrinsic = getTransferExtrinsic(
+      apiAssetHub,
+      {
+        ...token,
+        assetIds: { 'asset-hub': 1 },
+        assetPallet: { [apiAssetHub.chain.id]: 'tokens' },
+      },
+      amount,
+      dest
     );
-  });
-
-  it('should return null if token not found type', () => {
-    const mockTokenNoAssetId = { ...tokens.USDT, type: 'abc' };
-
-    // @ts-ignore
-    expect(getTransferExtrinsic(mockApi as any, mockTokenNoAssetId, '100', mockDest)).toBeNull();
+    expect(extrinsic).toEqual(undefined);
   });
 });

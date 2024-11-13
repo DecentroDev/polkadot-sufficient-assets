@@ -17,12 +17,13 @@ describe('createChain', () => {
     const customChain: Chain = {
       id: 'westend',
       name: 'CustomChain',
-      wsUrl: '',
+      wsUrls: [''],
       relay: null,
-      paraId: null,
       logo: '',
-      stableTokenId: null,
       blockExplorerUrl: null,
+      specName: 'westend-spec',
+      chainId: null,
+      type: 'system',
     };
 
     const result = createChain(customChain);

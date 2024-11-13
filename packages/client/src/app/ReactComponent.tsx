@@ -6,10 +6,11 @@ import PolkadotSufficientAsset from './PolkadotSufficientAsset';
 import { ErrorBoundary, fallbackRender } from './components/ErrorBoundary';
 interface Props {
   theme: Theme;
+  initialAmount?: string;
   children?: ReactNode;
 }
 
-export const PSADialog = ({ children, theme }: Props) => {
+export const PSADialog = ({ children, theme, initialAmount }: Props) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -18,7 +19,7 @@ export const PSADialog = ({ children, theme }: Props) => {
         {React.cloneElement(children as ReactElement, { onClick: () => setOpen(true) })}
         <MuiDialog PaperProps={{ sx: { width: '450px' } }} open={open} onClose={() => setOpen(false)}>
           <DialogContent sx={{ position: 'relative' }}>
-            <PolkadotSufficientAsset />
+            <PolkadotSufficientAsset initialAmount={initialAmount} />
           </DialogContent>
         </MuiDialog>
       </ThemeProvider>
@@ -26,11 +27,11 @@ export const PSADialog = ({ children, theme }: Props) => {
   );
 };
 
-export const PSAForm = ({ theme }: Props) => {
+export const PSAForm = ({ theme, initialAmount }: Props) => {
   return (
     <ErrorBoundary fallbackRender={fallbackRender}>
       <ThemeProvider theme={theme}>
-        <PolkadotSufficientAsset />
+        <PolkadotSufficientAsset initialAmount={initialAmount} />
       </ThemeProvider>
     </ErrorBoundary>
   );

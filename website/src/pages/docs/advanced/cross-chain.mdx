@@ -1,0 +1,210 @@
+---
+title: "Cross Chain"
+description: "Cross-Chain Transfers Configuration"
+---
+
+import { Callout, Steps, Tab, Tabs } from "nextra-theme-docs";
+
+# Cross-Chain Transfers Configuration
+
+To enable cross-chain asset transfers using XCM (Cross-Consensus Messaging), you need to configure the transfer logic for assets between different chains. This section will guide you through the process of setting up cross-chain transfers, including defining the involved chains, configuring the transfer extrinsic, and specifying the asset’s location.
+
+## Steps to Configure Cross-Chain Transfers
+
+### Step 1: Define the Involved Chains
+
+You need to define the source and destination chains for the cross-chain transfer. The library comes with predefined chains, but you can also define custom chains using the createChain function.
+
+Example of predefined chains:
+
+```ts
+import { chains } from "polkadot-sufficient-assets";
+
+const sourceChain = chains.hydration; // Source chain
+const destinationChain = chains.polkadotAssetHubChain; // Destination chain
+```
+
+If you need to define custom chains, refer to the previous section on Defining a Custom Chain.
+
+### Step 2: Define the Asset for Cross-Chain Transfer
+
+To enable cross-chain transfers using XCM, you need to define the asset that will be transferred between the chains. This includes specifying parameters that control how the asset is handled on each chain, including balance queries, asset identification, transfer methods, and XCM-specific configurations.
+
+Here’s how to configure the asset for cross-chain transfers, using USDT as an example:
+
+```ts
+import { createToken } from "polkadot-sufficient-assets";
+
+const USDT = createToken({
+  type: "asset",
+  assetId: 10,
+  decimals: 6,
+  symbol: "USDT",
+  name: "Tether USD",
+  logo: "./img/tokens/USDT.svg",
+  isSufficient: true,
+
+  // Pallet information for querying balances on each chain
+  assetPallet: {
+    [chains.hydration.id]: "tokens",
+    [chains.polkadotAssetHubChain.id]: "assets",
+  },
+
+  // Asset ID on each chain
+  assetIds: {
+    [chains.hydration.id]: 10,
+    [chains.polkadotAssetHubChain.id]: 1984,
+  },
+
+  // XCM transfer extrinsic for each chain
+  xcmExtrinsic: (originChain) => {
+    if (originChain.id === chains.polkadotAssetHubChain.id)
+      return "limited_reserve_transfer_assets";
+    if (originChain.id === chains.hydration.id)
+      return "XTokens.transfer_multiasset";
+    return "limited_reserve_transfer_assets";
+  },
+
+  // Define the asset location for XCM transfer
+  location: (plancks, originChain, destChain) => {
+    if (originChain.id === chains.hydration.id) {
+      return {
+        type: "V3",
+        value: {
+          id: XcmV3MultiassetAssetId.Concrete({
+            parents: 1,
+            interior: XcmV3Junctions.X3([
+              XcmV3Junction.Parachain(destChain.chainId!),
+              XcmV3Junction.PalletInstance(50),
+              XcmV3Junction.GeneralIndex(1984n),
+            ]),
+          }),
+          fun: XcmV3MultiassetFungibility.Fungible(plancks),
+        },
+      };
+    }
+
+    return XcmVersionedAssets.V3([
+      {
+        id: XcmV3MultiassetAssetId.Concrete({
+          parents: 0,
+          interior: XcmV3Junctions.X2([
+            XcmV3Junction.PalletInstance(50),
+            XcmV3Junction.GeneralIndex(1984n),
+          ]),
+        }),
+        fun: XcmV3MultiassetFungibility.Fungible(plancks),
+      },
+    ]);
+  },
+});
+```
+
+## Explanation of XCM Parameters
+
+### `assetPallet`
+
+The assetPallet property defines the pallet responsible for managing the token's balance and transfers on each chain. Each chain might use a different pallet to handle tokens, so it's important to specify the correct one for each chain involved in the transfer. Currently, we support `'assets'`, `'system'`, `'balances'`, `'tokens'`, and `'ormlTokens'`.
+
+In the example:
+
+- On **Hydration**, USDT asset is managed by the `tokens` pallet.
+- On **Polkadot Asset Hub**, USDT asset is managed by the `assets` pallet.
+
+### `assetIds`
+
+The assetIds property specifies the unique ID of the asset on each chain. These IDs are necessary to identify the correct token on each chain, as multiple tokens can exist within the same pallet.
+
+For example:
+
+- On **Hydration**, USDT has an asset ID of `10`.
+- On **Polkadot Asset Hub**, USDT has an asset ID of `1984`.
+
+### `xcmExtrinsic`
+
+The xcmExtrinsic property defines the extrinsic (transaction method) used to initiate the XCM transfer on each chain. Different chains might use different extrinsics to send assets cross-chain, so this function allows you to specify the correct extrinsic depending on the originChain.
+
+Possible values are:
+
+- `limited_reserve_transfer_assets`
+- `limited_teleport_assets`
+- `reserve_transfer_assets`
+- `teleport_assets`
+- `XTokens.transfer_multiasset`
+- `XTokens.transfer`
+- `transfer_asset`
+
+In the example:
+
+- On **Polkadot Asset Hub**, the extrinsic is `limited_reserve_transfer_assets`.
+- On **Hydration**, the extrinsic is `XTokens.transfer_multiasset`.
+
+### `location`
+
+The location property defines the location of the asset for the XCM transfer. It specifies how the asset is represented on both the originChain and the destChain. The function takes in the amount to transfer (plancks), the originChain, and the destChain, and returns an XCM asset location.
+
+In the example:
+
+- On **Hydration**, the location is defined using `XcmV3Junctions.X3` with the parachain ID, pallet instance, and general index.
+- On **Polkadot Asset Hub**, the location is defined using `XcmV3Junctions.X2`.
+
+This ensures that the XCM transfer system knows how to locate and represent the asset on both the origin and destination chains.
+
+### Step 3: Configure the Cross-Chain Transfer
+
+To enable XCM transfers, you need to configure the library to use XCM and specify the chains involved in the transfer.
+
+Example configuration:
+
+```ts
+import {
+  chains,
+  createConfig,
+  createTheme,
+  tokens,
+} from "polkadot-sufficient-assets";
+import { USDT } from "./assets";
+
+export const libConfig = createConfig({
+  chains: [chains.hydration, chains.polkadotAssetHubChain], // Include both source and destination chains
+  tokens: {
+    hdx: {
+      token: USDT, // The token to transfer
+      feeTokens: [tokens.HDX], // Tokens used to pay transaction fees
+    },
+  },
+  useXcmTransfer: true, // Enable XCM transfers
+  xcmChains: [chains.hydration, chains.polkadotAssetHubChain], // Specify the chains involved for XCM transfers
+});
+```
+
+### Explanation of Cross-Chain Transfer Configuration
+
+- **chains**: This array should include both the source and destination chains for the transfer.
+- **tokens**: The asset that will be transferred across the chains. In this case, USDT is specified with HDX as the fee token.
+- **useXcmTransfer**: This flag enables cross-chain transfers via XCM.
+- **xcmChains**: This array should specify the chains that support XCM transfers.
+
+### How to Customize Transfers for Other Chains
+
+If you want to add more chains or customize the transfer for other assets, simply follow the same structure. Make sure that assetPallet, assetIds, xcmExtrinsic, and location are correctly defined for each chain and asset.
+
+You can also explore [Polkadot documentation](https://wiki.polkadot.network/). for more detailed information on how XCM works and how to configure it for your specific use cases.
+
+## API Reference
+
+### `createToken` with cross-chain message (XCM)
+
+| Property       | Type                                          | Description                                                                                                   | Default |
+| -------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------- |
+| `type`         | `asset` \| `native`                           | Defines whether the token is native (`"native"`) or an asset (`"asset"`) managed by a pallet.                 | `-`     |
+| `assetId`      | `number`                                      | Unique identifier for the token on the chain. Applicable if the token is an asset managed by a pallet.        | `-`     |
+| `decimals`     | `number`                                      | Number of decimal places the token uses (e.g., 6 for USDT or 12 for DOT).                                     | `-`     |
+| `symbol`       | `string`                                      | Symbol used to represent the token (e.g., "USDT", "DOT").                                                     | `-`     |
+| `name`         | `string`                                      | Full name of the token (e.g., "Tether USD", "Polkadot").                                                      | `-`     |
+| `logo`         | `string`                                      | URL or path to the token's logo image.                                                                        | `-`     |
+| `isSufficient` | `boolean`                                     | Specifies whether the token is sufficient to pay transaction fees directly.                                   | `false` |
+| `assetPallet`  | `Record<string, string>`                      | Defines which pallet manages the token on each chain. Keyed by the chain's ID, the value is the pallet name.  | `-`     |
+| `assetIds`     | `Record<string, number>`                      | Defines the asset ID for the token on each chain. Keyed by the chain's ID, the value is the asset ID.         | `-`     |
+| `xcmExtrinsic` | `(originChain, destChain) => string`          | A function that returns the extrinsic (transaction method) used for XCM transfers on each chain.              | `-`     |
+| `location`     | `(plancks, originChain, destChain) => object` | A function that defines the location of the asset for XCM transfers. It returns an XCM asset location object. | `-`     |

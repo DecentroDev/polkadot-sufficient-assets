@@ -28,8 +28,8 @@ describe('createToken', () => {
       logo: 'dot-logo.png',
       isSufficient: false,
       type: 'native',
-      extrinsic: { method: 'transfer' },
-      location: { paraId: 1000 },
+      // extrinsic: { method: 'transfer' },
+      // location: { paraId: 1000 },
     };
 
     const result = createToken(token);

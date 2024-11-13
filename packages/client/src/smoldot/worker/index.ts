@@ -1,1 +1,1 @@
-export * from '@polkadot-sufficient-assets/core/smoldot/worker';
+export * from '@polkadot-api/smoldot/worker';

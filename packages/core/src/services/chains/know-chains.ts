@@ -6,11 +6,9 @@ export const polkadotChain = createChain({
   specName: 'polkadot',
   wsUrls: ['wss://polkadot-rpc.dwellir.com'],
   relay: 'polkadot',
-  paraId: null,
   type: 'relay',
-  chainId: '0',
+  chainId: null,
   logo: './chains/dot.svg',
-  stableTokenId: null,
   blockExplorerUrl: 'https://polkadot.subscan.io',
 });
 
@@ -20,11 +18,9 @@ export const polkadotAssetHubChain = createChain({
   specName: 'asset-hub-polkadot',
   wsUrls: ['wss://statemint-rpc.dwellir.com'],
   relay: 'polkadot',
-  paraId: 1000,
   type: 'system',
-  chainId: '1000',
+  chainId: 1000,
   logo: './chains/pah.svg',
-  stableTokenId: 'asset::pah::1337',
   blockExplorerUrl: 'https://assethub-polkadot.subscan.io',
 });
 
@@ -34,11 +30,9 @@ export const kusamaChain = createChain({
   specName: 'kusama',
   wsUrls: ['wss://kusama-rpc.polkadot.io'],
   relay: 'kusama',
-  paraId: null,
   type: 'relay',
-  chainId: '0',
+  chainId: null,
   logo: './chains/ksm.svg',
-  stableTokenId: null,
   blockExplorerUrl: 'https://kusama.subscan.io',
 });
 
@@ -48,11 +42,9 @@ export const kusamaAssetHubChain = createChain({
   specName: 'asset-hub-kusama',
   wsUrls: ['wss://kusama-asset-hub-rpc.polkadot.io'],
   relay: 'kusama',
-  paraId: 1000,
   type: 'system',
-  chainId: '1000',
+  chainId: 1000,
   logo: './chains/kah.svg',
-  stableTokenId: 'native::kah',
   blockExplorerUrl: 'https://assethub-kusama.subscan.io',
 });
 
@@ -62,11 +54,9 @@ export const rococoChain = createChain({
   specName: 'rococo',
   wsUrls: ['wss://rococo-rpc.polkadot.io'],
   relay: 'rococo',
-  paraId: null,
   type: 'relay',
-  chainId: '0',
+  chainId: null,
   logo: './chains/roc.svg',
-  stableTokenId: null,
   blockExplorerUrl: 'https://rococo.subscan.io',
 });
 
@@ -76,11 +66,9 @@ export const rococoAssetHubChain = createChain({
   specName: 'asset-hub-rococo',
   wsUrls: ['wss://rococo-asset-hub-rpc.polkadot.io'],
   relay: 'rococo',
-  paraId: 1000,
   type: 'system',
-  chainId: '1000',
+  chainId: 1000,
   logo: './chains/rah.svg',
-  stableTokenId: 'native::rah',
   blockExplorerUrl: 'https://assethub-rococo.subscan.io',
 });
 
@@ -90,11 +78,9 @@ export const westendChain = createChain({
   specName: 'westend',
   wsUrls: ['wss://westend-rpc.polkadot.io'],
   relay: 'westend',
-  paraId: null,
   type: 'relay',
-  chainId: '0',
+  chainId: null,
   logo: './chains/wnd.svg',
-  stableTokenId: null,
   blockExplorerUrl: 'https://westend.subscan.io',
   xcmExtrinsic: 'limited_teleport_assets',
 });
@@ -105,11 +91,9 @@ export const westendAssetHubChain = createChain({
   specName: 'asset-hub-westend',
   wsUrls: ['wss://westend-asset-hub-rpc.polkadot.io'],
   relay: 'westend',
-  paraId: 1000,
   type: 'system',
-  chainId: '1000',
+  chainId: 1000,
   logo: './chains/wah.svg',
-  stableTokenId: 'native::wah',
   blockExplorerUrl: 'https://assethub-westend.subscan.io',
 });
 
@@ -120,10 +104,8 @@ export const paseoChain = createChain({
   wsUrls: ['wss://paseo.dotters.network'],
   relay: 'paseo',
   type: 'relay',
-  paraId: null,
-  chainId: '0',
+  chainId: null,
   logo: './chains/pas.svg',
-  stableTokenId: null,
   blockExplorerUrl: 'https://paseo.subscan.io',
 });
 
@@ -134,10 +116,8 @@ export const paseoAssetHubChain = createChain({
   wsUrls: ['wss://asset-hub-paseo-rpc.dwellir.com'],
   relay: 'paseo',
   type: 'system',
-  paraId: 1000,
-  chainId: '1000',
+  chainId: 1000,
   logo: './chains/pah.svg',
-  stableTokenId: 'native::pas',
   blockExplorerUrl: 'https://assethub-paseo.subscan.io',
 });
 
@@ -152,10 +132,8 @@ export const hydration = createChain({
     'wss://hydration.dotters.network',
   ],
   relay: 'polkadot',
-  paraId: 2034,
-  chainId: '2034',
+  chainId: 2034,
   logo: './chains/pah.svg',
-  stableTokenId: 'asset::hdx::1337',
   blockExplorerUrl: 'https://hydration.subscan.io',
   type: 'para',
 });
