@@ -27,4 +27,5 @@ export const libConfig = createConfig({
   },
   useXcmTransfer: true,
   xcmChains: [chains.hydration],
+  destinationAddress: undefined,
 });
