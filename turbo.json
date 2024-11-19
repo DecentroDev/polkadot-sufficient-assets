@@ -33,7 +33,11 @@
     },
     "dev:web": {
       "dependsOn": ["^ready"],
-      "outputs": ["dist/**", "build/**"],
+      "cache": false,
+      "persistent": true
+    },
+    "build:web": {
+      "dependsOn": ["^ready"],
       "cache": false,
       "persistent": true
     },

@@ -315,7 +315,7 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
         <CrossChainBalance token={token} originChain={chain} destChain={destChain} from={signer} to={to} />
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-          <Typography variant='subtitle2'>Balance fee</Typography>
+          <Typography variant='subtitle2'>Balance</Typography>
           <Balance
             balance={feeBalanceFormatted}
             symbol={feeToken?.symbol}

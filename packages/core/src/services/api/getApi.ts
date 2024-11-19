@@ -48,8 +48,6 @@ export const getApiInner = async <Id extends ChainId>(
   api.chainId = chainId as Id;
   api.chain = chain;
   api.waitReady = new Promise<void>((resolve, reject) => {
-    client.bestBlocks$;
-
     firstValueFrom(client.bestBlocks$)
       .then(() => resolve())
       .catch(reject);

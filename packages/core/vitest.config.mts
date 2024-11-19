@@ -9,14 +9,10 @@ export default defineConfig({
     // Specify the patterns for test files
     include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
     coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: [
-        'src/chain-specs/*',
-        'src/smoldot/*',
-        'src/types/*',
-        'src/index.ts',
-        'src/services/wallet/StorageAdapter.ts',
-      ],
+      exclude: ['src/types/*', 'src/index.ts', 'src/services/wallet/StorageAdapter.ts', 'src/__tests__'],
     },
   },
 });

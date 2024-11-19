@@ -34,10 +34,11 @@ const mockChains: Chain[] = [
   },
 ];
 
-describe('Descriptor Functions', () => {
+describe('Chains', () => {
   it('should correctly identify a ChainIdAssetHub', () => {
     expect(isChainIdAssetHub('pah')).toBe(true);
     expect(isChainIdAssetHub('unknown')).toBe(false);
+    expect(isChainIdAssetHub(1)).toBe(false);
   });
 
   it('should correctly identify a ChainIdRelay', () => {

@@ -12,13 +12,13 @@ import { isParachain, isSystemChain, type Chain } from '../chains';
 import type { Token, XTokenVersionedAsset } from '../tokens';
 import type { Direction } from './establishDirection';
 
-export const getBeneficiary = (address: SS58String | Uint8Array): XcmVersionedLocation =>
+export const getBeneficiary = (address: string): XcmVersionedLocation =>
   XcmVersionedLocation.V3({
     parents: 0,
     interior: XcmV3Junctions.X1(
       XcmV3Junction.AccountId32({
         network: undefined,
-        id: Binary.fromBytes(address instanceof Uint8Array ? address : AccountId().enc(address)),
+        id: Binary.fromBytes(AccountId().enc(address)),
       })
     ),
   });
@@ -86,8 +86,6 @@ export function _getMultiLocationInterior(
   }
 
   switch (junctions.length) {
-    case 0:
-      return XcmV3Junctions.Here();
     case 1:
       return XcmV3Junctions.X1(junctions[0]);
     case 2:
@@ -95,7 +93,7 @@ export function _getMultiLocationInterior(
     case 3:
       return XcmV3Junctions.X3([junctions[0], junctions[1], junctions[2]]);
     default:
-      throw new Error('Unsupported junctions');
+      return XcmV3Junctions.Here();
   }
 }
 

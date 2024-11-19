@@ -20,9 +20,9 @@ export const CLIENTS_CACHE = new Map<string, Promise<PolkadotClient>>();
 
 export const getClient = (chainId: ChainId, chains: Chain[], options: ClientOptions): Promise<PolkadotClient> => {
   const cacheKey = getClientCacheId(chainId, options);
-
   if (!CLIENTS_CACHE.has(cacheKey)) {
     const chain = getChainById(chainId, chains);
+
     CLIENTS_CACHE.set(
       cacheKey,
       isRelayChain(chain) ? getRelayChainClient(chain, options) : getParaChainClient(chain, options)
@@ -34,16 +34,20 @@ export const getClient = (chainId: ChainId, chains: Chain[], options: ClientOpti
 
 export const getRelayChainClient = async (chain: ChainRelay, options: ClientOptions) => {
   // force ws provider if light clients are disabled or chainSpec is not available
-  if (!options.lightClients || !options.lightClients.enable || !hasChainSpec(chain.id)) {
+  if (
+    !options.lightClients ||
+    !options.lightClients.enable ||
+    !hasChainSpec(chain.id, options?.lightClients?.chainSpecs)
+  ) {
     return createClient(getWsProvider(chain.wsUrls));
   }
 
   const { smoldot, chainSpecs } = options.lightClients;
 
   const chainSpec = getChainSpec(chain.id, chainSpecs);
-
+  const smChainProvider = await getSmChainProvider(smoldot, { chainId: chain.id, chainSpec });
   // fallback to smoldot
-  return createClient(await getSmChainProvider(smoldot, { chainId: chain.id, chainSpec }));
+  return createClient(smChainProvider);
 };
 
 export const getParaChainClient = async (chain: Chain, options: ClientOptions) => {

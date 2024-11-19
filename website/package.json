@@ -6,7 +6,7 @@
     "dev:web": "next dev",
     "build:web": "next build",
     "start:web": "next start",
-    "clean": "rimraf ./.next && rimraf ./node_modules"
+    "clean": "rimraf ./.next && rimraf ./out && rimraf ./node_modules"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -16,7 +16,6 @@
     "nextra": "^2.13.4",
     "nextra-theme-docs": "^2.13.4",
     "react": "18.2.0",
-    "polkadot-sufficient-assets": "workspace:*",
     "react-dom": "18.2.0",
     "tailwind-merge": "^2.3.0",
     "tailwind-variants": "^0.2.1",

@@ -1,5 +1,7 @@
 // api.test.ts
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { polkadot } from '@polkadot-api/descriptors';
+import { of } from 'rxjs';
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import {
   type Chain,
   chains,
@@ -31,9 +33,10 @@ vi.mock(import('../../../services'), async (importOriginal) => {
     ...actual,
     getChainById: vi.fn(),
     getDescriptors: vi.fn(),
-    getClient: vi.fn(),
   };
 });
+
+vi.mock('../../../services/client/getClient');
 
 describe('API Utilities', () => {
   beforeEach(() => {
@@ -68,36 +71,87 @@ describe('API Utilities', () => {
     const mockChain: Chain = chains.polkadotChain;
 
     it('should return an API for a valid chain ID', async () => {
-      const mockClient = {
-        getTypedApi: vi.fn().mockReturnValue(mockApi.relayChain),
-        bestBlocks$: Promise.resolve(), // Simulate observable
+      const mockDescriptor = {
+        asset: {},
+        descriptors: Promise.resolve(),
+        metadataTypes: Promise.resolve(),
       };
+      (getChainById as Mock).mockReturnValue(mockChain);
+      (getDescriptors as Mock).mockReturnValue(mockDescriptor);
 
-      (getChainById as any).mockReturnValue(mockChain);
-      (getDescriptors as any).mockReturnValue({});
-      (getClient as any).mockResolvedValue(mockClient);
+      const getTypedApiMock = vi.fn().mockReturnValue(mockApi.relayChain);
 
+      const mockClient = {
+        getTypedApi: getTypedApiMock,
+        bestBlocks$: of(1000),
+      };
+      (getClient as Mock).mockResolvedValueOnce(mockClient);
       const api = await getApiInner(mockChain.id, undefined, [mockChain]);
 
       expect(api.chainId).toBe(mockChain.id);
       expect(api.chain).toBe(mockChain);
+      expect(getTypedApiMock).toHaveBeenCalledWith(mockDescriptor);
+      await expect(api.waitReady).resolves.toBeUndefined(); // Check waitReady resolves correctly
+    });
+
+    it('should throw error if getClient return undefined', async () => {
+      (getClient as Mock).mockResolvedValueOnce(undefined);
+      const api = getApiInner(mockChain.id, undefined, [mockChain]);
+      expect(api).rejects.toThrowError(`Could not create client for chain ${mockChain.id}/${undefined}`);
+    });
+
+    it('should fallback to polkadot if descriptor not found', async () => {
+      (getChainById as Mock).mockReturnValue(mockChain);
+      const getTypedApiMock = vi.fn().mockReturnValue(mockApi.relayChain);
+      const fakeChain = { ...mockChain, id: 'hydration' };
+      const mockClient = {
+        getTypedApi: getTypedApiMock,
+        bestBlocks$: of(1000),
+      };
+      (getClient as Mock).mockResolvedValueOnce(mockClient);
+      const api = await getApiInner(fakeChain.id, undefined, [fakeChain]);
+
+      expect(api.chainId).toBe(fakeChain.id);
+      expect(api.chain).toBe(fakeChain);
+      expect(getTypedApiMock).toHaveBeenCalledWith(polkadot);
       await expect(api.waitReady).resolves.toBeUndefined(); // Check waitReady resolves correctly
     });
   });
 
   describe('getApi', () => {
     it('should return api for an valid chain ID', async () => {
-      const validChainId = chains.polkadotChain.id;
-      const expected = await getApi(
-        validChainId as any,
+      const mockClient = {
+        getTypedApi: vi.fn().mockReturnValue(mockApi.relayChain),
+        bestBlocks$: of(1000),
+      };
+      (getClient as Mock).mockResolvedValueOnce(mockClient);
+      const api = getApi(
+        chains.polkadotChain.id,
         [chains.polkadotChain, chains.polkadotAssetHubChain],
         true,
         undefined
       );
-      await expect(
-        await getApi(validChainId as any, [chains.polkadotChain, chains.polkadotAssetHubChain], true, undefined)
-      ).toEqual(expected);
+      await expect(api).resolves.toHaveProperty('chainId');
     });
+
+    it('should return api for an valid chain ID with light clients provided', async () => {
+      const mockClient = {
+        getTypedApi: vi.fn().mockReturnValue(mockApi.relayChain),
+        bestBlocks$: of(1000),
+      };
+      (getClient as Mock).mockResolvedValueOnce(mockClient);
+
+      const api = getApi(chains.polkadotChain.id, [chains.polkadotChain, chains.polkadotAssetHubChain], true, {
+        enable: true,
+        smoldot: vi.fn().mockReturnValue({}) as any,
+        chainSpecs: {
+          [chains.polkadotAssetHubChain.id]: '',
+          [chains.polkadotChain.id]: '',
+        },
+      });
+      await expect(api).resolves.toHaveProperty('chainId');
+    });
+
     it('should throw an error for an invalid chain ID', async () => {
       const invalidChainId = 'unknownChain';
       await expect(getApi(invalidChainId as any, [], true, undefined)).rejects.toThrow(

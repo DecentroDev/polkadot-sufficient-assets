@@ -23,6 +23,7 @@
     "Convertion",
     "immer",
     "lucide",
+    "Multilocation",
     "Neue",
     "outdir",
     "papi",
@@ -56,7 +57,7 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[jsonc]": {
     "editor.defaultFormatter": "biomejs.biome"

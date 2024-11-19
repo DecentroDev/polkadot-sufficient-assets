@@ -7,9 +7,11 @@ const withNextra = withNextraBase({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  basePath: process.env.NODE_ENV === 'production' ? '/polkadot-sufficient-assets' : '/',
   images: {
     unoptimized: true,
   },
+  output: 'export',
   swcMinify: true,
   webpack(config) {
     // Grab the existing rule that handles SVG imports

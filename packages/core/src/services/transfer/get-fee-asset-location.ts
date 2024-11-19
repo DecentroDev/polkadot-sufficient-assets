@@ -73,11 +73,9 @@ export const getPoolReservesByToken = async (
 
   const reserves = [nativeTokenBalance, tokenBalance] as [bigint, bigint];
 
-  return reserves
-    ? nativeToken.type === 'native'
-      ? reserves // native to asset
-      : (reserves.slice().reverse() as [bigint, bigint]) // asset to native
-    : null;
+  return nativeToken.type === 'native'
+    ? reserves // native to asset
+    : (reserves.slice().reverse() as [bigint, bigint]); // asset to native
 };
 
 export const getAssetConvertPlancks = async (
@@ -111,8 +109,6 @@ export const getAssetConvertPlancks = async (
 
   if ([...reservesNativeToTokenOut, ...reservesNativeToTokenIn].includes(0n)) return undefined;
 
-  if (nativeToken.assetId !== tokenOutAssetId && !reservesNativeToTokenOut) return undefined;
-
   const [nativeToTokenOutReserveIn, nativeToTokenOutReserveOut] =
     nativeToken.assetId !== tokenOutAssetId ? reservesNativeToTokenOut : [1n, 1n];
 
@@ -120,8 +116,6 @@ export const getAssetConvertPlancks = async (
     const stablePlancks = (plancks * nativeToTokenOutReserveOut) / nativeToTokenOutReserveIn;
     return stablePlancks;
   }
-
-  if (!reservesNativeToTokenIn || reservesNativeToTokenIn?.includes(0n)) return undefined;
 
   const [nativeToTokenInReserveIn, nativeToTokenInReserveOut] = reservesNativeToTokenIn;
 

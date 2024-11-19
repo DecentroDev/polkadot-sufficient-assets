@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ChainId } from '../../../services';
 import { CHAIN_SPECS_CACHE, getChainSpec, hasChainSpec } from '../../../services/client/getChainSpec';
 
 describe('Chain Spec Utilities', () => {
   // Reset the CHAIN_SPECS_CACHE before each test to prevent interference between tests.
   beforeEach(() => {
+    vi.clearAllMocks();
     CHAIN_SPECS_CACHE.clear();
   });
 

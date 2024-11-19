@@ -237,6 +237,8 @@ describe('XCM Transfer Functions', () => {
       blockExplorerUrl: null,
     };
 
+    const mockDestSystemChain: Chain = chains.paseoAssetHubChain;
+
     it('should return XcmV3Junctions.Here when no junctions', () => {
       (isParachain as any).mockReturnValue(false);
       (isSystemChain as any).mockReturnValue(false);
@@ -284,6 +286,28 @@ describe('XCM Transfer Functions', () => {
           {
             type: 'Parachain',
             value: 1,
+          },
+        ],
+      });
+    });
+
+    it('should return XcmV3Junctions.X2 when two junctions and not same relay', () => {
+      (isParachain as any).mockReturnValue(true);
+      (isSystemChain as any).mockReturnValue(true);
+      const result = _getMultiLocationInterior(mockDestSystemChain, false);
+      expect(result).toEqual({
+        type: 'X2',
+        value: [
+          {
+            type: 'GlobalConsensus',
+            value: {
+              type: 'Paseo',
+              value: undefined,
+            },
+          },
+          {
+            type: 'Parachain',
+            value: 1000,
           },
         ],
       });

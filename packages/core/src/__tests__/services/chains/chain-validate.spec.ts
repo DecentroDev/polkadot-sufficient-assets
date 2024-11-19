@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   type Chain,
   chainDestIsBridge,
+  chains,
   isParachain,
+  isRelayChain,
   isSystemChain,
   parseLocationStrToLocation,
 } from '../../../services';
-
-const isNumber = (value: any): boolean => typeof value === 'number' || !isNaN(Number(value));
 
 // Test cases for `isSystemChain`
 describe('isSystemChain', () => {
@@ -168,8 +168,21 @@ describe('chainDestIsBridge', () => {
     const locationStr = '{}';
     expect(chainDestIsBridge(locationStr)).toBe(false);
   });
+
   it('should return false when interior exists but X1 and X2 are not present', () => {
     const locationStr = '{"interior": {}}';
     expect(chainDestIsBridge(locationStr)).toBe(false);
+  });
+});
+
+describe('isRelayChain', () => {
+  it('should return true when provide relay chain config', () => {
+    const chain = chains.polkadotChain;
+    expect(isRelayChain(chain)).toBe(true);
+  });
+
+  it('should return false when provide parachain chain config', () => {
+    const chain = chains.hydration;
+    expect(isRelayChain(chain)).toBe(false);
   });
 });

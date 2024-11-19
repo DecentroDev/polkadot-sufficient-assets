@@ -64,7 +64,7 @@ describe('subscribeTokenBalance', () => {
     vi.clearAllMocks();
   });
 
-  it('should return undefined when address, api, or token is missing', () => {
+  it('should return undefined when address or api or token is missing', () => {
     expect(subscribeTokenBalance(undefined, token, 'address', mockCallback)).toBeUndefined();
     expect(subscribeTokenBalance(api, undefined, 'address', mockCallback)).toBeUndefined();
     expect(subscribeTokenBalance(api, token, undefined, mockCallback)).toBeUndefined();
@@ -85,6 +85,21 @@ describe('subscribeTokenBalance', () => {
 
     expect(mockCallback).toHaveBeenCalledWith(5000n);
     expect(subscription).toBeDefined();
+  });
+
+  it('should return 0n if account status not Liquid', () => {
+    const assetAccount = { status: { type: 'Frozen' }, balance: 5000n };
+    const subscriptionMock = {
+      subscribe: vi.fn((cb: Function) => {
+        cb(assetAccount);
+        return { unsubscribe: vi.fn() };
+      }),
+    };
+    ((api.query as any).Assets.Account.watchValue as any).mockReturnValue(subscriptionMock);
+    (getAssetPalletByChain as any).mockReturnValue('assets');
+    subscribeTokenBalance(api, token, 'address', mockCallback);
+
+    expect(mockCallback).toHaveBeenCalledWith(0n);
   });
 
   it('should subscribe to System and call the callback', () => {
@@ -121,6 +136,18 @@ describe('subscribeTokenBalance', () => {
     expect(subscription).toBeDefined();
   });
 
+  it('should return null if subscribe to Balances of undefined assetId', () => {
+    (getAssetPalletByChain as any).mockReturnValue('balances');
+
+    const subscription = subscribeTokenBalance(
+      api,
+      { ...token, assetId: undefined, assetIds: {} },
+      'address',
+      mockCallback
+    );
+    expect(subscription).toEqual(null);
+  });
+
   it('should subscribe to Tokens and call the callback', () => {
     const tokenAccount = { free: 8000n, frozen: 3000n };
     const subscriptionMock = {
@@ -138,6 +165,18 @@ describe('subscribeTokenBalance', () => {
     expect(subscription).toBeDefined();
   });
 
+  it('should return null if subscribe to Tokens of undefined assetId', () => {
+    (getAssetPalletByChain as any).mockReturnValue('tokens');
+
+    const subscription = subscribeTokenBalance(
+      api,
+      { ...token, assetId: undefined, assetIds: {} },
+      'address',
+      mockCallback
+    );
+    expect(subscription).toEqual(null);
+  });
+
   it('should subscribe to OrmlTokens and call the callback', () => {
     const ormlTokenAccount = { free: 6000n, frozen: 1000n };
     const subscriptionMock = {
@@ -153,6 +192,18 @@ describe('subscribeTokenBalance', () => {
 
     expect(mockCallback).toHaveBeenCalledWith(5000n);
     expect(subscription).toBeDefined();
+  });
+
+  it('should return null if subscribe to OrmlTokens of undefined assetId', () => {
+    (getAssetPalletByChain as any).mockReturnValue('ormlTokens');
+
+    const subscription = subscribeTokenBalance(
+      api,
+      { ...token, assetId: undefined, assetIds: {} },
+      'address',
+      mockCallback
+    );
+    expect(subscription).toEqual(null);
   });
 
   it('should subscribe to assets when token type is not native and token assetId is defined', () => {
@@ -191,6 +242,21 @@ describe('subscribeTokenBalance', () => {
     // expect(mockCallback).toHaveBeenCalledWith(5000n);
     expect(subscription).toBeDefined();
   });
+
+  it('should fallback to system when token is native', async () => {
+    const assetAccount = { data: { free: 6000n, frozen: 1000n } };
+    const subscriptionMock = {
+      subscribe: vi.fn((cb: Function) => {
+        cb(assetAccount);
+        return { unsubscribe: vi.fn() };
+      }),
+    };
+    const token = { type: 'native' } as Token;
+    ((api.query as any).System.Account.watchValue as any).mockReturnValue(subscriptionMock);
+    (getAssetPalletByChain as any).mockReturnValue(null);
+    const subscription = subscribeTokenBalance(api, token, 'address', mockCallback);
+    expect(subscription).toBeDefined();
+  });
 });
 
 describe('getTokenBalance', () => {
@@ -198,13 +264,12 @@ describe('getTokenBalance', () => {
   let token: Token;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     api = createMockApi('hdx') as unknown as Api<ChainId>;
     token = { assetIds: { hdx: 1 }, type: 'token' } as unknown as Token;
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
+  afterEach(() => {});
 
   it('should return undefined when address, api, or token is missing', async () => {
     await expect(getTokenBalance(undefined, token, 'address')).resolves.toBeUndefined();
@@ -222,6 +287,20 @@ describe('getTokenBalance', () => {
     expect(balance).toBe(5000n);
   });
 
+  it('should return null if fetch Assets of undefined assetId', async () => {
+    const assetAccount = { status: { type: 'Frozen' }, balance: 5000n };
+    (getAssetPalletByChain as any).mockReturnValue('assets');
+    ((api.query as any).Assets.Account.getValue as any).mockResolvedValue(assetAccount);
+    const balance = await getTokenBalance(api, token, 'address');
+    expect(balance).toEqual(0n);
+  });
+
+  it('should return 0n if fetch Assets of Frozen account', async () => {
+    (getAssetPalletByChain as any).mockReturnValue('assets');
+    const balance = await getTokenBalance(api, { ...token, assetId: undefined, assetIds: {} }, 'address');
+    expect(balance).toEqual(null);
+  });
+
   it('should fetch System and return the correct balance', async () => {
     const systemAccount = { data: { free: 7000n, frozen: 2000n } };
     ((api.query.System as any).Account.getValue as any).mockResolvedValue(systemAccount);
@@ -230,6 +309,12 @@ describe('getTokenBalance', () => {
     const balance = await getTokenBalance(api, token, 'address');
 
     expect(balance).toBe(5000n);
+  });
+
+  it('should return 0n if fetch balances of Frozen account', async () => {
+    (getAssetPalletByChain as any).mockReturnValue('balances');
+    const balance = await getTokenBalance(api, { ...token, assetId: undefined, assetIds: {} }, 'address');
+    expect(balance).toEqual(null);
   });
 
   it('should fetch Balances and return the correct balance', async () => {
@@ -252,6 +337,12 @@ describe('getTokenBalance', () => {
     expect(balance).toBe(5000n);
   });
 
+  it('should return 0n if fetch tokens of Frozen account', async () => {
+    (getAssetPalletByChain as any).mockReturnValue('tokens');
+    const balance = await getTokenBalance(api, { ...token, assetId: undefined, assetIds: {} }, 'address');
+    expect(balance).toEqual(null);
+  });
+
   it('should fetch OrmlTokens and return the correct balance', async () => {
     const ormlTokenAccount = { free: 6000n, frozen: 1000n };
     ((api.query as any).OrmlTokens.Accounts.getValue as any).mockResolvedValue(ormlTokenAccount);
@@ -260,6 +351,12 @@ describe('getTokenBalance', () => {
     const balance = await getTokenBalance(api, token, 'address');
 
     expect(balance).toBe(5000n);
+  });
+
+  it('should return 0n if fetch ormlTokens of Frozen account', async () => {
+    (getAssetPalletByChain as any).mockReturnValue('ormlTokens');
+    const balance = await getTokenBalance(api, { ...token, assetId: undefined, assetIds: {} }, 'address');
+    expect(balance).toEqual(null);
   });
 
   it('should fallback to assets when token is not native and has an assetId', async () => {
@@ -275,9 +372,9 @@ describe('getTokenBalance', () => {
     expect(balance).toBe(5000n);
   });
 
-  it('should fallback to system when token is native or does not have an assetId', async () => {
+  it('should fallback to system when token is native', async () => {
     const token = { type: 'native' } as Token;
-    (getAssetPalletByChain as any).mockReturnValue(undefined);
+    (getAssetPalletByChain as any).mockReturnValue(null);
 
     const systemAccount = { data: { free: 7000n, frozen: 2000n } };
     ((api.query as any).System.Account.getValue as any).mockResolvedValue(systemAccount);
