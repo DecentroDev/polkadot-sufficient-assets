@@ -1,50 +1,184 @@
-# React + TypeScript + Vite
+# Polkadot-Sufficient-Assets UI Library Demo Apps
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains demo applications written in [React](https://reactjs.org/). These apps allow users to interact with the **Polkadot-Sufficient-Assets UI Library** in two primary ways:
 
-Currently, two official plugins are available:
+- **Same-chain transfers** (transfers within a single chain)
+- **Cross-chain transfers** (transfers between multiple chains)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Configuration Overview
 
-## Expanding the ESLint configuration
+You can modify the configuration to test different scenarios by updating the following files:
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **[lib.config.ts](./src/lib/lib-config.ts)**: Customize different configurations for the app.
+- **[assets.ts](./src/lib/assets.ts)**: Add or modify assets. By default, the app includes assets such as **DOT**, **WND**, **PAS**, **HDC**, and **USDT**.
 
-- Configure the top-level `parserOptions` property like this:
+### Default Setup
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
+By default, the demo app supports **XCM transfers** between **Polkadot Asset Hub** and **Hydration**, using **DOT** or **USDT** as fee payment tokens.
+
+You can also set a hardcoded destination address for transfers by configuring the `destinationAddress` in the app.
+
+### Example Configuration
+
+The default configuration is shown below:
+
+```ts
+import { chains, createConfig } from "polkadot-sufficient-assets";
+import { startFromWorker } from "polkadot-sufficient-assets/smoldot/from-worker";
+import SmWorker from "polkadot-sufficient-assets/smoldot/worker?worker";
+
+import { chainSpec as polkadotChainSpec } from "polkadot-sufficient-assets/chain-specs/polkadot";
+import { chainSpec as polkadotAssetHubChainSpec } from "polkadot-sufficient-assets/chain-specs/polkadot_asset_hub";
+import { DOT, USDT } from "./assets";
+
+const smoldot = startFromWorker(new SmWorker());
+
+export const libConfig = createConfig({
+  chains: [chains.polkadotAssetHubChain],
+  lightClients: {
+    enable: true, // Light client is enabled by default
+    smoldot,
+    chainSpecs: {
+      [chains.polkadotAssetHubChain.id]: polkadotAssetHubChainSpec,
+      [chains.polkadotChain.id]: polkadotChainSpec,
     },
   },
-})
+  tokens: {
+    pah: {
+      token: USDT,
+      feeTokens: [DOT, USDT],
+    },
+  },
+  useXcmTransfer: true, // XCM transfer is enabled by default
+  xcmChains: [chains.hydration],
+  destinationAddress: undefined, // Set this to a hardcoded address if needed
+});
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Light Clients
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+By default, **light clients** are enabled. If you want to disable the light client, you can update the `libConfig` as follows:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```ts
+lightClients: {
+  enable: false,
+  // other configuration remains the same
+}
 ```
+
+### XCM Transfers
+
+To disable XCM transfers, simply set useXcmTransfer to false:
+
+```ts
+useXcmTransfer: false;
+```
+
+### XCM chains
+
+Don't forget to add xcmChains if you set useXcmTransfer to true
+
+```ts
+  xcmChains: [chains.polkadotChain],
+```
+
+## More Configuration Options
+
+Here are some configuration options for different transfer scenarios:
+
+### 1. Transfer **USDT** within **Polkadot Asset Hub**
+
+This configuration allows you to transfer **USDT** within the **Polkadot Asset Hub**, using either **DOT** or **USDT** as the fee:
+
+```ts
+import { chains, createConfig } from "polkadot-sufficient-assets";
+import { USDT, DOT } from "./assets";
+
+export const libConfig = createConfig({
+  chains: [chains.polkadotAssetHubChain],
+  tokens: {
+    pah: {
+      token: USDT,
+      feeTokens: [DOT, USDT],
+    },
+  },
+  destinationAddress: undefined,
+});
+```
+
+### 2. Transfer **DOT** within **Polkadot**
+
+This configuration allows you to transfer DOT within the Polkadot chain:
+
+```ts
+import { chains, createConfig } from "polkadot-sufficient-assets";
+import { DOT, USDT } from "./assets";
+
+export const libConfig = createConfig({
+  chains: [chains.polkadotChain],
+  tokens: {
+    polkadot: {
+      token: DOT,
+      feeTokens: [DOT, USDT],
+    },
+  },
+  destinationAddress: undefined,
+});
+```
+
+### 3. XCM Transfer: **DOT** from **Polkadot Asset Hub** to **Polkadot**
+
+This configuration enables an XCM transfer from Polkadot Asset Hub to Polkadot using DOT or USDT as fee payment tokens:
+
+```ts
+import { chains, createConfig } from "polkadot-sufficient-assets";
+import { DOT, USDT } from "./assets";
+
+export const libConfig = createConfig({
+  chains: [chains.polkadotAssetHubChain],
+  tokens: {
+    pah: {
+      token: DOT,
+      feeTokens: [DOT, USDT],
+    },
+  },
+  useXcmTransfer: true,
+  xcmChains: [chains.polkadotChain],
+  destinationAddress: undefined,
+});
+```
+
+### 4. XCM Transfer: **DOT** from **Polkadot** to **Polkadot Asset Hub**
+
+This configuration enables an XCM transfer from Polkadot to Polkadot Asset Hub, using DOT as the fee payment token:
+
+```ts
+import { chains, createConfig } from "polkadot-sufficient-assets";
+import { DOT } from "./assets";
+
+export const libConfig = createConfig({
+  chains: [chains.polkadotChain],
+  tokens: {
+    polkadot: {
+      token: DOT,
+      feeTokens: [DOT],
+    },
+  },
+  useXcmTransfer: true,
+  xcmChains: [chains.polkadotAssetHubChain],
+  destinationAddress: undefined,
+});
+```
+
+## Key Features
+
+- **Light Client Support**: Ensures that users can interact with the blockchain directly from the browser without requiring a full node.
+- **XCM Transfers**: Cross-chain messaging (XCM) allows for asset transfers between different chains, such as from **Polkadot** to **Polkadot Asset Hub**.
+- **Configurable Tokens & Chains**: Easily configure which tokens and chains to support, and customize the fee tokens.
+- **Destination Address**: Allows you to hardcode the recipient address if needed.
+
+## Conclusion
+
+These demo apps are designed to show the versatility of the **Polkadot-Sufficient-Assets UI Library**. You can customize the configuration to suit your needs, whether you're testing same-chain transfers, cross-chain transfers, or experimenting with different assets.
+
+For more detailed information and further updates, refer to the library documentation or reach out to the community.

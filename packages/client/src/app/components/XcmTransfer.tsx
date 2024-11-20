@@ -21,10 +21,16 @@ import {
   parseUnits,
 } from '@polkadot-sufficient-assets/core';
 import React, { useMemo, useState } from 'react';
-import { useExistentialDeposit, useTokenBalance, useTransfer, useWallet, useXcmTransaction } from '../../hooks';
+import {
+  useExistentialDeposit,
+  useForeignTokenBalance,
+  useTokenBalance,
+  useTransfer,
+  useWallet,
+  useXcmTransaction,
+} from '../../hooks';
 import { formatNumberInput } from '../../lib/utils';
 import Balance from './core/Balance';
-import CrossChainBalance from './core/CrossChainBalance';
 import LoadingButton from './core/LoadingButton';
 import SelectFeeTokenDialog from './core/SelectFeeTokenDialog';
 import SelectWalletDialog from './core/SelectWalletDialog';
@@ -68,15 +74,30 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
     destChain
   );
 
-  const { value: balance, isLoading: loadingBalance } = useTokenBalance(token, signer?.address);
+  const {
+    value: balance,
+    valueFormatted: balanceFormatted,
+    isLoading: loadingBalance,
+    error: errorBalance,
+  } = useTokenBalance(token, signer?.address);
   const {
     valueFormatted: feeBalanceFormatted,
     value: feeBalance,
     isLoading: loadingFeeBalance,
     error: errorFeeBalance,
   } = useTokenBalance(feeToken, signer?.address);
+
+  const {
+    value: toTokenBalance,
+    valueFormatted: toBalanceFormatted,
+    isLoading: loadingToBalance,
+    error: errorToBalance,
+  } = useForeignTokenBalance(destChain, token, to?.address);
+
   const [txResult, setTxResult] = useState<{ hash: string; ok: boolean }>();
   const { value: edToken, isLoading: loadingEdToken } = useExistentialDeposit(chain, token);
+  const { value: edTokenDest, isLoading: loadingEdTokenDest } = useExistentialDeposit(destChain, token);
+
   const handleTransfer = async () => {
     if (!to || !amount || !signer || !isLoaded || !token) return;
     setLoading(true);
@@ -130,7 +151,13 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
     // To keep account alive we need to substract essential deposit
     const edMargin = feeToken.assetId === token.assetId ? edToken : 0n;
 
-    return balance - feeMargin - edMargin;
+    let minEd: string | number = '0.2';
+
+    if (destChain) {
+      minEd = token.minEd?.[destChain?.id] ?? '0.2';
+    }
+
+    return balance - feeMargin - edMargin - parseUnits(String(minEd), token.decimals);
   }, [balance, chain, fee.value, edToken]);
 
   const errorMessage = useMemo(() => {
@@ -140,15 +167,44 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
     // Subtract fee after estimation
     const feeMargin = feeToken.assetId === token.assetId ? fee.value : 0n;
 
+    // Fallback for mined
+    let minEd: string | number = '0.2';
+    if (destChain) {
+      minEd = token.minEd?.[destChain?.id] ?? '0.2';
+    }
+
     // To keep account alive we need to substract essential deposit
-    const edMargin = feeToken.assetId === token.assetId ? edToken : 0n;
+    const edMargin = feeToken.assetId === token.assetId ? edToken + parseUnits(String(minEd), token.decimals) : 0n;
 
     if (balance < plancks) return 'Insufficient balance';
     if (balance < plancks + feeMargin) return 'Insufficient balance to pay for fee';
     if (balance < plancks + feeMargin + edMargin) return 'Insufficient balance to keep account alive';
 
     return null;
-  }, [amount, balance, feeToken, token, fee, edToken, loadingBalance]);
+  }, [amount, balance, destChain, feeToken, token, fee, edToken, loadingBalance]);
+
+  const destErrorMessage = useMemo(() => {
+    if (amount === '0' || loadingEdTokenDest || loadingToBalance || !to || !destChain) return null;
+    if (toTokenBalance > edTokenDest) return null;
+
+    const minAmountToKeepAccountAlive = edTokenDest - toTokenBalance;
+
+    const plancks = parseUnits(amount, token.decimals);
+
+    if (plancks < minAmountToKeepAccountAlive) {
+      if (plancks < minAmountToKeepAccountAlive) {
+        const minEd = token.minEd?.[destChain?.id] ?? '0.2';
+
+        const minTransfer = formatUnits(
+          minAmountToKeepAccountAlive + parseUnits(String(minEd), token.decimals),
+          token.decimals
+        );
+        return `You must transfer at least ${minTransfer} ${token.symbol} to keep the destination account alive`;
+      }
+    }
+
+    return null;
+  }, [toTokenBalance, token, destChain, to, edTokenDest, loadingEdTokenDest, loadingToBalance, amount]);
 
   const warningMessage = useMemo(() => {
     if (!to || !signer) return null;
@@ -159,6 +215,7 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
   const isDisableTransfer = useMemo(() => {
     return (
       !!errorMessage ||
+      !!destErrorMessage ||
       !to ||
       !amount ||
       !signer ||
@@ -169,7 +226,7 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
       !feeBalance ||
       loading
     );
-  }, [to, signer, amount, isLoaded, token, loading, balance, fee?.value, feeBalance, errorMessage]);
+  }, [to, signer, amount, isLoaded, token, loading, balance, fee?.value, feeBalance, destErrorMessage, errorMessage]);
 
   const handleCloseSnackbar = () => {
     setTxResult(undefined);
@@ -220,6 +277,15 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
           <SelectWalletDialog token={token} onChange={(v) => handleChange(v, 'from')}>
             <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={signer} />
           </SelectWalletDialog>
+
+          <Stack direction={'row'} justifyContent={'end'}>
+            <Balance
+              balance={balanceFormatted}
+              symbol={token?.symbol}
+              isLoading={loadingBalance}
+              isError={!!errorBalance}
+            />
+          </Stack>
         </Stack>
         <Stack spacing={1.5} mt={2}>
           <Box display='flex' justifyContent='space-between' alignItems='center'>
@@ -248,6 +314,15 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
               <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={to} />
             </SelectWalletDialog>
           )}
+
+          <Stack direction={'row'} justifyContent={'end'}>
+            <Balance
+              balance={toBalanceFormatted}
+              symbol={token?.symbol}
+              isLoading={loadingToBalance}
+              isError={!!errorToBalance}
+            />
+          </Stack>
         </Stack>
 
         <Stack spacing={1} mt={2}>
@@ -300,9 +375,9 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
           {!isLoaded && lightClientEnable ? 'Synchronizing light clients' : 'Transfer'}
         </LoadingButton>
 
-        {errorMessage && (
+        {(errorMessage || destErrorMessage) && (
           <Alert sx={{ mb: warningMessage ? 1 : 2 }} severity='error'>
-            {errorMessage}
+            {destErrorMessage || errorMessage}
           </Alert>
         )}
 
@@ -312,7 +387,7 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
           </Alert>
         )}
 
-        <CrossChainBalance token={token} originChain={chain} destChain={destChain} from={signer} to={to} />
+        {/* <CrossChainBalance token={token} originChain={chain} destChain={destChain} from={signer} to={to} /> */}
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
           <Typography variant='subtitle2'>Balance</Typography>

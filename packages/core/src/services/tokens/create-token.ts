@@ -41,6 +41,12 @@ export type Token = {
    * * Id to query balance of asset with key is chain id *[id] in Chain* and value is the asset id to query
    */
   assetIds?: Record<string, string | number>;
+  /**
+   * * Amount to add when source account or destination account reach to minimum amount (Existential Deposit)
+   * * Default is: 0.2 for all chain
+   * * Example minEd: {"pah" : 0.1}
+   */
+  minEd?: Record<string, string | number>;
 };
 
 export const createToken = <const token extends Token>(token: token) => {

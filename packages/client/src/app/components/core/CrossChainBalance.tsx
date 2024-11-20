@@ -20,6 +20,7 @@ const CrossChainBalance = ({ destChain, token, from, originChain, to }: Props) =
     isLoading: loadingFrom,
     error: errorFrom,
   } = useTokenBalance(token, from?.address);
+
   const {
     valueFormatted: toBalanceFormatted,
     isLoading: loadingTo,

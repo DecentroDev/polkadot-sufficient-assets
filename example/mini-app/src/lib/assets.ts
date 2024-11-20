@@ -54,27 +54,21 @@ export const USDT = createToken({
   },
 });
 
-export const USDC = createToken({
-  ...tokens.WND_USDC,
-  assetPallet: {
-    [chains.westendAssetHubChain.id]: 'assets',
-    [chains.rococoAssetHubChain.id]: 'assets',
-  },
-  assetIds: {
-    [chains.westendAssetHubChain.id]: 31337,
-    [chains.rococoAssetHubChain.id]: 31337,
-  },
-  minBalance: {},
-  xcmExtrinsic: (originChain) => {
-    if (originChain.id === chains.westendAssetHubChain.id) return 'limited_reserve_transfer_assets';
+export const WND = createToken({
+  ...tokens.WND,
+  xcmExtrinsic: (originChain, destChain) => {
+    // Teleport assets to between assethub and relay chain
+    if (['wah', 'westend'].includes(originChain.id) || ['wah', 'westend'].includes(destChain.id)) {
+      return 'limited_teleport_assets';
+    }
     return 'limited_reserve_transfer_assets';
   },
-  location: (plancks) => {
+  location: (plancks, originChain) => {
     return XcmVersionedAssets.V3([
       {
         id: XcmV3MultiassetAssetId.Concrete({
-          parents: 0,
-          interior: XcmV3Junctions.X2([XcmV3Junction.PalletInstance(50), XcmV3Junction.GeneralIndex(31337n)]),
+          parents: originChain.type === 'relay' ? 0 : 1,
+          interior: XcmV3Junctions.Here(),
         }),
         fun: XcmV3MultiassetFungibility.Fungible(plancks),
       },
@@ -82,8 +76,37 @@ export const USDC = createToken({
   },
 });
 
-export const WND = createToken({
-  ...tokens.WND,
+export const DOT = createToken({
+  ...tokens.DOT,
+  xcmExtrinsic: (originChain, destChain) => {
+    // Teleport assets to between assethub and relay chain
+    if (['pah', 'polkadot'].includes(originChain.id) || ['pah', 'polkadot'].includes(destChain.id)) {
+      return 'limited_teleport_assets';
+    }
+    return 'limited_reserve_transfer_assets';
+  },
+  location: (plancks, originChain) => {
+    return XcmVersionedAssets.V3([
+      {
+        id: XcmV3MultiassetAssetId.Concrete({
+          parents: originChain.type === 'relay' ? 0 : 1,
+          interior: XcmV3Junctions.Here(),
+        }),
+        fun: XcmV3MultiassetFungibility.Fungible(plancks),
+      },
+    ]);
+  },
+});
+
+export const PAS = createToken({
+  ...tokens.PAS,
+  xcmExtrinsic: (originChain, destChain) => {
+    // Teleport assets to between assethub and relay chain
+    if (['paseoah', 'paseo'].includes(originChain.id) || ['paseoah', 'paseo'].includes(destChain.id)) {
+      return 'limited_teleport_assets';
+    }
+    return 'limited_reserve_transfer_assets';
+  },
   location: (plancks, originChain) => {
     return XcmVersionedAssets.V3([
       {

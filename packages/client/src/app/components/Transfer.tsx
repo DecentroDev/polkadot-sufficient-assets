@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import {
   type Api,
   type ChainIdPara,
+  formatUnits,
   getFeeAssetLocation,
   type InjectedPolkadotAccount,
   parseUnits,
@@ -58,12 +59,16 @@ const Transfer = ({ initialAmount }: TransferDialogProps) => {
     isLoading: loadingBalance,
     error: errorBalance,
   } = useTokenBalance(token, signer?.address);
+
   const {
     valueFormatted: feeBalanceFormatted,
     value: feeBalance,
     isLoading: loadingFeeBalance,
     error: errorFeeBalance,
   } = useTokenBalance(feeToken!, signer?.address);
+
+  const { value: toTokenBalance, isLoading: loadingToBalance } = useTokenBalance(token, to?.address);
+
   const { value: edToken, isLoading: loadingEdToken } = useExistentialDeposit(chain, token);
 
   const [txResult, setTxResult] = useState<{ hash: string; ok: boolean }>();
@@ -130,9 +135,26 @@ const Transfer = ({ initialAmount }: TransferDialogProps) => {
     return null;
   }, [amount, balance, feeToken, token, fee, edToken, loadingBalance]);
 
+  const destErrorMessage = useMemo(() => {
+    if (amount === '0' || loadingEdToken || loadingToBalance) return null;
+    if (toTokenBalance > edToken) return null;
+
+    const minAmountToKeepAccountAlive = edToken - toTokenBalance;
+
+    const plancks = parseUnits(amount, token.decimals);
+
+    if (plancks < minAmountToKeepAccountAlive) {
+      const minTransfer = formatUnits(minAmountToKeepAccountAlive, token.decimals);
+      return `You must transfer at least ${minTransfer} ${token.symbol} to keep the destination account alive`;
+    }
+
+    return null;
+  }, [toTokenBalance, token, edToken, loadingEdToken, loadingToBalance, amount]);
+
   const isDisableTransfer = useMemo(() => {
     return (
       !!errorMessage ||
+      !!destErrorMessage ||
       !to ||
       !amount ||
       !signer ||
@@ -143,7 +165,20 @@ const Transfer = ({ initialAmount }: TransferDialogProps) => {
       !feeBalance ||
       loading
     );
-  }, [to, signer, amount, isLoaded, token, loading, feeToken, balance, fee.value, feeBalance, errorMessage]);
+  }, [
+    to,
+    signer,
+    amount,
+    isLoaded,
+    token,
+    loading,
+    feeToken,
+    balance,
+    fee.value,
+    feeBalance,
+    destErrorMessage,
+    errorMessage,
+  ]);
 
   const handleCloseSnackbar = () => {
     setTxResult(undefined);
@@ -248,9 +283,9 @@ const Transfer = ({ initialAmount }: TransferDialogProps) => {
           {!isLoaded && lightClientEnable ? 'Synchronizing light clients' : 'Transfer'}
         </LoadingButton>
 
-        {errorMessage && (
+        {(errorMessage || destErrorMessage) && (
           <Alert sx={{ my: 2 }} severity='error'>
-            {errorMessage}
+            {errorMessage || destErrorMessage}
           </Alert>
         )}
 

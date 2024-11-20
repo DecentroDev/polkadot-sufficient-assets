@@ -9,11 +9,8 @@ function App() {
     isCrossChain: false,
     amount: '0',
   });
-  const theme = createTheme({
-    palette: {
-      mode: 'light',
-    },
-  });
+  const theme = createTheme({ palette: { mode: 'light' } });
+
   return (
     <ConfigProvider config={{ ...libConfig, useXcmTransfer: isCrossChain }}>
       <div
@@ -43,23 +40,18 @@ function App() {
           </button>
         </PSADialog>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          gap: 4,
-          marginTop: 12,
-          alignItems: 'center',
-        }}
-      >
-        <input
-          checked={isCrossChain}
-          onChange={(e) => setValues((prev) => ({ ...prev, isCrossChain: e.target.checked }))}
-          id='crossChain'
-          type='checkbox'
-          style={{ width: 20, height: 20, accentColor: 'black' }}
-        />
-        <label htmlFor='crossChain'>Cross chain</label>
-      </div>
+      {libConfig.xcmChains && libConfig.xcmChains?.length !== 0 && (
+        <div style={{ display: 'flex', gap: 4, marginTop: 12, alignItems: 'center' }}>
+          <input
+            checked={isCrossChain}
+            onChange={(e) => setValues((prev) => ({ ...prev, isCrossChain: e.target.checked }))}
+            id='crossChain'
+            type='checkbox'
+            style={{ width: 20, height: 20, accentColor: 'black' }}
+          />
+          <label htmlFor='crossChain'>Cross chain</label>
+        </div>
+      )}
     </ConfigProvider>
   );
 }

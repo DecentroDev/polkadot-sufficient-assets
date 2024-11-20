@@ -43,10 +43,6 @@ export const formatDecimals = (num?: string | number | null, digits = 4): string
  *
  * @returns The formatted balance as a string.
  *
- * @example
- * formatUnits('1000000000', 12) // '1000.000000'
- * formatUnits('1000000000', 10) // '10000.0000'
- * formatUnits('1000000000', 4) // '1000.0'
  */
 export const formatUnits = (rawBalance?: string | number | bigint | null, decimals = 10) => {
   if (!rawBalance) return '0';
@@ -64,8 +60,13 @@ export const formatUnits = (rawBalance?: string | number | bigint | null, decima
 
 /**
  * Format a raw balance from a chain into a compact string representation with a specified number of significant digits.
+  // Split the display string into integer and fraction parts based on the decimals.
  *
+
+  // Remove trailing zeros from the fraction part.
  * @param rawBalance The raw balance from the chain, as a string, number, or bigint. If not provided, returns '0'.
+
+  // Return the formatted balance with appropriate negative sign and decimal point.
  * @param decimals The number of decimal places to use when formatting. Defaults to 10.
  * @param digits The number of significant digits to include in the formatted output. Defaults to 4.
  *

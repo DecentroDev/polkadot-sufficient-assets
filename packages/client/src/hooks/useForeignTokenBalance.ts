@@ -5,7 +5,7 @@ import useApi from './useApi';
 
 export const useForeignTokenBalance = (chain?: Chain, token?: Token, address?: string) => {
   const [balance, setBalance] = useState<TokenBalance>({
-    isLoading: false,
+    isLoading: true,
     value: 0n,
     valueFormatted: '0',
     error: true,

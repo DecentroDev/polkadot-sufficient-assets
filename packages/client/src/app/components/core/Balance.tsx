@@ -12,7 +12,7 @@ interface IBalanceProps {
 const Balance = ({ isLoading, isError, balance, symbol }: IBalanceProps) => {
   return (
     <>
-      {isLoading ? (
+      {isLoading && !isError ? (
         <Spinner />
       ) : (
         <Typography variant='subtitle2'>{`${isError ? '-' : balance} ${symbol ?? 'USD'}`}</Typography>

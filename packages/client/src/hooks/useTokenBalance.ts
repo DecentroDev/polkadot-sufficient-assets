@@ -5,7 +5,7 @@ import { useTransfer } from './useTransfer';
 
 export const useTokenBalance = (token?: Token, address?: string) => {
   const [balance, setBalance] = useState<TokenBalance>({
-    isLoading: false,
+    isLoading: true,
     value: 0n,
     valueFormatted: '0',
     error: true,
@@ -14,6 +14,7 @@ export const useTokenBalance = (token?: Token, address?: string) => {
 
   useEffect(() => {
     if (!address || !isLoaded || !token) return;
+
     const subscription = subscribeTokenBalance(api, token, address, (balance) => {
       setBalance({
         value: balance ?? 0n,
