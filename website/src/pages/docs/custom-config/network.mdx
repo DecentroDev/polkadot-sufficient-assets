@@ -22,7 +22,7 @@ import {
 } from "polkadot-sufficient-assets";
 
 export const config = createConfig({
-  chains: [chains.polkadotAssetHubChain], // Specify the chain
+  sourceChains: [chains.polkadotAssetHubChain], // Specify the chain
   tokens: {
     pah: {
       token: tokens.USDT, // Token you want to transfer
@@ -30,7 +30,7 @@ export const config = createConfig({
     },
   },
   useXcmTransfer: false,
-  xcmChains: [chains.hydration], // Optional cross-chain transfer configuration
+  destinationChains: [chains.hydration], // Optional cross-chain transfer configuration
 });
 ```
 
@@ -38,8 +38,8 @@ export const config = createConfig({
 
 In the `createConfig` function, you can specify:
 
-- **chains**: The blockchain networks your application will interact with. In this case, the `polkadotAssetHubChain` has been selected.
-- **xcmChains**: If cross-chain transfers (XCM) are enabled, you can specify the chains involved, such as `hydration`.
+- **sourceChains**: The blockchain networks your application will interact with. In this case, the `polkadotAssetHubChain` has been selected.
+- **destinationChains**: If cross-chain transfers (XCM) are enabled, you can specify the chains involved, such as `hydration`.
 
 ### Default Chains
 

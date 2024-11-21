@@ -2,7 +2,7 @@ import { chains, createConfig, createTheme, tokens } from 'polkadot-sufficient-a
 import { USDT } from './assets';
 
 export const libConfig = createConfig({
-  chains: [chains.hydration],
+  sourceChains: [chains.hydration],
   tokens: {
     hdx: {
       token: USDT,
@@ -10,7 +10,7 @@ export const libConfig = createConfig({
     },
   },
   useXcmTransfer: true,
-  xcmChains: [chains.hydration],
+  destinationChains: [chains.hydration],
 });
 
 export const libTheme = createTheme({

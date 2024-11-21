@@ -166,7 +166,7 @@ import {
 import { USDT } from "./assets";
 
 export const libConfig = createConfig({
-  chains: [chains.hydration, chains.polkadotAssetHubChain], // Include both source and destination chains
+  sourceChains: [chains.hydration], // Include both source and destination chains
   tokens: {
     hdx: {
       token: USDT, // The token to transfer
@@ -174,16 +174,16 @@ export const libConfig = createConfig({
     },
   },
   useXcmTransfer: true, // Enable XCM transfers
-  xcmChains: [chains.hydration, chains.polkadotAssetHubChain], // Specify the chains involved for XCM transfers
+  destinationChains: [chains.polkadotAssetHubChain], // Specify the chains involved for XCM transfers
 });
 ```
 
 ### Explanation of Cross-Chain Transfer Configuration
 
-- **chains**: This array should include both the source and destination chains for the transfer.
+- **sourceChains**: This array should include both the source and destination chains for the transfer.
 - **tokens**: The asset that will be transferred across the chains. In this case, USDT is specified with HDX as the fee token.
 - **useXcmTransfer**: This flag enables cross-chain transfers via XCM.
-- **xcmChains**: This array should specify the chains that support XCM transfers.
+- **destinationChains**: This array should specify the chains that support XCM transfers.
 
 ### How to Customize Transfers for Other Chains
 

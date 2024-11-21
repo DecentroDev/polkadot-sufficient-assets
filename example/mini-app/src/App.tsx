@@ -40,7 +40,7 @@ function App() {
           </button>
         </PSADialog>
       </div>
-      {libConfig.xcmChains && libConfig.xcmChains?.length !== 0 && (
+      {libConfig.destinationChains && libConfig.destinationChains?.length !== 0 && (
         <div style={{ display: 'flex', gap: 4, marginTop: 12, alignItems: 'center' }}>
           <input
             checked={isCrossChain}

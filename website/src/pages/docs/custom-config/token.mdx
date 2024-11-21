@@ -18,7 +18,7 @@ import {
 } from "polkadot-sufficient-assets";
 
 export const config = createConfig({
-  chains: [chains.polkadotAssetHubChain], // Specify the chain
+  sourceChains: [chains.polkadotAssetHubChain], // Specify the chain
   tokens: {
     pah: {
       token: tokens.USDT, // Token you want to transfer
@@ -26,7 +26,7 @@ export const config = createConfig({
     },
   },
   useXcmTransfer: false,
-  xcmChains: [chains.hydration],
+  destinationChains: [chains.hydration],
 });
 ```
 

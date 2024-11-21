@@ -11,11 +11,11 @@ export type TokenConfig = {
 };
 
 export type Config<Chains extends readonly [Chain] = readonly [Chain]> = {
-  readonly chains: Chains;
+  readonly sourceChains: Chains;
   readonly lightClients?: LightClients;
   readonly tokens?: Partial<Record<Chains[number]['id'], TokenConfig>>;
   readonly useXcmTransfer?: boolean;
-  readonly xcmChains?: Chain[];
+  readonly destinationChains?: Chain[];
   readonly destinationAddress?: string;
 };
 

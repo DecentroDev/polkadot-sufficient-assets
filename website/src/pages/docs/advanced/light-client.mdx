@@ -17,7 +17,7 @@ When using the default configuration, the library connects to the blockchain net
 import { chains } from "polkadot-sufficient-assets";
 
 const defaultConfig = {
-  chains: [chains.polkadotAssetHubChain], // Polkadot Asset Hub will use its default WebSocket URL
+  sourceChains: [chains.polkadotAssetHubChain], // Polkadot Asset Hub will use its default WebSocket URL
 };
 ```
 
@@ -113,7 +113,7 @@ const smoldot = startFromWorker(new SmWorker());
 
 // Step 2: Create the configuration with light client enabled
 export const libConfig = createConfig({
-  chains: [chains.polkadotAssetHubChain], // Specify the chains
+  sourceChains: [chains.polkadotAssetHubChain], // Specify the chains
 
   // Step 3: Enable light clients
   lightClients: {
@@ -137,7 +137,7 @@ export const libConfig = createConfig({
 
 ### Explanation of the Light Client Configuration
 
-- **chains**: This defines the blockchain networks involved in the configuration. By default, the library connects to the network using WebSocket URLs. When light clients are enabled, the WebSocket connection is replaced by the Smoldot client.
+- **sourceChains**: This defines the blockchain networks involved in the configuration. By default, the library connects to the network using WebSocket URLs. When light clients are enabled, the WebSocket connection is replaced by the Smoldot client.
 
 - **lightClients**: This is the key configuration to enable light clients.
 

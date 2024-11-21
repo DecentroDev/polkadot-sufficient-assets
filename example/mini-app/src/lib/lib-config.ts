@@ -10,7 +10,7 @@ import { DOT, USDT } from './assets';
 const smoldot = startFromWorker(new SmWorker());
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotAssetHubChain],
+  sourceChains: [chains.polkadotAssetHubChain],
   lightClients: {
     enable: true,
     smoldot,
@@ -26,6 +26,6 @@ export const libConfig = createConfig({
     },
   },
   useXcmTransfer: true,
-  xcmChains: [chains.hydration],
+  destinationChains: [chains.hydration],
   destinationAddress: undefined,
 });

@@ -34,7 +34,7 @@ import { DOT, USDT } from "./assets";
 const smoldot = startFromWorker(new SmWorker());
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotAssetHubChain],
+  sourceChains: [chains.polkadotAssetHubChain],
   lightClients: {
     enable: true, // Light client is enabled by default
     smoldot,
@@ -50,7 +50,7 @@ export const libConfig = createConfig({
     },
   },
   useXcmTransfer: true, // XCM transfer is enabled by default
-  xcmChains: [chains.hydration],
+  destinationChains: [chains.hydration],
   destinationAddress: undefined, // Set this to a hardcoded address if needed
 });
 ```
@@ -76,10 +76,10 @@ useXcmTransfer: false;
 
 ### XCM chains
 
-Don't forget to add xcmChains if you set useXcmTransfer to true
+Don't forget to add destinationChains if you set useXcmTransfer to true
 
 ```ts
-  xcmChains: [chains.polkadotChain],
+  destinationChains: [chains.polkadotChain],
 ```
 
 ## More Configuration Options
@@ -95,7 +95,7 @@ import { chains, createConfig } from "polkadot-sufficient-assets";
 import { USDT, DOT } from "./assets";
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotAssetHubChain],
+  sourceChains: [chains.polkadotAssetHubChain],
   tokens: {
     pah: {
       token: USDT,
@@ -115,7 +115,7 @@ import { chains, createConfig } from "polkadot-sufficient-assets";
 import { DOT, USDT } from "./assets";
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotChain],
+  sourceChains: [chains.polkadotChain],
   tokens: {
     polkadot: {
       token: DOT,
@@ -135,7 +135,7 @@ import { chains, createConfig } from "polkadot-sufficient-assets";
 import { DOT, USDT } from "./assets";
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotAssetHubChain],
+  sourceChains: [chains.polkadotAssetHubChain],
   tokens: {
     pah: {
       token: DOT,
@@ -143,7 +143,7 @@ export const libConfig = createConfig({
     },
   },
   useXcmTransfer: true,
-  xcmChains: [chains.polkadotChain],
+  destinationChains: [chains.polkadotChain],
   destinationAddress: undefined,
 });
 ```
@@ -157,7 +157,7 @@ import { chains, createConfig } from "polkadot-sufficient-assets";
 import { DOT } from "./assets";
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotChain],
+  sourceChains: [chains.polkadotChain],
   tokens: {
     polkadot: {
       token: DOT,
@@ -165,7 +165,7 @@ export const libConfig = createConfig({
     },
   },
   useXcmTransfer: true,
-  xcmChains: [chains.polkadotAssetHubChain],
+  destinationChains: [chains.polkadotAssetHubChain],
   destinationAddress: undefined,
 });
 ```

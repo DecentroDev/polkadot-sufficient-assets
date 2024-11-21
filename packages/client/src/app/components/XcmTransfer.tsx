@@ -43,7 +43,7 @@ export interface XcmTransferDialogProps {
 
 const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
   const {
-    xcmChains,
+    destinationChains,
     api,
     token,
     feeToken,
@@ -61,7 +61,7 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
   const [amount, setAmount] = useState<string>(initialAmount ?? '0');
   const [loading, setLoading] = useState<boolean>(false);
   const { signer, setSigner } = useWallet();
-  const [destChain, setDestChain] = useState<Chain | undefined>(xcmChains?.[0]);
+  const [destChain, setDestChain] = useState<Chain | undefined>(destinationChains?.[0]);
 
   const { tx, fee } = useXcmTransaction(
     api,
@@ -293,14 +293,14 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
 
             <TextField
               value={destChain?.id}
-              onChange={(e) => setDestChain(xcmChains.find((x) => x.id === e.target.value))}
+              onChange={(e) => setDestChain(destinationChains.find((x) => x.id === e.target.value))}
               select
               size='small'
               sx={{ minWidth: '140px' }}
               label='To chain'
               placeholder='Select chain'
             >
-              {xcmChains.map((option) => (
+              {destinationChains.map((option) => (
                 <MenuItem key={option.id} value={option.id}>
                   {option.name}
                 </MenuItem>

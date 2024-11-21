@@ -11,7 +11,7 @@ export interface ITransferContext {
   chain: Chain;
   changeFeeToken: (token: Token) => void;
   useXcmTransfer: boolean;
-  xcmChains: Chain[];
+  destinationChains: Chain[];
   api: Api<ChainId>;
   isLoaded?: boolean;
   destinationAddress?: string;
@@ -25,9 +25,9 @@ export interface TransferProvider {
 }
 
 const TransferProviderBase = ({ children }: TransferProvider) => {
-  const { chains, useXcmTransfer, xcmChains, destinationAddress, lightClients } = useConfig();
+  const { sourceChains, useXcmTransfer, destinationChains, destinationAddress, lightClients } = useConfig();
 
-  const [chain] = useState(chains[0]);
+  const [chain] = useState(sourceChains[0]);
   const chainId = chain.id;
 
   const { feeTokens, token } = useToken(chainId);
@@ -50,9 +50,9 @@ const TransferProviderBase = ({ children }: TransferProvider) => {
         feeTokens: feeTokens ?? [],
         nativeToken: feeTokens?.find((t) => t.type === 'native') ?? tokens.DOT,
         token: token ?? tokens.DOT,
-        chain: chains[0],
+        chain: sourceChains[0],
         useXcmTransfer: !!useXcmTransfer,
-        xcmChains: xcmChains ?? [],
+        destinationChains: destinationChains ?? [],
         destinationAddress,
         lightClientEnable: lightClients?.enable,
       }}

@@ -40,7 +40,7 @@ import {
 } from "polkadot-sufficient-assets";
 
 export const config = createConfig({
-  chains: [chains.polkadotAssetHubChain], // Specify the chain
+  sourceChains: [chains.polkadotAssetHubChain], // Specify the chain
   tokens: {
     pah: {
       token: tokens.USDT, // Token you want to transfer
@@ -48,7 +48,7 @@ export const config = createConfig({
     },
   },
   useXcmTransfer: false,
-  xcmChains: [chains.hydration],
+  destinationChains: [chains.hydration],
 });
 ```
 
@@ -56,13 +56,13 @@ In this example, PSA is configured to use the **Polkadot AssetHub** chain as sou
 
 **Here’s a breakdown of the configuration options:**
 
-**chains**: The blockchain networks your application will use. In this case, polkadotAssetHubChain.
+**sourceChains**: The blockchain networks your application will use. In this case, polkadotAssetHubChain.
 
 **tokens**: The tokens your application will interact with, such as USDT for transferring, and DOT and USDT for paying fees.
 
 **useXcmTransfer**: A boolean to enable or disable cross-chain message (XCM) transfer.
 
-**xcmChains**: If cross-chain transfers are enabled, specify the chains involved, such as hydration.
+**destinationChains**: If cross-chain transfers are enabled, specify the chains involved, such as hydration.
 
 ### Start using PSA in your application
 

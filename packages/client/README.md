@@ -98,7 +98,7 @@ import {
 } from "polkadot-sufficient-assets";
 
 export const config = createConfig({
-  chains: [chains.polkadotAssetHubChain], // Specify the chain
+  sourceChains: [chains.polkadotAssetHubChain], // Specify the chain
   tokens: {
     pah: {
       token: tokens.USDT, // Token you want to transfer
@@ -110,7 +110,7 @@ export const config = createConfig({
 
 **Here’s a breakdown of the configuration options:**
 
-**chains**: The network you want to transfer assets on. The library exports predefined chains, but you can also define your own (see below).
+**sourceChains**: The network you want to transfer assets on. The library exports predefined chains, but you can also define your own (see below).
 **tokens**: The assets you want to transfer, including tokens used for transaction fees. You can use native or asset-based tokens as fee tokens if supported by the chain.
 
 **Defining a Custom Chain**
@@ -320,7 +320,7 @@ import {
 import { USDT } from "./assets";
 
 export const libConfig = createConfig({
-  chains: [chains.hydration],
+  sourceChains: [chains.hydration],
   tokens: {
     hdx: {
       token: USDT,
@@ -328,6 +328,6 @@ export const libConfig = createConfig({
     },
   },
   useXcmTransfer: true,
-  xcmChains: [chains.hydration],
+  destinationChains: [chains.hydration],
 });
 ```

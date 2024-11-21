@@ -10,7 +10,7 @@ import { USDT } from './assets';
 const smoldot = startFromWorker(new SmWorker());
 
 export const libConfig = createConfig({
-  chains: [chains.polkadotAssetHubChain],
+  sourceChains: [chains.polkadotAssetHubChain],
   lightClients: {
     enable: true,
     smoldot,

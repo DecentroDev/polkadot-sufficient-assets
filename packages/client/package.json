@@ -1,6 +1,6 @@
 {
   "name": "polkadot-sufficient-assets",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "version": "0.0.1",
   "scripts": {
     "dev": "tsup --watch",
