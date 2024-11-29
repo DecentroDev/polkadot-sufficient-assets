@@ -15,7 +15,7 @@ const Balance = ({ isLoading, isError, balance, symbol }: IBalanceProps) => {
       {isLoading && !isError ? (
         <Spinner />
       ) : (
-        <Typography variant='subtitle2'>{`${isError ? '-' : balance} ${symbol ?? 'USD'}`}</Typography>
+        <Typography variant='subtitle2'>{`${isError ? '-' : balance} ${symbol || 'USD'}`}</Typography>
       )}
     </>
   );

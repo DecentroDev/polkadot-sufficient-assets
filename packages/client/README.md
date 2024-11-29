@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Polkadot-Sufficient-Assets UI Library** is a developer-friendly tool that simplifies the process of building asset transfer functionalities within the Polkadot ecosystem. The library supports two types of transfers: same-chain transfers and multi-chain transfers via XCM (Cross-Consensus Messaging). Developers only need to configure the assets and chains to quickly integrate asset transfer features into their applications.
+**Polkadot-Sufficient-Assets UI Library** A frictionless UI Library to integrate Polkadot sufficient assets into your dApp, enabling transaction fees to be paid in stablecoins.
 
 ## Key Features
 

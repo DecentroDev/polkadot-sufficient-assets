@@ -19,7 +19,7 @@ export const useTokenBalance = (token?: Token, address?: string) => {
       setBalance({
         value: balance ?? 0n,
         isLoading: false,
-        valueFormatted: formatBalance(balance.toString(), token?.decimals ?? 12),
+        valueFormatted: formatBalance(balance?.toString(), token?.decimals ?? 12),
         error: false,
       });
     });

@@ -5,9 +5,11 @@ interface WalletItemSkeletonProps {
 }
 
 const WalletItemSkeleton = ({ length = 4 }: WalletItemSkeletonProps) => {
+  const validLength = Math.max(length, 0);
+
   return (
     <>
-      {Array.from({ length }).map((_, i) => (
+      {Array.from({ length: validLength }).map((_, i) => (
         <Skeleton key={i} variant='rounded' width={'100%'} height={65} sx={{ mt: 1 }} />
       ))}
     </>

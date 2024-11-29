@@ -192,15 +192,13 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
     const plancks = parseUnits(amount, token.decimals);
 
     if (plancks < minAmountToKeepAccountAlive) {
-      if (plancks < minAmountToKeepAccountAlive) {
-        const minEd = token.minEd?.[destChain?.id] ?? '0.2';
+      const minEd = token.minEd?.[destChain?.id] ?? '0.2';
 
-        const minTransfer = formatUnits(
-          minAmountToKeepAccountAlive + parseUnits(String(minEd), token.decimals),
-          token.decimals
-        );
-        return `You must transfer at least ${minTransfer} ${token.symbol} to keep the destination account alive`;
-      }
+      const minTransfer = formatUnits(
+        minAmountToKeepAccountAlive + parseUnits(String(minEd), token.decimals),
+        token.decimals
+      );
+      return `You must transfer at least ${minTransfer} ${token.symbol} to keep the destination account alive`;
     }
 
     return null;
@@ -275,7 +273,7 @@ const XcmTransferDialog = ({ initialAmount }: XcmTransferDialogProps) => {
             </TextField>
           </Box>
           <SelectWalletDialog token={token} onChange={(v) => handleChange(v, 'from')}>
-            <SelectedWalletDisplay onClear={() => handleChange(null, 'to')} account={signer} />
+            <SelectedWalletDisplay onClear={() => handleChange(null, 'from')} account={signer} />
           </SelectWalletDialog>
 
           <Stack direction={'row'} justifyContent={'end'}>
