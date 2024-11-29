@@ -7,7 +7,7 @@ const withNextra = withNextraBase({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: process.env.NODE_ENV === 'production' ? '/polkadot-sufficient-assets' : '/',
+  basePath: process.env.NODE_ENV === 'production' ? '/polkadot-sufficient-assets' : undefined,
   images: {
     unoptimized: true,
   },

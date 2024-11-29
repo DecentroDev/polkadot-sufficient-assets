@@ -8,6 +8,11 @@ const HomePage = () => {
   return (
     <section className='flex h-full flex-1 flex-col items-center justify-center'>
       <h1 className='text-center font-bold font-mono text-5xl'>Polkadot Sufficient Assets</h1>
+      <div className='my-6 max-w-[650px] text-center text-lg'>
+        A frictionless UI Library to integrate Polkadot sufficient assets into your dApp, enabling transaction fees to
+        be paid in stablecoins.
+      </div>
+
       <HStack pos='center' className='mt-6'>
         <Link href='/docs'>
           <Button>Documents</Button>
@@ -18,6 +23,12 @@ const HomePage = () => {
           </Button>
         </a>
       </HStack>
+
+      <div className='my-8 flex items-center gap-2 text-sm italic'>developed by</div>
+
+      <a href='https://x.com/PRMX_2024' target='_blank' rel='noopener noreferrer'>
+        <img src='/prmx.svg' className='max-w-full' width={150} />
+      </a>
     </section>
   );
 };

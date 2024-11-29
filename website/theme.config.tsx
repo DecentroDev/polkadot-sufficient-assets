@@ -13,7 +13,7 @@ const config: DocsThemeConfig = {
     content: null,
   },
   footer: {
-    text: <span className='text-sm'>{new Date().getFullYear()} © Decentro all rights reserved</span>,
+    text: <span className='text-sm'>{new Date().getFullYear()} © PRMX all rights reserved</span>,
   },
   sidebar: {
     toggleButton: true,

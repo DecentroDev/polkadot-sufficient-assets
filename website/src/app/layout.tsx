@@ -73,7 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </Providers>
 
           <footer className={container({ size: '2xl', className: 'mt-16 border-gray-600 border-t py-6 text-center' })}>
-            <span className='text-sm'>{new Date().getFullYear()} © Decentro all rights reserved</span>
+            <span className='text-sm'>{new Date().getFullYear()} © PRMX all rights reserved</span>
           </footer>
         </div>
       </body>
