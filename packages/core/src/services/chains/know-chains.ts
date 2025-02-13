@@ -126,6 +126,7 @@ export const hydration = createChain({
   name: 'Hydration',
   specName: 'hydradx',
   wsUrls: [
+    'wss://hydration-rpc.n.dwellir.com/',
     'wss://rpc.hydradx.cloud',
     'wss://hydradx-rpc.dwellir.com',
     'wss://rpc.helikon.io/hydradx',
