@@ -27,7 +27,11 @@ const HomePage = () => {
       <div className='my-8 flex items-center gap-2 text-sm italic'>developed by</div>
 
       <a href='https://x.com/PRMX_2024' target='_blank' rel='noopener noreferrer'>
-        <img src='/prmx.svg' className='max-w-full' width={150} />
+        <img
+          src='https://decentrodev.github.io/polkadot-sufficient-assets/prmx.svg'
+          className='max-w-full'
+          width={150}
+        />
       </a>
     </section>
   );
