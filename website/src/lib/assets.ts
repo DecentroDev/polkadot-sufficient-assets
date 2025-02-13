@@ -35,7 +35,7 @@ export const USDT = createToken({
               XcmV3Junction.Parachain(destChain.chainId!),
               XcmV3Junction.PalletInstance(50),
               XcmV3Junction.GeneralIndex(1984n),
-            ]),
+            ] as any),
           }),
           fun: XcmV3MultiassetFungibility.Fungible(plancks),
         },
@@ -46,7 +46,7 @@ export const USDT = createToken({
       {
         id: XcmV3MultiassetAssetId.Concrete({
           parents: 0,
-          interior: XcmV3Junctions.X2([XcmV3Junction.PalletInstance(50), XcmV3Junction.GeneralIndex(1984n)]),
+          interior: XcmV3Junctions.X2([XcmV3Junction.PalletInstance(50), XcmV3Junction.GeneralIndex(1984n)] as any),
         }),
         fun: XcmV3MultiassetFungibility.Fungible(plancks),
       },
