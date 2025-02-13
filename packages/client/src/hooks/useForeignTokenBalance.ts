@@ -18,7 +18,7 @@ export const useForeignTokenBalance = (chain?: Chain, token?: Token, address?: s
       setBalance({
         value: balance ?? 0n,
         isLoading: false,
-        valueFormatted: formatBalance(balance.toString(), token?.decimals ?? 12),
+        valueFormatted: formatBalance(balance?.toString(), token?.decimals ?? 12),
         error: false,
       });
     });

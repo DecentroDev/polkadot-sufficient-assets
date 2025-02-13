@@ -9,8 +9,10 @@ export const shortenAddress = (address: string, length: number = 12): string => 
 };
 
 export const isValidNumber = (value: string) => {
+  if (!value) return false;
+
   const arr = value.split('');
-  if (Number.isNaN(value)) return false;
+  if (isNaN(Number(value))) return false;
   if (arr[0] === '0' && Number(arr[1]) > 0) return false;
   if (value.startsWith('-')) return false;
   return true;
