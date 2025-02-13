@@ -16,7 +16,7 @@
     "dev:angular": "pnpm clean:bundle && turbo watch dev:angular --concurrency 20",
     "dev:vue": "pnpm clean:bundle && turbo watch dev:vue --concurrency 20",
     "dev:web": "pnpm clean:bundle && turbo dev:web",
-    "build:web": "pnpm clean:bundle && turbo build:web",
+    "build:web": "pnpm clean:bundle && build:package && turbo build:web",
     "dev:app": "pnpm clean:bundle && turbo dev:app",
     "preview": "turbo preview --filter=mini-app",
     "papi:generate": "turbo papi:generate",
