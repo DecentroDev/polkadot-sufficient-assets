@@ -16,7 +16,7 @@ export const polkadotAssetHubChain = createChain({
   id: 'pah',
   name: 'Polkadot Asset Hub',
   specName: 'asset-hub-polkadot',
-  wsUrls: ['wss://statemint-rpc.dwellir.com'],
+  wsUrls: ['wss://polkadot-asset-hub-rpc.polkadot.io/'],
   relay: 'polkadot',
   type: 'system',
   chainId: 1000,

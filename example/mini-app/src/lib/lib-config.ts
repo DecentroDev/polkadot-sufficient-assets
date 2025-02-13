@@ -1,13 +1,11 @@
 import { chains, createConfig } from 'polkadot-sufficient-assets';
-
-import { startFromWorker } from 'polkadot-sufficient-assets/smoldot/from-worker';
-import SmWorker from 'polkadot-sufficient-assets/smoldot/worker?worker';
-
 import { chainSpec as polkadotChainSpec } from 'polkadot-sufficient-assets/chain-specs/polkadot';
 import { chainSpec as polkadotAssetHubChainSpec } from 'polkadot-sufficient-assets/chain-specs/polkadot_asset_hub';
+import { startFromWorker } from 'polkadot-sufficient-assets/smoldot/from-worker';
 import { DOT, USDT } from './assets';
 
-const smoldot = startFromWorker(new SmWorker());
+const smWorker = new Worker(new URL('polkadot-sufficient-assets/smoldot/worker', import.meta.url));
+const smoldot = startFromWorker(smWorker);
 
 export const libConfig = createConfig({
   sourceChains: [chains.polkadotAssetHubChain],
