@@ -66,7 +66,7 @@ const Main = () => {
             </div>
             <PSADialog theme={theme} initialAmount={amount}>
               <button type='button' disabled={!amount} className='btn'>
-                Pay now
+                Send
               </button>
             </PSADialog>
           </div>
