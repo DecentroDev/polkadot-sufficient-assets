@@ -54,6 +54,51 @@ export const USDT = createToken({
   },
 });
 
+export const USDC = createToken({
+  ...tokens.USDC,
+  assetPallet: {
+    [chains.hydration.id]: 'tokens',
+    [chains.polkadotAssetHubChain.id]: 'assets',
+  },
+  assetIds: {
+    [chains.hydration.id]: 22,
+    [chains.polkadotAssetHubChain.id]: 1337,
+  },
+  xcmExtrinsic: (originChain) => {
+    if (originChain.id === chains.polkadotAssetHubChain.id) return 'limited_reserve_transfer_assets';
+    if (originChain.id === chains.hydration.id) return 'XTokens.transfer_multiasset';
+    return 'limited_reserve_transfer_assets';
+  },
+  location: (plancks, originChain, destChain) => {
+    if (originChain.id === chains.hydration.id) {
+      return {
+        type: 'V3',
+        value: {
+          id: XcmV3MultiassetAssetId.Concrete({
+            parents: 1,
+            interior: XcmV3Junctions.X3([
+              XcmV3Junction.Parachain(destChain.chainId!),
+              XcmV3Junction.PalletInstance(50),
+              XcmV3Junction.GeneralIndex(1337n),
+            ] as any),
+          }),
+          fun: XcmV3MultiassetFungibility.Fungible(plancks),
+        },
+      };
+    }
+
+    return XcmVersionedAssets.V3([
+      {
+        id: XcmV3MultiassetAssetId.Concrete({
+          parents: 0,
+          interior: XcmV3Junctions.X2([XcmV3Junction.PalletInstance(50), XcmV3Junction.GeneralIndex(1337n)] as any),
+        }),
+        fun: XcmV3MultiassetFungibility.Fungible(plancks),
+      },
+    ]);
+  },
+});
+
 export const WND = createToken({
   ...tokens.WND,
   xcmExtrinsic: (originChain, destChain) => {
