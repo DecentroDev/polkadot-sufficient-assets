@@ -3,6 +3,35 @@
   "version": "0.0.1",
   "description": "polkadot-sufficient-assets",
   "license": "Apache-2.0",
+  "main": "./packages/client/dist/index.js",
+  "module": "./packages/client/dist/index.mjs",
+  "types": "./packages/client/dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./packages/client/dist/index.d.ts",
+      "module": "./packages/client/dist/index.mjs",
+      "import": "./packages/client/dist/index.mjs",
+      "require": "./packages/client/dist/index.js"
+    },
+    "./smoldot": {
+      "types": "./packages/client/dist/smoldot/index.d.ts",
+      "module": "./packages/client/dist/smoldot/index.mjs",
+      "import": "./packages/client/dist/smoldot/index.mjs",
+      "require": "./packages/client/dist/smoldot/index.js"
+    },
+    "./smoldot/*": {
+      "types": "./packages/client/dist/smoldot/*/index.d.ts",
+      "module": "./packages/client/dist/smoldot/*/index.mjs",
+      "import": "./packages/client/dist/smoldot/*/index.mjs",
+      "require": "./packages/client/dist/smoldot/*/index.js"
+    },
+    "./chain-specs/*": {
+      "types": "./packages/client/dist/chain-specs/*/index.d.ts",
+      "module": "./packages/client/dist/chain-specs/*/index.mjs",
+      "import": "./packages/client/dist/chain-specs/*/index.mjs",
+      "require": "./packages/client/dist/chain-specs/*/index.js"
+    }
+  },
   "scripts": {
     "clean:bundle": "rimraf dist && turbo clean:bundle",
     "clean:papi": "rimraf dist && turbo clean:papi",
@@ -35,6 +64,12 @@
     "update-version:default": "./update_version.sh"
   },
   "type": "module",
+  "files": ["packages/client/dist", "packages/client/README.md", "packages/core/dist", "packages/core/.papi"],
+  "peerDependencies": {
+    "@types/react": "^17.0.0 || ^18.0.0",
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  },
   "devDependencies": {
     "@biomejs/biome": "1.9.0",
     "@types/node": "^20.16.3",
