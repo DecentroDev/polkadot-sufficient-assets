@@ -19,7 +19,9 @@
     "noFallthroughCasesInSwitch": true,
     "moduleResolution": "Bundler",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["src/index.ts", "src"]
+  "include": ["src/index.ts", "src"],
+  "exclude": ["node_modules", "dist", ".papi"]
 }
