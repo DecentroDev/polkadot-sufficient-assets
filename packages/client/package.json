@@ -1,7 +1,7 @@
 {
   "name": "polkadot-sufficient-assets",
   "license": "Apache-2.0",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "dev": "tsup --watch",
     "build:client": "tsup",
@@ -56,8 +56,6 @@
     }
   },
   "dependencies": {
-    "@mui/icons-material": "6.1.1",
-    "@mui/material": "6.1.1",
     "@polkadot-sufficient-assets/core": "workspace:*",
     "@polkadot-ui/assets": "0.0.1-alpha.2",
     "@polkadot-api/known-chains": "^0.7.3",
@@ -82,7 +80,11 @@
   "peerDependencies": {
     "@types/react": "^17.0.0 || ^18.0.0",
     "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0"
+    "react-dom": "^17.0.0 || ^18.0.0",
+    "@mui/material": "^5.0.0 || ^6.0.0",
+    "@mui/icons-material": "^5.0.0 || ^6.0.0",
+    "@emotion/react": "^11.0.0",
+    "@emotion/styled": "^11.0.0"
   },
   "publishConfig": {
     "access": "public"
