@@ -39,29 +39,17 @@ export default defineConfig((options: Options) => ({
   dts: true,
   minify: true,
   clean: !options.watch,
+  // Only externalize React and Polkadot packages
   external: [
-    // React - must be provided by consumer
     'react',
     'react-dom',
-    // MUI - must be provided by consumer (peerDependency)
-    /^@mui\/.*/,
-    /^@emotion\/.*/,
-    // Polkadot packages - optional peerDependencies
+    'react/jsx-runtime',
     /^@polkadot\/api.*/,
     /^@polkadot\/extension-.*/,
     /^polkadot-api.*/,
   ],
-  // Bundle these packages into the output
-  noExternal: [
-    // Workspace packages must be bundled
-    '@polkadot-sufficient-assets/core',
-    // These small packages should be bundled for easier consumption
-    '@r2wc/react-to-web-component',
-    '@polkadot-ui/assets',
-    /^@polkadot-ui\/assets.*/,
-    '@polkadot-api/known-chains',
-    '@polkadot-api/smoldot',
-  ],
+  // Bundle everything else by default
+  noExternal: [/.*/],
   sourcemap: false,
   async onSuccess() {
     await cleanFile();
