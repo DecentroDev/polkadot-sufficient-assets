@@ -40,7 +40,7 @@ export default defineConfig((options: Options) => ({
   dts: true,
   minify: true,
   clean: !options.watch,
-  // Externalize React and Polkadot packages - these MUST be provided by the consumer
+  // Externalize ONLY React and Polkadot API packages
   external: [
     'react',
     'react-dom',
@@ -48,17 +48,15 @@ export default defineConfig((options: Options) => ({
     /^@polkadot\/api.*/,
     /^@polkadot\/extension-.*/,
     /^polkadot-api.*/,
-    // Node.js built-ins (not available in browser)
-    'stream',
-    'crypto',
-    'buffer',
-    'util',
-    'path',
-    'fs',
-    'os',
   ],
-  // DO NOT use noExternal - it overrides external and bundles React!
-  // Bundle everything else by default (MUI, emotion, workspace packages)
+  // Explicitly bundle everything else (MUI, workspace packages, etc)
+  noExternal: [
+    /^@mui\/.*/,
+    /^@emotion\/.*/,
+    '@polkadot-sufficient-assets/core',
+    '@polkadot-ui/assets',
+    '@r2wc/react-to-web-component',
+  ],
   sourcemap: false,
   async onSuccess() {
     await cleanFile();
