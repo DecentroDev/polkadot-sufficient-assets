@@ -43,8 +43,6 @@ export const getApiInner = async <Id extends ChainId>(
   const client = await getClient(chainId, chains, { lightClients });
   if (!client) throw new Error(`Could not create client for chain ${chainId}/${lightClients}`);
 
-  // Use PAH (Polkadot Asset Hub) descriptor as fallback for unknown chains with Assets pallet
-  // This provides Assets.Account, Assets.Asset, etc. which most custom chains have
   const api = client.getTypedApi(descriptors ?? pah) as Api<Id>;
 
   api.chainId = chainId as Id;

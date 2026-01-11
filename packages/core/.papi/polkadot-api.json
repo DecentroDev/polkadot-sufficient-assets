@@ -45,6 +45,11 @@
     "hdx": {
       "wsUrl": "wss://rpc.hydradx.cloud",
       "metadata": ".papi/metadata/hdx.scale"
+    },
+    "prmx": {
+      "wsUrl": "ws://localhost:9944",
+      "metadata": ".papi/metadata/prmx.scale",
+      "genesis": "0x1f9c5f126fe7304513fa1d30fbc4e5a13b100b9e5d208aef033ebca8ec8f3557"
     }
   }
 }
