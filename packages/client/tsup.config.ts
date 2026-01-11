@@ -35,6 +35,7 @@ export default defineConfig((options: Options) => ({
   entry: ['src/index.ts', 'src/smoldot', 'src/chain-specs'],
   format: ['esm', 'cjs'],
   target: 'esnext',
+  platform: 'browser',
   outDir: DIST_PATH,
   dts: true,
   minify: true,
@@ -47,6 +48,14 @@ export default defineConfig((options: Options) => ({
     /^@polkadot\/api.*/,
     /^@polkadot\/extension-.*/,
     /^polkadot-api.*/,
+    // Exclude Node.js built-ins
+    'stream',
+    'crypto',
+    'buffer',
+    'util',
+    'path',
+    'fs',
+    'os',
   ],
   // Bundle everything else by default
   noExternal: [/.*/],
