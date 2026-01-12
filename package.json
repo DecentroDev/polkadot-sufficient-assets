@@ -1,6 +1,6 @@
 {
   "name": "@decentro-dev/polkadot-sufficient-assets",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "description": "polkadot-sufficient-assets",
   "license": "Apache-2.0",
   "main": "./packages/client/dist/index.js",
@@ -12,6 +12,16 @@
       "module": "./packages/client/dist/index.mjs",
       "import": "./packages/client/dist/index.mjs",
       "require": "./packages/client/dist/index.js"
+    },
+    "./@polkadot-sufficient-assets/core": {
+      "node": {
+        "import": "./packages/core/dist/index.mjs",
+        "require": "./packages/core/dist/index.js"
+      },
+      "types": "./packages/core/dist/index.d.ts",
+      "module": "./packages/core/dist/index.mjs",
+      "import": "./packages/core/dist/index.mjs",
+      "require": "./packages/core/dist/index.js"
     },
     "./smoldot": {
       "types": "./packages/client/dist/smoldot/index.d.ts",

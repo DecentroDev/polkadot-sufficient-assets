@@ -1,4 +1,17 @@
-import { hdx, kah, kusama, pah, paseo, paseoah, polkadot, rah, rococo, wah, westend } from '@polkadot-api/descriptors';
+import {
+  hdx,
+  kah,
+  kusama,
+  pah,
+  paseo,
+  paseoah,
+  polkadot,
+  prmx,
+  rah,
+  rococo,
+  wah,
+  westend,
+} from '@polkadot-api/descriptors';
 
 type DescriptorsRelayType = {
   polkadot: typeof polkadot;
@@ -18,6 +31,7 @@ type DescriptorsAssetHubType = {
 
 type DescriptorsParaType = {
   hdx: typeof hdx;
+  prmx: typeof prmx;
 };
 
 const DESCRIPTORS_RELAY: DescriptorsRelayType = {
@@ -38,6 +52,7 @@ const DESCRIPTORS_ASSET_HUB: DescriptorsAssetHubType = {
 
 const DESCRIPTORS_PARA: DescriptorsParaType = {
   hdx,
+  prmx,
 };
 
 export const DESCRIPTORS_ALL = {

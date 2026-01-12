@@ -21,7 +21,8 @@ export const getTransferExtrinsic = (api: Api<ChainId>, token: Token, amount: st
       if (!assetId) throw new Error(`Token ${token.symbol} does not have an assetId`);
       const assetPallet = getAssetPalletByChain(token, chain.id);
       if (assetPallet === 'tokens') {
-        return (api as Api<ChainIdPara>).tx.Tokens.transfer({
+        // Use 'any' for Tokens pallet as it's not in all descriptors
+        return (api as any).tx.Tokens.transfer({
           dest: dest,
           amount: plancks,
           currency_id: Number(assetId),

@@ -35,11 +35,28 @@ export default defineConfig((options: Options) => ({
   entry: ['src/index.ts', 'src/smoldot', 'src/chain-specs'],
   format: ['esm', 'cjs'],
   target: 'esnext',
+  platform: 'browser',
   outDir: DIST_PATH,
   dts: true,
   minify: true,
   clean: !options.watch,
-  external: ['react', 'react-dom'],
+  // Externalize ONLY React and Polkadot API packages
+  external: [
+    'react',
+    'react-dom',
+    'react/jsx-runtime',
+    /^@polkadot\/api.*/,
+    /^@polkadot\/extension-.*/,
+    /^polkadot-api.*/,
+  ],
+  // Explicitly bundle everything else (MUI, workspace packages, etc)
+  noExternal: [
+    /^@mui\/.*/,
+    /^@emotion\/.*/,
+    '@polkadot-sufficient-assets/core',
+    '@polkadot-ui/assets',
+    '@r2wc/react-to-web-component',
+  ],
   sourcemap: false,
   async onSuccess() {
     await cleanFile();
